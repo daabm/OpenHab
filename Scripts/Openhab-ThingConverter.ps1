@@ -155,9 +155,9 @@ Class Channel {
                 Foreach ( $Key in $This.Configuration.Keys ) {
                     $rtn = ''
                     If ( [double]::TryParse( $This.Configuration[ $Key ], [ref] $rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                        $ChannelReturn += $This.Configuration[ $Key ].ToString() -replace ',', '.'
+                        $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ].ToString() -replace ',', '.'
                     } Else {
-                        $ChannelReturn += '"' + $This.Configuration[ $Key ] + '"'
+                        $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '"'
                     }
                 }
                 $ChannelReturn = $ChannelReturn.Substring( 0, $ChannelReturn.Length - 2 ) + " ]`r`n"
