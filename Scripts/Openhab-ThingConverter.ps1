@@ -3,6 +3,7 @@ $Outfile = "$PSScriptRoot\allthings.things"
 
 $ThingsFilter = '.*'
 # $ThingsFilter = 'tesla'
+# $ThingsFilter = '099950388533'
 
 $Processed = [Collections.ArrayList]::new()
 $Things = [Collections.ArrayList]::new()
@@ -126,13 +127,14 @@ Class Channel {
     [String] $ID
     [String] $Name
 
-    [Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
     
     # enable the channel to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
     
     [String] CreateOHItem( ){
         Return $This.CreateItem( 4 )
     }
+
     [String] CreateOHItem( [int] $Indent ) {
         Return $This.CreateItem( $Indent )
     }
@@ -155,9 +157,9 @@ Class Channel {
                 Foreach ( $Key in $This.Configuration.Keys ) {
                     $rtn = ''
                     If ( [double]::TryParse( $This.Configuration[ $Key ], [ref] $rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                        $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ].ToString() -replace ',', '.'
+                        $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ].ToString().Replace( ',', '.' ) + ', '
                     } Else {
-                        $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '"'
+                        $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '", '
                     }
                 }
                 $ChannelReturn = $ChannelReturn.Substring( 0, $ChannelReturn.Length - 2 ) + " ]`r`n"
@@ -238,21 +240,25 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         $Channel = [Channel]::new()
         $Channel.Kind = $Ch.Kind
         If ( $Ch.Kind -eq 'TRIGGER' ) {
-            # trigger channels do not define their type because it must always be 'String'
+            # trigger channels do not define their type because it must be 'String'
             $Channel.Type = 'String'
         } Else {
-            # the channel type is the first part of the itemType if the channel defines an item subtype
-            # if there's no subtype, this works as well
-            $Channel.Type = $Ch.itemType.Split( ':', 2 )[0]
+            $Channel.Type = $Ch.itemType
         }
         If ( $ch.uid -match ':(?<ID>[^:]+)$' ) {
-            # channel ID needs to be extracted from channel UID - always last segment of UID
+            # channel ID needs to be extracted from channel UID - always last segment
             $Channel.ID = $Matches.ID
         }
         $Channel.Name = $Ch.Label
         Foreach ( $Config in $Ch.Configuration | Get-Member -MemberType NoteProperty ) {
-            If ( $Config.Definition -match "^(?<Type>\w+)\s+$( $Config.Name )=(?<Value>.+)$" ) {
-                $ConfigValue = $Matches.Value
+            If ( $Channel.Type -match '^Number' ) { # if the channel is a number type, we should have numbers in the config values - fix for AVM 301 "0"
+                try {
+                    $ConfigValue = [double] $Ch.Configuration."$( $Config.Name )"
+                } catch {
+                    $ConfigValue = '"' + $Ch.Configuration."$( $Config.Name )" + '"'
+                }
+            } Else {
+                $ConfigValue = $Ch.Configuration."$( $Config.Name )"
                 # for non decimal values, surround with double hyphens
                 If ( $Matches.Type -ne 'decimal' ) { $ConfigValue = """$ConfigValue""" }
             }
