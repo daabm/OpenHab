@@ -159,7 +159,11 @@ Class Channel {
                     If ( [double]::TryParse( $This.Configuration[ $Key ], [ref] $rtn )) { # check if we have a number, otherwise we need surrounding double quotes
                         $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ].ToString().Replace( ',', '.' ) + ', '
                     } Else {
-                        $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '", '
+                        If ( $This.Configuration[ $Key ] -match '^"|"$' ) {
+                            $ChannelReturn += $Key + '=' +  $This.Configuration[ $Key ] + ', '
+                        } Else {
+                            $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '", '
+                        }
                     }
                 }
                 $ChannelReturn = $ChannelReturn.Substring( 0, $ChannelReturn.Length - 2 ) + " ]`r`n"
