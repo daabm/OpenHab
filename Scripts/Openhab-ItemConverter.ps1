@@ -1,9 +1,9 @@
-﻿# $Things = Get-Content .\org.openhab.core.thing.Thing.json | ConvertFrom-Json
-$ItemsRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Item.JSON | ConvertFrom-Json
+﻿$ItemsRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Item.JSON | ConvertFrom-Json
 $BindingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.link.ItemChannelLink.json | ConvertFrom-Json
 $MetadataRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Metadata.json | ConvertFrom-Json
+$OutFile = "$PSScriptRoot\allitems.items"
 $ItemsFilter = '.*'
-$ItemsFilter = 'TSOG2Ku'
+#$ItemsFilter = 'TSOG2Ku'
 
 $Processed = [Collections.ArrayList]::new()
 $Items = [Collections.ArrayList]::new()
@@ -125,7 +125,7 @@ class Binding {
                 $BindingReturn += ', ' + $Key + '='
                 $rtn = ''
                 If ( [double]::TryParse( $This.profileParameters[ $Key ], [ref]$rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                    $BindingReturn += $This.profileParameters[ $Key ]
+                    $BindingReturn += $This.profileParameters[ $Key ] -replace ',', '.'
                 } Else {
                     $BindingReturn += '"' + $This.profileParameters[ $Key ] + '"'
                 }
@@ -239,4 +239,8 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
     [void] $Processed.Add( $Property.Name )
 }
 
-# $Results.CreateOhItem()
+
+$encoding = [System.Text.Encoding]::GetEncoding(1252)
+$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding)
+$Things.CreateOHItem() | ForEach-Object { $streamWriter.WriteLine( $_ ) }
+$streamWriter.Dispose()

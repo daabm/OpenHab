@@ -1,7 +1,8 @@
-﻿# $Things = Get-Content .\org.openhab.core.thing.Thing.json | ConvertFrom-Json
-$ThingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.Thing.JSON | ConvertFrom-Json
+﻿$ThingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.Thing.JSON | ConvertFrom-Json
+$Outfile = "$PSScriptRoot\allthings.things"
+
 $ThingsFilter = '.*'
-$ThingsFilter = 'tesla'
+# $ThingsFilter = 'tesla'
 
 $Processed = [Collections.ArrayList]::new()
 $Things = [Collections.ArrayList]::new()
@@ -142,7 +143,7 @@ Class Channel {
 
         Foreach ( $Key in $This.Configuration.Keys ) {
 
-            $ChannelReturn += ' ' * $Indent + $This.Kind + ' ' + $This.Type + ' : ' + $This.ID
+            $ChannelReturn += ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
             If ( $This.Name ) {
                 $ChannelReturn += ' "' + $This.Name + '"'
             }
@@ -152,7 +153,12 @@ Class Channel {
             If ( $This.Configuration.Count -gt 0 ) {
                 $ChannelReturn += ' [ '
                 Foreach ( $Key in $This.Configuration.Keys ) {
-                    $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ] + ', '
+                    $rtn = ''
+                    If ( [double]::TryParse( $This.Configuration[ $Key ], [ref] $rtn )) { # check if we have a number, otherwise we need surrounding double quotes
+                        $ChannelReturn += $This.Configuration[ $Key ].ToString() -replace ',', '.'
+                    } Else {
+                        $ChannelReturn += '"' + $This.Configuration[ $Key ] + '"'
+                    }
                 }
                 $ChannelReturn = $ChannelReturn.Substring( 0, $ChannelReturn.Length - 2 ) + " ]`r`n"
             }
@@ -272,4 +278,7 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
     [void] $Processed.Add( $Property.Name )
 }
 
-# $Results.CreateOhItem()
+$encoding = [System.Text.Encoding]::GetEncoding(1252)
+$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding)
+$Things.CreateOHItem() | ForEach-Object { $streamWriter.WriteLine( $_ ) }
+$streamWriter.Dispose()
