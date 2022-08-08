@@ -1,10 +1,10 @@
 ﻿# $Things = Get-Content .\org.openhab.core.thing.Thing.json | ConvertFrom-Json
-$Things = Get-Content $PSScriptRoot\org.openhab.core.thing.Thing.JSON | ConvertFrom-Json
+$ThingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.Thing.JSON | ConvertFrom-Json
 $ThingsFilter = '.*'
 $ThingsFilter = 'tesla'
 
-$Processed = [System.Collections.ArrayList]::new()
-$Results = [System.Collections.ArrayList]::new()
+$Processed = [Collections.ArrayList]::new()
+$Things = [Collections.ArrayList]::new()
 
 # define properties for bridges, things and channels
 
@@ -15,16 +15,20 @@ class Bridge {
     [String] $BridgeID  # remaining UID parts
     [String] $Name
     
-    [Collections.Hashtable] $Configuration = [System.Collections.Hashtable]::new()
-    [Collections.ArrayList] $Things = [System.Collections.ArrayList]::new()
+    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
     
     # enable the bridge class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
 
-    [String] CreateOHItem( ) {
+    [String] CreateOHItem() {
+        Return $This.CreateItem()
+    }
+
+    [String] Hidden CreateItem() {
 
         # bridge definition in .things files as documented
 
-        [String] $BridgeReturn = $This.Class + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
+        [String] $BridgeReturn = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
 
         # if the bridge has configuration values, insert them in square brackets
         # and take care of indentation - Openhab is quite picky about misalignment :-)
@@ -61,8 +65,8 @@ Class Thing {
     [String] $Name
     [String] $Location
 
-    [Collections.Hashtable] $Configuration = [System.Collections.Hashtable]::new()
-    [Collections.Arraylist] $Channels = [System.Collections.ArrayList]::new()
+    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.Arraylist] $Channels = [Collections.ArrayList]::new()
     
     # enable the things class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
 
@@ -79,10 +83,10 @@ Class Thing {
 
         If ( $IsBridgeChild ) { 
             $Indent = 2 
-            [String] $ThingReturn = ' ' * $Indent + $This.Class + ' ' + $This.TypeID + ' ' + $This.ThingID
+            [String] $ThingReturn = ' ' * $Indent + $This.GetType().Name + ' ' + $This.TypeID + ' ' + $This.ThingID
         } Else { 
             $Indent = 0 
-            [String] $ThingReturn = ' ' * $Indent + $This.Class + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
+            [String] $ThingReturn = ' ' * $Indent + $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
         }
 
         # if the thing has configuration values, add them in square brackets
@@ -121,7 +125,7 @@ Class Channel {
     [String] $ID
     [String] $Name
 
-    [Hashtable] $Configuration = [System.Collections.Hashtable]::new()
+    [Hashtable] $Configuration = [Collections.Hashtable]::new()
     
     # enable the channel to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
     
@@ -160,9 +164,9 @@ Class Channel {
 
 # first, grab all bridges - JSON in Powershell is pretty awkward for iterating over...
 
-Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ThingsFilter } ) {
+Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ThingsFilter } ) {
 
-    $JSON = $Things."$( $Property.Name )"
+    $JSON = $ThingsRaw."$( $Property.Name )"
 
     # make sure it is a bridge
 
@@ -187,16 +191,16 @@ Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Obj
                 $Bridge.Configuration.Add( $Config.Name, $ConfigValue )
             }
         }
+        [void] $Things.Add( $Bridge )
         [void] $Processed.Add( $Property.Name )
-        [void] $Results.Add( $Bridge )
     }
 }
 
 # now get all remaining stuff that are real things
 
-Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Object { $Processed -notcontains $_.Name } | Where-Object { $_.Name -match $ThingsFilter } ) {
+Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-Object { $Processed -notcontains $_.Name } | Where-Object { $_.Name -match $ThingsFilter } ) {
 
-    $JSON = $Things."$( $Property.Name )"
+    $JSON = $ThingsRaw."$( $Property.Name )"
 
     $Thing = [Thing]::new()
     $Thing.Name = $JSON.value.label
@@ -260,10 +264,10 @@ Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Obj
         $BindingID = $JSON.value.BridgeUID.Split( ':', 3 )[0]
         $BridgeType = $JSON.value.BridgeUID.Split( ':', 3 )[1]
         $BridgeID = $JSON.value.BridgeUID.Split( ':', 3 )[2]
-        $Bridge = $Results | Where-Object { $_.BindingID -eq $BindingID -and $_.BridgeType -eq $BridgeType -and $_.BridgeID -eq $BridgeID }
+        $Bridge = $Things | Where-Object { $_.BindingID -eq $BindingID -and $_.BridgeType -eq $BridgeType -and $_.BridgeID -eq $BridgeID }
         [void] $Bridge.Things.Add( $Thing )
     } Else {
-        [Void] $Results.Add( $Thing )
+        [Void] $Things.Add( $Thing )
     }
     [void] $Processed.Add( $Property.Name )
 }
