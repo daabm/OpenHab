@@ -1,5 +1,7 @@
 ﻿# $Things = Get-Content .\org.openhab.core.thing.Thing.json | ConvertFrom-Json
-$Things = Get-Content ..\jsondb\org.openhab.core.thing.Thing.json | ConvertFrom-Json
+$Things = Get-Content $PSScriptRoot\org.openhab.core.thing.Thing.JSON | ConvertFrom-Json
+$ThingsFilter = '.*'
+$ThingsFilter = 'tesla'
 
 $Processed = [System.Collections.ArrayList]::new()
 $Results = [System.Collections.ArrayList]::new()
@@ -8,7 +10,6 @@ $Results = [System.Collections.ArrayList]::new()
 
 class Bridge {
 
-    [String] $Class = 'Bridge'
     [String] $BindingID # first part of UID
     [String] $BridgeType # second part of UID
     [String] $BridgeID  # remaining UID parts
@@ -53,7 +54,6 @@ class Bridge {
 
 Class Thing {
 
-    [String] $Class = 'Thing'
     [String] $BindingID # first part of UID
     [String] $TypeID    # second part of UID
     [String] $BridgeID  # third part of UID
@@ -116,7 +116,6 @@ Class Thing {
 
 Class Channel {
 
-    [String] $Class = 'Channel'
     [String] $Kind
     [String] $Type
     [String] $ID
@@ -161,7 +160,7 @@ Class Channel {
 
 # first, grab all bridges - JSON in Powershell is pretty awkward for iterating over...
 
-Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty ) {
+Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ThingsFilter } ) {
 
     $JSON = $Things."$( $Property.Name )"
 
@@ -195,7 +194,7 @@ Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty ) {
 
 # now get all remaining stuff that are real things
 
-Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Object { $Processed -notcontains $_.Name } ) {
+Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Object { $Processed -notcontains $_.Name } | Where-Object { $_.Name -match $ThingsFilter } ) {
 
     $JSON = $Things."$( $Property.Name )"
 
@@ -261,7 +260,7 @@ Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Obj
         $BindingID = $JSON.value.BridgeUID.Split( ':', 3 )[0]
         $BridgeType = $JSON.value.BridgeUID.Split( ':', 3 )[1]
         $BridgeID = $JSON.value.BridgeUID.Split( ':', 3 )[2]
-        $Bridge = $AllBridges | Where-Object { $_.Class -eq 'Bridge' -and $_.BindingID -eq $BindingID -and $_.BridgeType -eq $BridgeType -and $_.BridgeID -eq $BridgeID }
+        $Bridge = $Results | Where-Object { $_.BindingID -eq $BindingID -and $_.BridgeType -eq $BridgeType -and $_.BridgeID -eq $BridgeID }
         [void] $Bridge.Things.Add( $Thing )
     } Else {
         [Void] $Results.Add( $Thing )
@@ -269,4 +268,4 @@ Foreach ( $Property in $Things | Get-Member -MemberType NoteProperty | Where-Obj
     [void] $Processed.Add( $Property.Name )
 }
 
-$Results.CreateOhItem()
+# $Results.CreateOhItem()
