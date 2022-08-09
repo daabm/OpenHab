@@ -15,7 +15,8 @@ class Bridge {
     [String] $BindingID # first part of UID
     [String] $BridgeType # second part of UID
     [String] $BridgeID  # remaining UID parts
-    [String] $Name
+    [String] $label
+    [String] $location
     
     [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
@@ -31,6 +32,9 @@ class Bridge {
         # bridge definition in .things files as documented
 
         [String] $Return = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
+        If ( $This.label ) { $Return += ' "' + $This.label + '"' }
+        If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
+
 
         # if the bridge has configuration values, insert them in square brackets
         # and take care of indentation - Openhab is quite picky about misalignment :-)
@@ -64,7 +68,7 @@ Class Thing {
     [String] $TypeID    # second part of UID
     [String] $BridgeID  # third part of UID
     [String] $ThingID   # remaining UID parts
-    [String] $Name
+    [String] $label
     [String] $Location
 
     [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
@@ -90,11 +94,12 @@ Class Thing {
             $Indent = 0 
             [String] $Return = ' ' * $Indent + $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
         }
+        If ( $This.label ) { $Return += ' "' + $This.label + '"' }
+        If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
 
         # if the thing has configuration values, add them in square brackets
  
         If ( $This.Configuration.Count -gt 0 ) {
-            # $ThingReturn += " [`r`n"
             $Return += ' [ '
             Foreach ( $Config in $This.Configuration ) {
                 $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
@@ -222,7 +227,8 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         # basic bridge data
 
         $Bridge = [Bridge]::new()
-        $Bridge.Name = $JSON.value.label
+        $Bridge.label = $JSON.value.label
+        $Bridge.location = $JSON.value.location
         $Bridge.BindingID = $JSON.value.UID.Split( ':', 3 )[0]
         $Bridge.BridgeType = $JSON.value.UID.Split( ':', 3 )[1]
         $Bridge.BridgeID = $JSON.value.UID.Split( ':', 3 )[2]
@@ -252,7 +258,8 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
     $JSON = $ThingsRaw."$( $Property.Name )"
 
     $Thing = [Thing]::new()
-    $Thing.Name = $JSON.value.label
+    $Thing.label = $JSON.value.label
+    $Thing.location = $JSON.value.location
     $Thing.BindingID = $JSON.value.UID.Split( ':', 4 )[0]
     $Thing.TypeID = $JSON.value.UID.Split( ':', 4 )[1]
 
