@@ -3,9 +3,8 @@ $BindingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.link.ItemChannel
 $MetadataRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Metadata.json | ConvertFrom-Json
 $OutFile = "$PSScriptRoot\allitems.items"
 $ItemsFilter = '.*'
-#$ItemsFilter = 'TSOG2Ku'
+$ItemsFilter = 'TSOG2Ku'
 
-$Processed = [Collections.ArrayList]::new()
 $Items = [Collections.ArrayList]::new()
 $Bindings = [Collections.ArrayList]::new()
 $Metadatas = [Collections.ArrayList]::new()
@@ -35,8 +34,7 @@ class Item {
     [string] $functionName
     [Collections.ArrayList] $functionParams = [Collections.ArrayList]::new()
 
-
-    [String] CreateOHItem( ) {
+    [String] ToString( ) {
         Return $This.CreateItem()
     }
 
@@ -44,22 +42,22 @@ class Item {
 
         # item definition in .items files as documented
 
-        [String] $ItemReturn = $This.itemType
+        [String] $Return = $This.itemType
 
         # handle aggregate groups - only these have a baseItemType and optionally an aggregate function
         If ( $This.baseItemType ) {
-            $ItemReturn += ':' + $This.baseItemType
+            $Return += ':' + $This.baseItemType
             If ( $This.functionName ) {
-                $ItemReturn += ':' + $This.functionName
+                $Return += ':' + $This.functionName
                 If ( $This.functionParams ) {
                     If ( $This.functionName -eq 'COUNT' ){
-                        $ItemReturn += '"' + $This.functionParams + '"'
+                        $Return += '"' + $This.functionParams + '"'
                     } Else {
-                        $ItemReturn += '('
+                        $Return += '('
                         Foreach ( $functionParam in $This.functionParams ) {
-                            $ItemReturn += $FunctionParam + ','
+                            $Return += $FunctionParam + ','
                         }
-                        $ItemReturn = $ItemReturn.Substring( 0, $ItemReturn.Length - 1 ) + ')'
+                        $Return = $Return.Substring( 0, $Return.Length - 1 ) + ')'
                     }
 
                 }
@@ -67,41 +65,41 @@ class Item {
         }
         
 
-        $ItemReturn += ' ' + $This.name + ' "' + $This.label + '"'
+        $Return += ' ' + $This.name + ' "' + $This.label + '"'
         If ( $This.iconName ) {
-            $ItemReturn += ' <' + $This.iconName + '>'
+            $Return += ' <' + $This.iconName + '>'
         }
         If ( $This.Groups.Count -ge 1 ) {
-            $ItemReturn += ' ( '
+            $Return += ' ( '
             Foreach ( $Group in $This.Groups ) {
-                $ItemReturn += $Group + ', '
+                $Return += $Group + ', '
             }
-            $ItemReturn = $ItemReturn.Substring( 0, $ItemReturn.Length - 2 ) + " )"
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " )"
         }
         If ( $This.tags.Count -ge 1 ) {
-            $ItemReturn += ' [ '
+            $Return += ' [ '
             Foreach ( $Tag in $This.tags ) {
-                $ItemReturn += '"' + $Tag + '", '
+                $Return += '"' + $Tag + '", '
             }
-            $ItemReturn = $ItemReturn.Substring( 0, $ItemReturn.Length - 2 ) + " ]"
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]"
         }
 
         If ( $This.Bindings.Count + $This.metadata.Count -gt 0 ) {
-            $ItemReturn += " { "
+            $Return += " { "
             If ( $This.Bindings.Count -ge 1 ) {
                 Foreach ( $Binding in $This.Bindings ) {
-                    $ItemReturn += $Binding.CreateOHBinding() + ', '
+                    $Return += $Binding.ToString() + ', '
                 }
             }
             If ( $This.metadata.Count -ge 1 ) {
                 Foreach ( $Meta in $This.metadata ) {
-                    $ItemReturn += $Meta.CreateOHMeta() + ', '
+                    $Return += $Meta.ToString() + ', '
                 }
             }
-            $ItemReturn = $ItemReturn.Substring( 0, $ItemReturn.Length - 2 ) + ' }'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }'
         }
 
-        Return $ItemReturn
+        Return $Return
     }
 }
 
@@ -113,26 +111,26 @@ class Binding {
     [String] $profile
     [Collections.HashTable] $profileParameters = [Collections.HashTable]::new()
 
-    [String] CreateOhBinding() {
+    [String] ToString() {
         Return $This.CreateBinding()
     }
 
     [String] Hidden CreateBinding() {
-        [String] $BindingReturn = 'channel="' + $This.uid + '"'
+        [String] $Return = 'channel="' + $This.uid + '"'
         If ( $This.profile ) {
-            $BindingReturn += ' [ profile="' + $This.profile + '"'
+            $Return += ' [ profile="' + $This.profile + '"'
             Foreach ( $Key in $This.profileParameters.Keys ) {
-                $BindingReturn += ', ' + $Key + '='
+                $Return += ', ' + $Key + '='
                 $rtn = ''
                 If ( [double]::TryParse( $This.profileParameters[ $Key ], [ref]$rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                    $BindingReturn += $This.profileParameters[ $Key ] -replace ',', '.'
+                    $Return += $This.profileParameters[ $Key ] -replace ',', '.'
                 } Else {
-                    $BindingReturn += '"' + $This.profileParameters[ $Key ] + '"'
+                    $Return += '"' + $This.profileParameters[ $Key ] + '"'
                 }
             }
-            $BindingReturn += ' ]'
+            $Return += ' ]'
         }
-        Return $BindingReturn
+        Return $Return
     }
 
 }
@@ -142,36 +140,96 @@ Class Metadata {
     [String] $type
     [String] $value
     [String] $itemName
-    [Collections.HashTable] $Configuration = [Collections.HashTable]::new()
+    [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
 
-    [String] CreateOHMeta() {
+    [String] ToString() {
         Return $This.CreateMeta()
     }
 
     [String] Hidden CreateMeta () {
-        [String] $MetaReturn = $This.type + '="' + $This.value + '"'
+        [String] $Return = $This.type + '="' + $This.value + '"'
         If ( $This.Configuration.Count -gt 0 ) {
-            $MetaReturn += ' [ '
-            Foreach ( $Key in $This.Configuration.Keys ) {
-                $MetaReturn += $Key + '='
-                $rtn = ''
-                If ( [double]::TryParse( $This.Configuration[ $Key ], [ref]$rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                    $MetaReturn += $This.Configuration[ $Key ]
-                } Else {
-                    $MetaReturn += '"' + $This.Configuration[ $Key ] + '"'
-                }
-                $MetaReturn += ', '
+            $Return += ' [ '
+            Foreach ( $Config in $This.Configuration ) {
+                $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
             }
-            $MetaReturn = $MetaReturn.Substring( 0, $MetaReturn.Length - 2 ) + ' ]'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]'
         }
-        Return $MetaReturn
+        Return $Return
     }
 
 }
 
 # create binding list
+Class Config {
+    [String] $ValueType
+    [String] $ValueName
+    [String] $ValueData
+
+    Config () {}
+    Config ( [String] $ValueName, [String] $ValueData ) {
+        $This.Valuename = $ValueName
+        $This.ValueData = $ValueData
+        Switch -regex ( $This.ValueData ) {
+            '^(true|false)$' {
+                $This.ValueType = 'bool'
+                break
+            }
+            '^\d+$' {
+                $This.ValueType = 'int'
+                break
+            }
+            '^-?\d+([,.]\d+)?$' {
+                $This.ValueType = 'decimal'
+                break
+            }
+            default {
+                $This.ValueType = 'string'
+            }
+        }
+    }
+    Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData ) {
+        $This.ValueType = $ValueType
+        $This.Valuename = $ValueName
+        $This.ValueData = $ValueData
+    }
+
+    [String] ToString() {
+        Return $THis.ValueToString( $This.ValueData, $This.ValueType )
+    }
+    [String] ToString( $ValueData, $ValueType ) {
+        Return $This.ValueToString( $ValueData, $ValueType )
+    }
+
+    [String] Hidden ValueToString ( [String] $ValueData, [String] $ValueType ) {
+        [String] $Return = ''
+        Switch ( $ValueType ) {
+            'int' {
+                $Return = $ValueData
+            }
+            'decimal' {
+                $DecimalValue = $ValueData
+                If ( $DecimalValue -match ',') {
+                    $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
+                } Else {
+                    $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'en-US' ))
+                }
+                $Return = $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) )
+            }
+            'bool' {
+                $Return = $ValueData.ToString().ToLower()
+            }
+            'string' {
+                $Return = '"' + $ValueData + '"'
+            }
+        }
+        Return $Return
+    }
+
+}
 
 Foreach ( $Property in $BindingsRaw | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ItemsFilter } ) {
+
     $JSON = $BindingsRaw."$( $Property.Name )"
     $Binding = [Binding]::new()
     $Binding.name = $Property.Name
@@ -199,10 +257,12 @@ Foreach ( $Property in $MetadataRaw | Get-Member -MemberType NoteProperty | Wher
     $Metadata.itemName = $Property.Name.Split( ':', 2 )[1]
     $MetaData.value = $JSON.value.value
     Foreach ( $MetaConfig in $JSON.value.configuration | Get-Member -MemberType NoteProperty  ) {
-        [void] $MetaData.Configuration.Add( $MetaConfig.Name, $JSON.value.configuration."$( $MetaConfig.Name )" )
+        $Config = [Config]::new( $MetaConfig.Name, $JSON.value.configuration."$( $MetaConfig.Name )" )
+        [void] $Metadata.Configuration.Add( $Config )
     }
     [void] $MetaDatas.Add( $MetaData )
 }
+
 # analyze all items
 
 Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ItemsFilter } ) {
@@ -226,7 +286,6 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
         [void] $Item.tags.Add( $Tag )
     }
 
-    
     Foreach ( $ItemBinding in $Bindings | Where-Object { $_.itemName -eq $Item.Name } ) {
         [void] $Item.Bindings.Add( $ItemBinding )
     }
@@ -236,11 +295,10 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
     }
 
     [void] $Items.Add( $Item )
-    [void] $Processed.Add( $Property.Name )
 }
 
 
-$encoding = [System.Text.Encoding]::GetEncoding(1252)
-$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding)
-$Things.CreateOHItem() | ForEach-Object { $streamWriter.WriteLine( $_ ) }
+$encoding = [Text.Encoding]::GetEncoding( 1252 )
+$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
+$Items| Foreach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
 $streamWriter.Dispose()

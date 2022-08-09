@@ -174,6 +174,27 @@ Class Config {
     [String] $ValueData
 
     Config () {}
+    Config ( [String] $ValueName, [String] $ValueData ) {
+        $This.Valuename = $ValueName
+        $This.ValueData = $ValueData
+        Switch -regex ( $This.ValueData ) {
+            '^(true|false)$' {
+                $This.ValueType = 'bool'
+                break
+            }
+            '^\d+$' {
+                $This.ValueType = 'int'
+                break
+            }
+            '^-?\d+([,.]\d+)?$' {
+                $This.ValueType = 'decimal'
+                break
+            }
+            default {
+                $This.ValueType = 'string'
+            }
+        }
+    }
     Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData ) {
         $This.ValueType = $ValueType
         $This.Valuename = $ValueName
@@ -328,7 +349,7 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
     [void] $Processed.Add( $Property.Name )
 }
 
-$encoding = [System.Text.Encoding]::GetEncoding(1252)
-$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding)
+$encoding = [Text.Encoding]::GetEncoding( 1252 )
+$streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
 $Things | ForEach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
 $streamWriter.Dispose()
