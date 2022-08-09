@@ -87,18 +87,18 @@ class Item {
 
         If ( $This.Bindings.Count + $This.metadata.Count -gt 0 ) {
             # both bindings and metadata go into the same section, so we need to handle them together
-            $Return += " { "
+            $Return += " {`r`n"
             If ( $This.Bindings.Count -ge 1 ) {
                 Foreach ( $Binding in $This.Bindings ) {
-                    $Return += $Binding.ToString() + ', '
+                    $Return += '  ' + $Binding.ToString() + ",`r`n"
                 }
             }
             If ( $This.metadata.Count -ge 1 ) {
                 Foreach ( $Meta in $This.metadata ) {
-                    $Return += $Meta.ToString() + ', '
+                    $Return += '  ' + $Meta.ToString() + ",`r`n"
                 }
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }' # strip last comma, close section
+            $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n}" # strip last comma, close section
         }
 
         Return $Return
@@ -177,7 +177,7 @@ Class Config {
         # if no ValueType was provided, let's do our best to derive it from ValueData
         Switch -regex ( $This.ValueData ) {
             '^(true|false)$' {
-                $This.ValueType = 'string'
+                $This.ValueType = 'bool'
                 break
             }
             '^\d+$' {
@@ -224,13 +224,14 @@ Class Config {
                 }
                 # for item configurations, decimals cannot carry a decimal ValueType and must be enclosed
                 # in quotes
-                $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) ) + '"'
+                # $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' )) + '"'
+                $Return = $DecimalValue.ToString( [cultureinfo]::new('en-US' ))
             }
             'bool' {
                 $Return = $ValueData.ToString().ToLower()
             }
             'string' {
-                $Return = '"' + $ValueData + '"'
+                $Return = '"' + $ValueData.Replace( '"', '\"' ) + '"'
             }
         }
         Return $Return
@@ -297,7 +298,7 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
     $Item.Name = $Property.Name
     $Item.itemType = $JSON.value.itemType # .Split( ':', 2 )[0]
     $Item.label = $JSON.value.label
-    $Item.category = $JSON.value.category
+    $Item.iconname = $JSON.value.category
     $Item.baseItemType = $JSON.value.baseItemType
     $Item.functionName = $JSON.value.functionName
 
