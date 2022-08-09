@@ -3,7 +3,7 @@ $BindingsRaw = Get-Content $PSScriptRoot\org.openhab.core.thing.link.ItemChannel
 $MetadataRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Metadata.json | ConvertFrom-Json
 $OutFile = "$PSScriptRoot\allitems.items"
 $ItemsFilter = '.*'
-$ItemsFilter = 'TSOG2Ku'
+#$ItemsFilter = 'TSOG2Ku'
 
 $Items = [Collections.ArrayList]::new()
 $Bindings = [Collections.ArrayList]::new()
@@ -297,8 +297,7 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
     [void] $Items.Add( $Item )
 }
 
-
 $encoding = [Text.Encoding]::GetEncoding( 1252 )
 $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
-$Items| Foreach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
+$Items | Sort-Object -Property itemType, Name | Foreach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
 $streamWriter.Dispose()
