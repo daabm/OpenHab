@@ -4,6 +4,7 @@ $MetadataRaw = Get-Content $PSScriptRoot\org.openhab.core.items.Metadata.json | 
 $OutFile = "$PSScriptRoot\allitems.items"
 $ItemsFilter = '.*'
 #$ItemsFilter = 'TSOG2Ku'
+#$ItemsFilter = 'SomfyTemperatur'
 
 $Items = [Collections.ArrayList]::new()
 $Bindings = [Collections.ArrayList]::new()
@@ -63,7 +64,6 @@ class Item {
                 }
             }
         }
-        
 
         $Return += ' ' + $This.name + ' "' + $This.label + '"'
         If ( $This.iconName ) {
@@ -108,8 +108,7 @@ class Binding {
     [String] $name
     [String] $uid
     [String] $itemName
-    [String] $profile
-    [Collections.HashTable] $profileParameters = [Collections.HashTable]::new()
+    [Collections.ArrayList] $Properties = [Collections.ArrayList]::new()
 
     [String] ToString() {
         Return $This.CreateBinding()
@@ -117,18 +116,12 @@ class Binding {
 
     [String] Hidden CreateBinding() {
         [String] $Return = 'channel="' + $This.uid + '"'
-        If ( $This.profile ) {
-            $Return += ' [ profile="' + $This.profile + '"'
-            Foreach ( $Key in $This.profileParameters.Keys ) {
-                $Return += ', ' + $Key + '='
-                $rtn = ''
-                If ( [double]::TryParse( $This.profileParameters[ $Key ], [ref]$rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                    $Return += $This.profileParameters[ $Key ] -replace ',', '.'
-                } Else {
-                    $Return += '"' + $This.profileParameters[ $Key ] + '"'
-                }
+        If ( $This.Properties.Count -gt 0 ) {
+            $Return += '[ '
+            Foreach ( $Property in $This.Properties ) {
+                $Return += $Property.ValueName + '=' + $Property.ToString() + ', '
             }
-            $Return += ' ]'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ']'
         }
         Return $Return
     }
@@ -172,7 +165,7 @@ Class Config {
         $This.ValueData = $ValueData
         Switch -regex ( $This.ValueData ) {
             '^(true|false)$' {
-                $This.ValueType = 'bool'
+                $This.ValueType = 'string'
                 break
             }
             '^\d+$' {
@@ -236,11 +229,10 @@ Foreach ( $Property in $BindingsRaw | Get-Member -MemberType NoteProperty | Wher
     $Binding.uid = $JSON.value.ChannelUID.UID
     $Binding.itemName = $JSON.value.itemName
     Foreach ( $Configuration in $JSON.value.configuration ) {
-        Foreach ( $BindingProperty in $Configuration.Properties | Get-Member -MemberType NoteProperty ) {
-            If ( $BindingProperty.Name -eq 'profile' ) {
-                $Binding.profile = $Configuration.Properties.profile
-            } Else {
-                [void] $Binding.profileParameters.Add( $BindingProperty.Name, $Configuration.Properties."$( $BindingProperty.Name )" )
+        Foreach ( $Config in $Configuration.Properties | Get-Member -MemberType NoteProperty ) {
+            If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+                $Property = [Config]::new( $Matches.ValueType, $Config.Name, $Configuration.Properties."$( $Config.Name )".Replace( '\', '\\' ))
+                [void] $Binding.Properties.Add( $Property )
             }
         }
     }
@@ -300,4 +292,7 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
 $encoding = [Text.Encoding]::GetEncoding( 1252 )
 $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
 $Items | Sort-Object -Property itemType, Name | Foreach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
+#$Lines = ( $Items | Sort-Object -Property itemType, Name | Foreach-Object { $_.ToString() } )
+#[IO.File]::WriteAllLines( $OutFile, $lines, [Text.Encoding]::GetEncoding(1252))
+#$Lines | Out-File $Outfile -Encoding default -Force
 $streamWriter.Dispose()
