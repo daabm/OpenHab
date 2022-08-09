@@ -358,7 +358,6 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
     } Else {
         [Void] $Things.Add( $Thing )
     }
-    [void] $Processed.Add( $Property.Name )
 }
 
 $encoding = [Text.Encoding]::GetEncoding( 1252 )
