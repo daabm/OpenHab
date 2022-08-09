@@ -227,7 +227,7 @@ Class Config {
                 $Return = $ValueData.ToString().ToLower()
             }
             'string' {
-                $Return = '"' + $ValueData + '"'
+                $Return = '"' + $ValueData.Replace( '"', '\"' ) + '"'
             }
         }
         Return $Return

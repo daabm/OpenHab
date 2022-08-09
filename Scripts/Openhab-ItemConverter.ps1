@@ -207,7 +207,7 @@ Class Config {
                 } Else {
                     $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'en-US' ))
                 }
-                $Return = $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) )
+                $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) ) + '"'
             }
             'bool' {
                 $Return = $ValueData.ToString().ToLower()
