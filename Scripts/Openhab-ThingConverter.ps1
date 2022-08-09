@@ -237,6 +237,7 @@ Class Config {
                 $Return = $ValueData.ToString().ToLower()
             }
             'string' {
+                # if it's a string, it might be a string with spaces. Therefor we need to escape "
                 $Return = '"' + $ValueData.Replace( '"', '\"' ) + '"'
             }
         }
