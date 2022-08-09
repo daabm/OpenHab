@@ -343,7 +343,7 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         }
 
         # only add the channel if any configurations were found
-        # all standard channels (without configuration) will be added anyway by the binding
+        # all standard channels (without configuration) will be added anyway by the thing binding automatically
         If ( $Channel.Configuration.Count -gt 0 ) {
             [void] $Thing.Channels.Add( $Channel )
         }

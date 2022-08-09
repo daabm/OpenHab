@@ -335,7 +335,4 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
 $encoding = [Text.Encoding]::GetEncoding( 1252 )
 $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
 $Items | Sort-Object -Property itemType, Name | Foreach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
-#$Lines = ( $Items | Sort-Object -Property itemType, Name | Foreach-Object { $_.ToString() } )
-#[IO.File]::WriteAllLines( $OutFile, $lines, [Text.Encoding]::GetEncoding(1252))
-#$Lines | Out-File $Outfile -Encoding default -Force
 $streamWriter.Dispose()
