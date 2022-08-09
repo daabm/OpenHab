@@ -162,7 +162,6 @@ Class Metadata {
 
 }
 
-# create binding list
 Class Config {
 
     # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type

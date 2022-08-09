@@ -20,9 +20,9 @@ $Things = [Collections.ArrayList]::new()
 class Bridge {
 
     # basic bridge properties
-    [String] $BindingID # first part of UID
-    [String] $BridgeType # second part of UID
-    [String] $BridgeID  # remaining UID parts
+    [String] $BindingID
+    [String] $BridgeType
+    [String] $BridgeID
     [String] $label
     [String] $location
     
