@@ -8,10 +8,18 @@ $ThingsFilter = '.*'
 $Processed = [Collections.ArrayList]::new()
 $Things = [Collections.ArrayList]::new()
 
-# define properties for bridges, things and channels
+# generic bridge definition:
+# Bridge <binding_name>:<bridge_type>:<bridge_name> [ <parameters> ] {
+#   (array of things)
+# }
+# generic bridge thing definition
+# Thing <type_id> <thing_id> "Label" @ "Location" [ <parameters> ]
+# generic standalone thing definition
+# Thing <binding_id>:<type_id>:<thing_id> "Label" @ "Location" [ <parameters> ]
 
 class Bridge {
 
+    # basic bridge properties
     [String] $BindingID # first part of UID
     [String] $BridgeType # second part of UID
     [String] $BridgeID  # remaining UID parts
@@ -21,8 +29,6 @@ class Bridge {
     [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
     
-    # enable the bridge class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
-
     [String] ToString() {
         Return $This.CreateItem()
     }
@@ -30,11 +36,9 @@ class Bridge {
     [String] Hidden CreateItem() {
 
         # bridge definition in .things files as documented
-
         [String] $Return = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
         If ( $This.label ) { $Return += ' "' + $This.label + '"' }
         If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
-
 
         # if the bridge has configuration values, insert them in square brackets
         # and take care of indentation - Openhab is quite picky about misalignment :-)
@@ -44,7 +48,7 @@ class Bridge {
             Foreach ( $Config in $This.Configuration ) {
                 $Return += '  ' + $Config.ValueName + '=' + $Config.ToString() + ",`r`n"
             }
-            $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n]" # remove last comma and reappend CR/LF]
+            $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n]" # # strip last comma, close section
         }
 
         # if there are things using this bridge, include them in the bridge definition within curly brackets
@@ -52,8 +56,9 @@ class Bridge {
         If ( $This.Things.Count -gt 0 ) {
             $Return += " {`r`n"
             Foreach ( $Thing in $This.Things ) {
-                # ToString( $true ) means "this thing is a child of a bridge" - this requires more indendation than a
-                # standalone thing definition. And again, Openhab is picky about indendation :)
+                # ToString( $true ) means "this thing is a child of a bridge" - this adds indendation
+                # for pretty formatting and adjusts the thing definition for bridge bound things according
+                # to the description above
                 $Return += $Thing.ToString( $True )
             }
             $Return += "}`r`n"
@@ -64,18 +69,17 @@ class Bridge {
 
 Class Thing {
 
-    [String] $BindingID # first part of UID
-    [String] $TypeID    # second part of UID
-    [String] $BridgeID  # third part of UID
-    [String] $ThingID   # remaining UID parts
+    # thing defnition string in .things file as documented, see above
+    [String] $BindingID
+    [String] $TypeID
+    [String] $BridgeID
+    [String] $ThingID
     [String] $label
     [String] $Location
 
     [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     [Collections.Arraylist] $Channels = [Collections.ArrayList]::new()
     
-    # enable the things class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
-
     [String] ToString( ){
         Return $This.CreateItem( $False )
     }
@@ -85,7 +89,8 @@ Class Thing {
 
     [String] Hidden CreateItem( $IsBridgeChild ) {
 
-        # if the item is a child of a bridge, we need 2 spaces more at the beginning of each line
+        # if the item is a child of a bridge, we want 2 spaces more at the beginning of each line
+        # and we have a different string composition
 
         If ( $IsBridgeChild ) { 
             $Indent = 2 
@@ -104,7 +109,7 @@ Class Thing {
             Foreach ( $Config in $This.Configuration ) {
                 $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # cutoff last comma
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
         }
         
         # if the thing has channels, include them in curly brackets as well
@@ -126,14 +131,13 @@ Class Thing {
 
 Class Channel {
 
+    # channel definition in .item files as documented, see above
     [String] $Kind
     [String] $Type
     [String] $ID
     [String] $Name
 
     [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
-    
-    # enable the channel to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
     
     [String] ToString( ){
         Return $This.CreateItem( 4 )
@@ -144,7 +148,6 @@ Class Channel {
     }
 
     [String] Hidden CreateItem( [int] $Indent = 4 ){
-
 
         [String] $Return = ''
 
@@ -160,7 +163,7 @@ Class Channel {
             Foreach ( $Config in $This.Configuration ) {
                 $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]`r`n"
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]`r`n" # strip last comma, close section
         }
 
         Return $Return
@@ -169,6 +172,9 @@ Class Channel {
 }
 
 Class Config {
+
+    # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type
+    # to make things easier, this class provides them and handles their types
     [String] $ValueType
     [String] $ValueName
     [String] $ValueData
@@ -177,6 +183,7 @@ Class Config {
     Config ( [String] $ValueName, [String] $ValueData ) {
         $This.Valuename = $ValueName
         $This.ValueData = $ValueData
+        # if no ValueType was provided, let's do our best to derive it from ValueData
         Switch -regex ( $This.ValueData ) {
             '^(true|false)$' {
                 $This.ValueType = 'bool'
@@ -202,7 +209,7 @@ Class Config {
     }
 
     [String] ToString() {
-        Return $THis.ValueToString( $This.ValueData, $This.ValueType )
+        Return $This.ValueToString( $This.ValueData, $This.ValueType )
     }
     [String] ToString( $ValueData, $ValueType ) {
         Return $This.ValueToString( $ValueData, $ValueType )
@@ -215,6 +222,9 @@ Class Config {
                 $Return = $ValueData
             }
             'decimal' {
+                # for decimals, we need dot separated values in the item file. This depends on the current locale,
+                # we need to force the decimal to be converted first to a single float depending on the current separator
+                # that ConvertFrom-JSON insert, and then to the en-US string format where the separator is a dot.
                 $DecimalValue = $ValueData
                 If ( $DecimalValue -match ',') {
                     $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
@@ -278,6 +288,8 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
 
     $JSON = $ThingsRaw."$( $Property.Name )"
 
+    # basic thing data
+
     $Thing = [Thing]::new()
     $Thing.label = $JSON.value.label
     $Thing.location = $JSON.value.location
@@ -291,7 +303,7 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         $Thing.BridgeID = $JSON.value.UID.Split( ':', 4 )[2]
         $Thing.ThingID = $JSON.value.UID.Split( ':', 4 )[3]
     } Else {
-        # ...if it is a standalone thing, its UID will only contain 3 segments.
+        # ...if it is a standalone thing, its UID will only contain 3 segments and we have no BridgeID
         $Thing.ThingID = $JSON.value.UID.Split( ':', 4 )[2]
     }
 

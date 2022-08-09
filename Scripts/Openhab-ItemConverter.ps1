@@ -10,7 +10,6 @@ $Items = [Collections.ArrayList]::new()
 $Bindings = [Collections.ArrayList]::new()
 $Metadatas = [Collections.ArrayList]::new()
 
-# define properties for items
 # generic item definition:
 # itemtype itemname "labeltext [stateformat]" <iconname> (group1, group2, ...) ["tag1", "tag2", ...] {bindingconfig}
 # generic group definition:
@@ -20,6 +19,7 @@ $Metadatas = [Collections.ArrayList]::new()
 
 class Item {
     
+    # basic item properties
     [String] $itemType
     [String] $Name
     [String] $label
@@ -41,8 +41,7 @@ class Item {
 
     [String] Hidden CreateItem() {
 
-        # item definition in .items files as documented
-
+        # item definition string in .items files as documented, see above
         [String] $Return = $This.itemType
 
         # handle aggregate groups - only these have a baseItemType and optionally an aggregate function
@@ -52,13 +51,15 @@ class Item {
                 $Return += ':' + $This.functionName
                 If ( $This.functionParams ) {
                     If ( $This.functionName -eq 'COUNT' ){
+                        # COUNT has a single property over which it aggregates
                         $Return += '"' + $This.functionParams + '"'
                     } Else {
+                        # all aggregate functions except COUNT have individual params that specify the aggregate values
                         $Return += '('
                         Foreach ( $functionParam in $This.functionParams ) {
                             $Return += $FunctionParam + ','
                         }
-                        $Return = $Return.Substring( 0, $Return.Length - 1 ) + ')'
+                        $Return = $Return.Substring( 0, $Return.Length - 1 ) + ')' # strip last comma, close section
                     }
 
                 }
@@ -74,17 +75,18 @@ class Item {
             Foreach ( $Group in $This.Groups ) {
                 $Return += $Group + ', '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " )"
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " )" # strip last comma, close section
         }
         If ( $This.tags.Count -ge 1 ) {
             $Return += ' [ '
             Foreach ( $Tag in $This.tags ) {
                 $Return += '"' + $Tag + '", '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]"
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]" # strip last comma, close section
         }
 
         If ( $This.Bindings.Count + $This.metadata.Count -gt 0 ) {
+            # both bindings and metadata go into the same section, so we need to handle them together
             $Return += " { "
             If ( $This.Bindings.Count -ge 1 ) {
                 Foreach ( $Binding in $This.Bindings ) {
@@ -96,7 +98,7 @@ class Item {
                     $Return += $Meta.ToString() + ', '
                 }
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }' # strip last comma, close section
         }
 
         Return $Return
@@ -104,7 +106,8 @@ class Item {
 }
 
 class Binding {
-    
+
+    # basic binding properties
     [String] $name
     [String] $uid
     [String] $itemName
@@ -115,13 +118,16 @@ class Binding {
     }
 
     [String] Hidden CreateBinding() {
+
+        # binding definition string in .items files as documented, see above
         [String] $Return = 'channel="' + $This.uid + '"'
+
         If ( $This.Properties.Count -gt 0 ) {
             $Return += '[ '
             Foreach ( $Property in $This.Properties ) {
                 $Return += $Property.ValueName + '=' + $Property.ToString() + ', '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ']'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ']' # strip last comma, close section
         }
         Return $Return
     }
@@ -129,6 +135,8 @@ class Binding {
 }
 
 Class Metadata {
+
+    # basic metadata properties
     [String] $name
     [String] $type
     [String] $value
@@ -142,11 +150,12 @@ Class Metadata {
     [String] Hidden CreateMeta () {
         [String] $Return = $This.type + '="' + $This.value + '"'
         If ( $This.Configuration.Count -gt 0 ) {
+            # if it has configurations, create a section and insert all of them
             $Return += ' [ '
             Foreach ( $Config in $This.Configuration ) {
                 $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
             }
-            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]'
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
         }
         Return $Return
     }
@@ -155,6 +164,9 @@ Class Metadata {
 
 # create binding list
 Class Config {
+
+    # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type
+    # to make things easier, this class provides them and handles their types
     [String] $ValueType
     [String] $ValueName
     [String] $ValueData
@@ -163,6 +175,7 @@ Class Config {
     Config ( [String] $ValueName, [String] $ValueData ) {
         $This.Valuename = $ValueName
         $This.ValueData = $ValueData
+        # if no ValueType was provided, let's do our best to derive it from ValueData
         Switch -regex ( $This.ValueData ) {
             '^(true|false)$' {
                 $This.ValueType = 'string'
@@ -201,12 +214,17 @@ Class Config {
                 $Return = $ValueData
             }
             'decimal' {
+                # for decimals, we need dot separated values in the item file. This depends on the current locale,
+                # we need to force the decimal to be converted first to a single float depending on the current separator
+                # that ConvertFrom-JSON insert, and then to the en-US string format where the separator is a dot.
                 $DecimalValue = $ValueData
                 If ( $DecimalValue -match ',') {
                     $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
                 } Else {
                     $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'en-US' ))
                 }
+                # for item configurations, decimals cannot carry a decimal ValueType and must be enclosed
+                # in quotes
                 $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) ) + '"'
             }
             'bool' {
@@ -221,16 +239,23 @@ Class Config {
 
 }
 
+# create a list of all bindings to assign them to the items later
+
 Foreach ( $Property in $BindingsRaw | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ItemsFilter } ) {
 
     $JSON = $BindingsRaw."$( $Property.Name )"
+
     $Binding = [Binding]::new()
     $Binding.name = $Property.Name
     $Binding.uid = $JSON.value.ChannelUID.UID
     $Binding.itemName = $JSON.value.itemName
+
+    Write-Verbose "Processing binding: $( $Binding.UID )"
+
     Foreach ( $Configuration in $JSON.value.configuration ) {
         Foreach ( $Config in $Configuration.Properties | Get-Member -MemberType NoteProperty ) {
             If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+                Write-Verbose "Processing binding configuration: $( $Config.Definition )"
                 $Property = [Config]::new( $Matches.ValueType, $Config.Name, $Configuration.Properties."$( $Config.Name )".Replace( '\', '\\' ))
                 [void] $Binding.Properties.Add( $Property )
             }
@@ -239,16 +264,22 @@ Foreach ( $Property in $BindingsRaw | Get-Member -MemberType NoteProperty | Wher
     [void] $Bindings.Add( $Binding )
 }
 
-# create metadata list
+# create a list of all metadata to assing them to the items later
 
 Foreach ( $Property in $MetadataRaw | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $ItemsFilter } ) {
+
     $JSON = $MetadataRaw."$( $Property.Name )"
+
     $MetaData = [Metadata]::new()
     $MetaData.name = $Property.Name
     $Metadata.type = $Property.Name.Split( ':' )[0]
     $Metadata.itemName = $Property.Name.Split( ':', 2 )[1]
     $MetaData.value = $JSON.value.value
+
+    Write-Verbose "Processing metadata: $( $Metadata.Name )"
+    
     Foreach ( $MetaConfig in $JSON.value.configuration | Get-Member -MemberType NoteProperty  ) {
+        Write-Verbose "Processing metadata configuration: $( $Metaconfig.Definition )"
         $Config = [Config]::new( $MetaConfig.Name, $JSON.value.configuration."$( $MetaConfig.Name )" )
         [void] $Metadata.Configuration.Add( $Config )
     }
@@ -261,6 +292,8 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
 
     $JSON = $ItemsRaw."$( $Property.Name )"
 
+    # basic item data
+
     $Item = [Item]::new()
     $Item.Name = $Property.Name
     $Item.itemType = $JSON.value.itemType # .Split( ':', 2 )[0]
@@ -268,21 +301,31 @@ Foreach ( $Property in $ItemsRaw | Get-Member -MemberType NoteProperty | Where-O
     $Item.category = $JSON.value.category
     $Item.baseItemType = $JSON.value.baseItemType
     $Item.functionName = $JSON.value.functionName
+
+    Write-Verbose "Processing item: $( $Item.Name )"
+
     Foreach ( $functionParam in $JSON.value.functionParams ) {
+        Write-Verbose "Processing item function param: $( $functionParam )"
         [void] $Item.functionParams.Add( $functionParam )
     }
+
     Foreach ( $Group in $JSON.value.groupNames ) {
+        Write-Verbose "Processing item group: $( $group )"
         [void] $Item.groups.Add( $Group )
     }
+
     Foreach ( $Tag in $JSON.value.tags ) {
+        Write-Verbose "Processing item tag: $( $tag )"
         [void] $Item.tags.Add( $Tag )
     }
 
     Foreach ( $ItemBinding in $Bindings | Where-Object { $_.itemName -eq $Item.Name } ) {
+        Write-Verbose "Processing item binding: $( $ItemBinding )"
         [void] $Item.Bindings.Add( $ItemBinding )
     }
 
     Foreach ( $Meta in $Metadatas | Where-Object { $_.itemName -eq $Item.Name } ) {
+        Write-Verbose "Processing item metadata: $( $Meta )"
         [void] $Item.metadata.Add( $Meta )
     }
 
