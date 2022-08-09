@@ -2,7 +2,7 @@
 $Outfile = "$PSScriptRoot\allthings.things"
 
 $ThingsFilter = '.*'
-# $ThingsFilter = 'tesla'
+# $ThingsFilter = 'avm'
 # $ThingsFilter = '099950388533'
 
 $Processed = [Collections.ArrayList]::new()
@@ -17,12 +17,12 @@ class Bridge {
     [String] $BridgeID  # remaining UID parts
     [String] $Name
     
-    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
     
     # enable the bridge class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
 
-    [String] CreateOHItem() {
+    [String] ToString() {
         Return $This.CreateItem()
     }
 
@@ -30,31 +30,31 @@ class Bridge {
 
         # bridge definition in .things files as documented
 
-        [String] $BridgeReturn = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
+        [String] $Return = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
 
         # if the bridge has configuration values, insert them in square brackets
         # and take care of indentation - Openhab is quite picky about misalignment :-)
 
         If ( $This.Configuration.Count -gt 0 ) {
-            $BridgeReturn += " [`r`n"
-            Foreach ( $Key in $This.Configuration.Keys ) {
-                $BridgeReturn += '  ' + $Key + '=' + $This.Configuration[ $Key ] + ",`r`n"
+            $Return += " [`r`n"
+            Foreach ( $Config in $This.Configuration ) {
+                $Return += '  ' + $Config.ValueName + '=' + $Config.ToString() + ",`r`n"
             }
-            $BridgeReturn = $BridgeReturn.Substring( 0, $BridgeReturn.Length - 3 ) + "`r`n]" # remove last comma and reappend CR/LF]
+            $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n]" # remove last comma and reappend CR/LF]
         }
 
         # if there are things using this bridge, include them in the bridge definition within curly brackets
 
         If ( $This.Things.Count -gt 0 ) {
-            $BridgeReturn += " {`r`n"
+            $Return += " {`r`n"
             Foreach ( $Thing in $This.Things ) {
-                # CreateOHThing( $true ) means "this thing is a child of a bridge" - this requires more indendation than a
+                # ToString( $true ) means "this thing is a child of a bridge" - this requires more indendation than a
                 # standalone thing definition. And again, Openhab is picky about indendation :)
-                $BridgeReturn += $Thing.CreateOHItem( $True )
+                $Return += $Thing.ToString( $True )
             }
-            $BridgeReturn += "}`r`n"
+            $Return += "}`r`n"
         }
-        Return $BridgeReturn
+        Return $Return
     }
 }
 
@@ -67,15 +67,15 @@ Class Thing {
     [String] $Name
     [String] $Location
 
-    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     [Collections.Arraylist] $Channels = [Collections.ArrayList]::new()
     
     # enable the things class to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
 
-    [String] CreateOHItem( ){
+    [String] ToString( ){
         Return $This.CreateItem( $False )
     }
-    [String] CreateOHItem( $IsBridgeChild ) {
+    [String] ToString( $IsBridgeChild ) {
         Return $This.CreateItem( $IsBridgeChild )
     }
 
@@ -85,37 +85,36 @@ Class Thing {
 
         If ( $IsBridgeChild ) { 
             $Indent = 2 
-            [String] $ThingReturn = ' ' * $Indent + $This.GetType().Name + ' ' + $This.TypeID + ' ' + $This.ThingID
+            [String] $Return = ' ' * $Indent + $This.GetType().Name + ' ' + $This.TypeID + ' ' + $This.ThingID
         } Else { 
             $Indent = 0 
-            [String] $ThingReturn = ' ' * $Indent + $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
+            [String] $Return = ' ' * $Indent + $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
         }
 
         # if the thing has configuration values, add them in square brackets
  
         If ( $This.Configuration.Count -gt 0 ) {
             # $ThingReturn += " [`r`n"
-            $ThingReturn += ' [ '
-            Foreach ( $Key in $This.Configuration.Keys ) {
-                # $ThingReturn += ' ' * $Indent + '  ' + $Key + '=' + $This.Configuration[ $Key ] + ",`r`n"
-                $ThingReturn += $Key + '=' + $This.Configuration[ $Key ] + ', '
+            $Return += ' [ '
+            Foreach ( $Config in $This.Configuration ) {
+                $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
             }
-            $ThingReturn = $ThingReturn.Substring( 0, $ThingReturn.Length - 2 ) + ' ]' # cutoff last comma
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # cutoff last comma
         }
         
         # if the thing has channels, include them in curly brackets as well
         # again, take care of correct indendation
         
         If ( $This.Channels.Count -gt 0 ) {
-            $ThingReturn += " {`r`n"
-            [String] $ThingReturn += ' ' * $Indent + "  Channels:`r`n"
+            $Return += " {`r`n"
+            $Return += ' ' * $Indent + "  Channels:`r`n"
             Foreach ( $Channel in $This.Channels ) {
-                $ThingReturn += $Channel.CreateOHItem( $Indent + 4 )
+                $Return += $Channel.ToString( $Indent + 4 )
             }
-            $ThingReturn += "}"
+            $Return += "}"
         }
-        $ThingReturn += "`r`n"
-        Return $ThingReturn 
+        $Return += "`r`n"
+        Return $Return 
     }
 
 }
@@ -127,49 +126,85 @@ Class Channel {
     [String] $ID
     [String] $Name
 
-    [Collections.Hashtable] $Configuration = [Collections.Hashtable]::new()
+    [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
     
     # enable the channel to output an Openhab .things definition string - https://www.openhab.org/docs/configuration/things.html
     
-    [String] CreateOHItem( ){
+    [String] ToString( ){
         Return $This.CreateItem( 4 )
     }
 
-    [String] CreateOHItem( [int] $Indent ) {
+    [String] ToString( [int] $Indent ) {
         Return $This.CreateItem( $Indent )
     }
 
     [String] Hidden CreateItem( [int] $Indent = 4 ){
 
-        [String] $ChannelReturn = ''
 
-        Foreach ( $Key in $This.Configuration.Keys ) {
+        [String] $Return = ''
 
-            $ChannelReturn += ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
+        # if the channel has configuration values, append them in square brackets
+        
+        If ( $This.Configuration.Count -gt 0 ) {
+            $Return += ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
             If ( $This.Name ) {
-                $ChannelReturn += ' "' + $This.Name + '"'
+                $Return += ' "' + $This.Name + '"'
             }
             
-            # if the channel has configuration values, append them in square brackets
-            
-            If ( $This.Configuration.Count -gt 0 ) {
-                $ChannelReturn += ' [ '
-                Foreach ( $Key in $This.Configuration.Keys ) {
-                    $rtn = ''
-                    If ( [double]::TryParse( $This.Configuration[ $Key ], [ref] $rtn )) { # check if we have a number, otherwise we need surrounding double quotes
-                        $ChannelReturn += $Key + '=' + $This.Configuration[ $Key ].ToString().Replace( ',', '.' ) + ', '
-                    } Else {
-                        If ( $This.Configuration[ $Key ] -match '^"|"$' ) {
-                            $ChannelReturn += $Key + '=' +  $This.Configuration[ $Key ] + ', '
-                        } Else {
-                            $ChannelReturn += $Key + '="' + $This.Configuration[ $Key ] + '", '
-                        }
-                    }
+            $Return += ' [ '
+            Foreach ( $Config in $This.Configuration ) {
+                $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
+            }
+            $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]`r`n"
+        }
+
+        Return $Return
+    }
+
+}
+
+Class Config {
+    [String] $ValueType
+    [String] $ValueName
+    [String] $ValueData
+
+    Config () {}
+    Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData ) {
+        $This.ValueType = $ValueType
+        $This.Valuename = $ValueName
+        $This.ValueData = $ValueData
+    }
+
+    [String] ToString() {
+        Return $THis.ValueToString( $This.ValueData, $This.ValueType )
+    }
+    [String] ToString( $ValueData, $ValueType ) {
+        Return $This.ValueToString( $ValueData, $ValueType )
+    }
+
+    [String] Hidden ValueToString ( [String] $ValueData, [String] $ValueType ) {
+        [String] $Return = ''
+        Switch ( $ValueType ) {
+            'int' {
+                $Return = $ValueData
+            }
+            'decimal' {
+                $DecimalValue = $ValueData
+                If ( $DecimalValue -match ',') {
+                    $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
+                } Else {
+                    $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'en-US' ))
                 }
-                $ChannelReturn = $ChannelReturn.Substring( 0, $ChannelReturn.Length - 2 ) + " ]`r`n"
+                $Return = $DecimalValue.ToString( [cultureinfo]::new( 'en-US' ) )
+            }
+            'bool' {
+                $Return = $ValueData.ToString().ToLower()
+            }
+            'string' {
+                $Return = '"' + $ValueData + '"'
             }
         }
-        Return $ChannelReturn
+        Return $Return
     }
 
 }
@@ -192,15 +227,17 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         $Bridge.BridgeType = $JSON.value.UID.Split( ':', 3 )[1]
         $Bridge.BridgeID = $JSON.value.UID.Split( ':', 3 )[2]
 
+        Write-Verbose "Processing bridge: $( $JSON.value.UID )"
+
         # if the bridge has configuration values, add them to the bridge object
 
         If ( $JSON.value.Configuration ) {
             Foreach ( $Config in $JSON.value.Configuration | Get-Member -MemberType NoteProperty ) {
-                If ( $COnfig.Definition -match "^(?<Type>\w+)\s+$( $Config.Name )=(?<Value>.+)$" ) {
-                    $ConfigValue = $Matches.Value
-                    If ( $Matches.Type -ne 'decimal' ) { $ConfigValue = """$ConfigValue""" }
+                If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+                    Write-Verbose "Processing bridge configuration: $( $Config.Definition )"
+                    $ConfigValue = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData )
+                    [void] $Bridge.Configuration.Add( $ConfigValue )
                 }
-                $Bridge.Configuration.Add( $Config.Name, $ConfigValue )
             }
         }
         [void] $Things.Add( $Bridge )
@@ -219,6 +256,8 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
     $Thing.BindingID = $JSON.value.UID.Split( ':', 4 )[0]
     $Thing.TypeID = $JSON.value.UID.Split( ':', 4 )[1]
 
+    Write-Verbose "Processing thing: $( $Thing.Name )"
+
     If ( $JSON.value.BridgeUID ) {
         # if the thing uses a bridge, the bridge ID will be part of its UID which thus contains 4 segments...
         $Thing.BridgeID = $JSON.value.UID.Split( ':', 4 )[2]
@@ -232,16 +271,17 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
 
     If ( $JSON.value.Configuration ) {
         Foreach ( $Config in $JSON.value.Configuration | Get-Member -MemberType NoteProperty ) {
-            If ( $COnfig.Definition -match "^(?<Type>\w+)\s+$( $Config.Name )=(?<Value>.+)$" ) {
-                $ConfigValue = $Matches.Value
-                If ( $Matches.Type -ne 'decimal' ) { $ConfigValue = """$ConfigValue""" }
+            If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+                Write-Verbose "Processing thing configuration: $( $Config.Definition )"
+                $ConfigValue = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData )
+                [void] $Thing.Configuration.Add( $ConfigValue )
             }
-            $Thing.Configuration.Add( $Config.Name, $ConfigValue )
         }
     }
 
     Foreach ( $Ch in $JSON.value.channels ) {
         $Channel = [Channel]::new()
+        $Channel.Name = $Ch.Label
         $Channel.Kind = $Ch.Kind
         If ( $Ch.Kind -eq 'TRIGGER' ) {
             # trigger channels do not define their type because it must be 'String'
@@ -249,24 +289,17 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
         } Else {
             $Channel.Type = $Ch.itemType
         }
+        Write-Verbose "Processing thing channel: $( $Channel.Name ): $( $Channel.Kind ) of type $( $Channel.Type )"
         If ( $ch.uid -match ':(?<ID>[^:]+)$' ) {
             # channel ID needs to be extracted from channel UID - always last segment
             $Channel.ID = $Matches.ID
         }
-        $Channel.Name = $Ch.Label
         Foreach ( $Config in $Ch.Configuration | Get-Member -MemberType NoteProperty ) {
-            If ( $Channel.Type -match '^Number' ) { # if the channel is a number type, we should have numbers in the config values - fix for AVM 301 "0"
-                try {
-                    $ConfigValue = [double] $Ch.Configuration."$( $Config.Name )"
-                } catch {
-                    $ConfigValue = '"' + $Ch.Configuration."$( $Config.Name )" + '"'
-                }
-            } Else {
-                $ConfigValue = $Ch.Configuration."$( $Config.Name )"
-                # for non decimal values, surround with double hyphens
-                If ( $Matches.Type -ne 'decimal' ) { $ConfigValue = """$ConfigValue""" }
+            If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+                Write-Verbose "Processing channel configuration: $( $Config.Definition )"
+                $ConfigValue = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData )
+                [void] $Channel.Configuration.Add( $ConfigValue )
             }
-            $Channel.Configuration.Add( $Config.Name, $ConfigValue )
         }
 
         # only add the channel if any configurations were found
@@ -290,5 +323,5 @@ Foreach ( $Property in $ThingsRaw | Get-Member -MemberType NoteProperty | Where-
 
 $encoding = [System.Text.Encoding]::GetEncoding(1252)
 $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding)
-$Things.CreateOHItem() | ForEach-Object { $streamWriter.WriteLine( $_ ) }
+$Things | ForEach-Object { $_.ToString() | ForEach-Object { $streamWriter.WriteLine( $_ ) } }
 $streamWriter.Dispose()
