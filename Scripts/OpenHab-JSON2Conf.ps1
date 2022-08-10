@@ -12,16 +12,12 @@ begin {
 
     $Encoding = [Text.Encoding]::GetEncoding( 1252 )
 
-    # generic bridge definition:
-    # Bridge <binding_name>:<bridge_type>:<bridge_name> [ <parameters> ] {
-    #   (array of things)
-    # }
-    # generic bridge thing definition
-    # Thing <type_id> <thing_id> "Label" @ "Location" [ <parameters> ]
-    # generic standalone thing definition
-    # Thing <binding_id>:<type_id>:<thing_id> "Label" @ "Location" [ <parameters> ]
-
     class Bridge {
+
+        # generic bridge definition:
+        # Bridge <binding_name>:<bridge_type>:<bridge_name> [ <parameters> ] {
+        #   (array of things)
+        # }
 
         # basic bridge properties
         [String] $BindingID
@@ -72,6 +68,11 @@ begin {
     }
 
     Class Thing {
+
+        # generic bridge thing definition
+        # Thing <type_id> <thing_id> "Label" @ "Location" [ <parameters> ]
+        # generic standalone thing definition
+        # Thing <binding_id>:<type_id>:<thing_id> "Label" @ "Location" [ <parameters> ]
 
         # basic thing properties
         [String] $BindingID
@@ -136,6 +137,12 @@ begin {
 
     Class Channel {
 
+        # generic thing channel definition
+        # Channels:
+        #   State String : customChannel1 "My Custom Channel" [
+        #     configParameter="Value"
+        #   ]
+
         # channel definition in .item files as documented, see above
         [String] $Kind
         [String] $Type
@@ -177,6 +184,11 @@ begin {
     }
 
     class Item {
+
+        # generic item definition
+        # itemtype itemname "labeltext [stateformat]" <iconname> (group1, group2, ...) ["tag1", "tag2", ...] {bindingconfig}
+        # generic group definition
+        # Group[:itemtype[:function]] groupname ["labeltext"] [<iconname>] [(group1, group2, ...)] [[ "semanticClass"]] [{<channel links>}]
     
         # basic item properties
         [String] $itemType
@@ -265,6 +277,9 @@ begin {
     }
     
     class Binding {
+
+        # generic binding (aka "item channel") definition
+        # channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="system:<profileID>", <profile-parameterID>="MyValue", ...]
     
         # basic binding properties
         [String] $name
