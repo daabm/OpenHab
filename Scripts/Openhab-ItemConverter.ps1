@@ -123,7 +123,7 @@ class Binding {
         [String] $Return = 'channel="' + $This.uid + '"'
 
         If ( $This.Properties.Count -gt 0 ) {
-            $Return += '[ '
+            $Return += ' [ '
             Foreach ( $Property in $This.Properties ) {
                 $Return += $Property.ValueName + '=' + $Property.ToString() + ', '
             }
@@ -169,6 +169,9 @@ Class Config {
     [String] $ValueType
     [String] $ValueName
     [String] $ValueData
+    # meta configuration behaves weird in terms of data types...
+    # bool and decimal need to be enclosed in quotes.
+    [Bool] $isMeteConfig
 
     Config () {}
     Config ( [String] $ValueName, [String] $ValueData ) {
@@ -192,21 +195,33 @@ Class Config {
                 $This.ValueType = 'string'
             }
         }
+        $This.isMeteConfig = $false
     }
     Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData ) {
         $This.ValueType = $ValueType
         $This.Valuename = $ValueName
         $This.ValueData = $ValueData
+        $This.isMeteConfig = $false
+    }
+
+    Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData, [Bool] $isMetaConfig ) {
+        $This.ValueType = $ValueType
+        $This.Valuename = $ValueName
+        $This.ValueData = $ValueData
+        $This.isMeteConfig = $isMetaConfig
     }
 
     [String] ToString() {
-        Return $THis.ValueToString( $This.ValueData, $This.ValueType )
+        Return $This.ValueToString( $This.ValueData, $This.ValueType, $This.isMeteConfig )
     }
-    [String] ToString( $ValueData, $ValueType ) {
-        Return $This.ValueToString( $ValueData, $ValueType )
+    [String] ToString( [String] $ValueData, [String] $ValueType ) {
+        Return $This.ValueToString( $ValueData, $ValueType, $This.isMeteConfig )
+    }
+    [String] ToString( [String] $ValueData, [String] $ValueType, [Bool] $isMetaConfig ) {
+        Return $This.ValueToString( $ValueData, $ValueType, $isMetaConfig )
     }
 
-    [String] Hidden ValueToString ( [String] $ValueData, [String] $ValueType ) {
+    [String] Hidden ValueToString ( [String] $ValueData, [String] $ValueType, [bool] $isMetaConfig ) {
         [String] $Return = ''
         Switch ( $ValueType ) {
             'int' {
@@ -226,12 +241,22 @@ Class Config {
                 # in quotes
                 # $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' )) + '"'
                 $Return = $DecimalValue.ToString( [cultureinfo]::new('en-US' ))
+                If ( $isMetaConfig ) {
+                    $Return = '"' + $Return + '"'
+                }
             }
             'bool' {
                 $Return = $ValueData.ToString().ToLower()
+                If ( $isMetaConfig ) {
+                    $Return = '"' + $Return + '"'
+                }
             }
             'string' {
-                $Return = '"' + $ValueData.Replace( '"', '\"' ) + '"'
+                # need to escape \ and " for semi-JSON used in .items
+                $Return = '"' + $ValueData.Replace( '\', '\\' ).Replace( '"', '\"' ) + '"'
+            }
+            default {
+                $Return = $ValueData.ToString()
             }
         }
         Return $Return
@@ -256,7 +281,7 @@ Foreach ( $Property in $BindingsRaw | Get-Member -MemberType NoteProperty | Wher
         Foreach ( $Config in $Configuration.Properties | Get-Member -MemberType NoteProperty ) {
             If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
                 Write-Verbose "Processing binding configuration: $( $Config.Definition )"
-                $Property = [Config]::new( $Matches.ValueType, $Config.Name, $Configuration.Properties."$( $Config.Name )".Replace( '\', '\\' ))
+                $Property = [Config]::new( $Matches.ValueType, $Config.Name, $Configuration.Properties."$( $Config.Name )")
                 [void] $Binding.Properties.Add( $Property )
             }
         }
@@ -278,10 +303,12 @@ Foreach ( $Property in $MetadataRaw | Get-Member -MemberType NoteProperty | Wher
 
     Write-Verbose "Processing metadata: $( $Metadata.Name )"
     
-    Foreach ( $MetaConfig in $JSON.value.configuration | Get-Member -MemberType NoteProperty  ) {
-        Write-Verbose "Processing metadata configuration: $( $Metaconfig.Definition )"
-        $Config = [Config]::new( $MetaConfig.Name, $JSON.value.configuration."$( $MetaConfig.Name )" )
-        [void] $Metadata.Configuration.Add( $Config )
+    Foreach ( $Config in $JSON.value.configuration | Get-Member -MemberType NoteProperty  ) {
+        If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
+            Write-Verbose "Processing metadata configuration: $( $Metaconfig.Definition )"
+            $Config = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData, $true )
+            [void] $Metadata.Configuration.Add( $Config )
+        }
     }
     [void] $MetaDatas.Add( $MetaData )
 }
