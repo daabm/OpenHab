@@ -517,21 +517,24 @@ begin {
         [Collections.ArrayList] $Items = [Collections.ArrayList]::new()
         
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
-            If ( $SingleLine ) {
-                [string] $Return = '[ '
-                Foreach ( $Item in $This.Items ) {
-                    $Return += $Item.ToString() + ', ' 
+            [String] $Return = ''
+            If ( $This.Items.Count -ge 1 ) {
+                If ( $SingleLine ) {
+                    [string] $Return = '[ '
+                    Foreach ( $Item in $This.Items ) {
+                        $Return += $Item.ToString() + ', ' 
+                    }
+                    $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]'
+                } Else {
+                    $NewLine = "`r`n"
+                    $Spacing = ' ' * $Indent
+                    [string] $Return = '[' + $NewLine
+                    Foreach ( $Item in $This.Items ) {
+                        $Return += $Spacing + '  ' + $Item.ToString( ) + ',' + $NewLine
+                    }
+                    $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
+                    $Return += $Spacing + ']'
                 }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]'
-            } Else {
-                $NewLine = "`r`n"
-                $Spacing = ' ' * $Indent
-                [string] $Return = '[' + $NewLine
-                Foreach ( $Item in $This.Items ) {
-                    $Return += $Spacing + '  ' + $Item.ToString( ) + ',' + $NewLine
-                }
-                $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
-                $Return += $Spacing + ']'
             }
             Return $Return
         }
@@ -542,21 +545,24 @@ begin {
         # channel links and metadata in curly braces, each of them on their own line
         # (can be concatenated, but that's a mess to read)
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
-            If ( $SingleLine ) {
-                [string] $Return = '{ '
-                Foreach ( $Item in $This.Items ) {
-                    $Return += $Item.ToString( $Indent + 2, $SingleLine ) + ', ' 
+            $Return = ''
+            If ( $This.Items.Count ) {
+                If ( $SingleLine ) {
+                    [string] $Return = '{ '
+                    Foreach ( $Item in $This.Items ) {
+                        $Return += $Item.ToString( $Indent + 2, $SingleLine ) + ', ' 
+                    }
+                    $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }'
+                } Else {
+                    $NewLine = "`r`n"
+                    $Spacing = ' ' * $Indent
+                    [string] $Return = '{' + $NewLine
+                    Foreach ( $Item in $This.Items ) {
+                        $Return += $Spacing + '  ' + $Item.ToString( $Indent + 2 ) + ',' + $NewLine
+                    }
+                    $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
+                    $Return += $Spacing + '}'
                 }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }'
-            } Else {
-                $NewLine = "`r`n"
-                $Spacing = ' ' * $Indent
-                [string] $Return = '{' + $NewLine
-                Foreach ( $Item in $This.Items ) {
-                    $Return += $Spacing + '  ' + $Item.ToString( $Indent + 2 ) + ',' + $NewLine
-                }
-                $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
-                $Return += $Spacing + '}'
             }
             Return $Return
         }
@@ -660,7 +666,7 @@ process {
        
                 # only add the channel if any configurations were found unless -IncludeDefaultChannels
                 # all standard channels (without configuration) will be added anyway by the thing binding automatically
-                If ( $Channel.Configuration.Count -gt 0 -or $IncludeDefaultChannels ) {
+                If ( ( $Channel.Configuration.Items.Count -gt 0 ) -or $IncludeDefaultChannels ) {
                     [void] $Thing.Channels.Add( $Channel )
                 }
             }
@@ -795,6 +801,7 @@ process {
         }
         $Things = Get-Things -ThingsJSON $ThingsJSON -Filter $Filter
         $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
+        # sort by Class (Bridge, Thing) amd ID for pretty reading
         Foreach ( $Thing in $Things | Sort-Object -Property Class, BindingID ) {
             $streamwriter.Write( $Thing.ToString() )
         }
@@ -811,6 +818,7 @@ process {
         }
         $Items = Get-Items -ItemsJSON $ItemsJSON -BindingsJSON $BindingsJSON -MetadataJSON $MetadataJSON -Filter $Filter
         $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
+        # sort by type and name for pretty reading
         ForEach ( $Item in $Items | Sort-Object -Property ItemType, Name ) {
             $streamWriter.WriteLine( $Item.ToString() )
         }
