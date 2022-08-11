@@ -106,16 +106,18 @@ param (
     [String] $Filter = '.*'
 )
 
-# for better understanding, some basic hints:
-# all custom classes override the .ToString() method and accept 2 parameters for it:
+# for better understanding, some basic hints aboutn my coding style:
+#
+# all custom classes override the .ToString() method and accept 2 parameters:
 # .ToString( [int] $Indent, [bool] $SingleLine  )
 # $Indent is required for Things - these can be childs of Brindges, and for nice formatting, we then need to indent the whole thing by 2 spaces
 # We also want nice formatting over all, so we leverage the $Indent value to accomplish that.
 # $SingleLine controls if the result (enclosed in either [] or {} ) is returned on a single line or on separate lines for each value.
+# child items (if present) will inherit the $SingleLine property so they cannot be returned on a not-single line ir the parent item is on a single line
 # That's a result of the semi-JSON definition language for .things and .items
 # The .ToString() methods never returns leading spaces or line breaks. This makes it possible to append its result in both $SingleLine and not.
 #
-# In the main functions, I am always returning by ,$return to prevent powershell from unwanted array conversion
+# In the main functions, I am always returning by ,$return to prevent powershell from unwanted array conversion.
 # This conversion is not broadly known and happens on most data types that represent arrays/lists.
 #
 # For class constructors, I mostly prefer "none" and add each property individually. Constructors have no named paramters which makes them different
