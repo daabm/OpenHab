@@ -85,10 +85,10 @@ begin {
         }
 
         [String] ToString() {
-            Return $This.ToStringInternal( 0, $true )
+            Return $This.ToStringInternal( 0, $false )
         }
         [String] ToString( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent, $true )
+            Return $This.ToStringInternal( $Indent, $false )
         }
         [String] ToString( [int] $Indent, [bool] $SingleLine ) {
             Return $This.ToStringInternal( $Indent, $SingleLine )
@@ -99,7 +99,7 @@ begin {
     }
 
     class ohitem : ohobject {
-        [Configuration] $Configuration = [Configuration]::new()
+        [Configuration] $configuration = [Configuration]::new()
     }
 
     class Bridge : ohitem {
@@ -254,6 +254,7 @@ begin {
         [String] $iconName
         [Collections.ArrayList] $groups = [Collections.ArrayList]::new()
         [Collections.ArrayList] $tags = [Collections.ArrayList]::new()
+        [ItemConfiguration] $itemConfiguration = [ItemConfiguration]::new()
     
         # required for aggregate groups
         [string] $baseItemType 
@@ -306,9 +307,9 @@ begin {
                 $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
             }
     
-            If ( $This.configuration.Items.Count -gt 0 ) {
+            If ( $This.itemConfiguration.Items.Count -gt 0 ) {
                 # both channel links and metadata go into the same $Thing.configuration $Property
-                $Return += ' ' + $This.Configuration.ToString( 0, $script:ItemConfigSingleLine )
+                $Return += ' ' + $This.itemConfiguration.ToString( 0, $script:ItemConfigSingleLine )
             }
             # add final new line for better reading
             Return $Return + "`r`n"
@@ -714,11 +715,11 @@ process {
             }
             Foreach ( $Binding in $Bindings | Where-Object { $_.itemName -eq $Item.Name } ) {
                 Write-Verbose "Processing item binding: $( $Binding )"
-                [void] $Item.configuration.Items.Add( $Binding )
+                [void] $Item.itemConfiguration.Items.Add( $Binding )
             }
             Foreach ( $Meta in $Metadata | Where-Object { $_.itemName -eq $Item.Name } ) {
                 Write-Verbose "Processing item metadata: $( $Meta )"
-                [void] $Item.configuration.Items.Add( $Meta )
+                [void] $Item.itemConfiguration.Items.Add( $Meta )
             }
 
             [void] $Items.Add( $Item )
