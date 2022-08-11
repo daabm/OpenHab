@@ -1,9 +1,74 @@
+<#
+.SYNOPSIS
+
+Converts OpenHab JSONDB files to .things and .item files. This easily allows to create item configurations in the UI
+and then export them to files where they can be further modified, linked to groups and so on.
+
+.DESCRIPTION
+
+If you run the script without any parameter, it will do nothing. You need to tell if it should create .things, .items or both.
+
+If you do so, it will look for JSONDB files in its current directory (names MUST be the original names) and convert to allthings.things and/or allitems.items
+
+OpenHab files allow single or multi line notation for configurations and metadata. By default, all values are on their own lines
+which makes the files easy to read but quite lengthy. Use the ...SingleLine parameters to compress the parts you like.
+
+.PARAMETER JSONFolder
+
+Point the script to a different folder to look for JSONDB files. This enables to directly process the current files your OH installation uses
+without copying them before. Be aware that the things/items files will also be written to this folder.
+
+You can even specify multiple folders at once, but as said: The script will place the output in these folders as well.
+
+.PARAMETER CreateThings
+
+Create allthings.things
+
+.PARAMETER CreateItems
+
+Create allitems.items
+
+.PARAMETER OutFileBaseName
+
+If you don't like allitems/allthings, specify your own basename. The files will then be named <basename>.things and <basename>.items
+
+.PARAMETER BridgeConfigSingleLine
+
+Put all configuration parameters of bridges in the same line as the bridge itself (partially recommended).
+
+.PARAMETER ThingConfigSingleLine
+
+Put all configuration parameters of things in the same line as the thing itself (partially recommended).
+
+.PARAMETER ChannelConfigSingleLine
+
+Put all configuration parameters of thing channels in the same line as the channel itself (recommended).
+
+.PARAMETER ItemMetaSingleLine
+
+Put all channel links and metadata of items on the same line as the item itself (NOT recommended).
+
+.PARAMETER MetaConfigSingleLine
+
+Put all channel link configuration parameters and metadata configuration parameters  of items on the same line as the channel link/metadata itself (partially recommended).
+
+.PARAMETER Filter
+
+Use a regex of your choice to filter for things/items of interest. Mainly for testing purposes, but also useful if you want to maintain dedicated files for specific groups of things/items.
+
+#>
 [CmdletBinding()]
 param (
+    [Parameter( ValueFromPipeline=$true,Position=0)]
     [ValidateScript( { Test-Path $_ } )]
     [String[]] $JSONFolder,
-    [Switch] $Things,
-    [Switch] $Items,
+    [Switch] $CreateThings,
+    [Switch] $BridgeConfigSingleLine,
+    [Switch] $ThingConfigSingleLine,
+    [Switch] $ChannelConfigSingleLine,
+    [Switch] $CreateItems,
+    [Switch] $ItemMetaSingleLine,
+    [Switch] $MetaConfigSingleLine,
     [String] $OutFileBasename,
     [String] $Filter = '.*'
 )
@@ -25,30 +90,25 @@ begin {
         [String] $BridgeID
         [String] $label
         [String] $location
-        [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
+        [Configuration] $Configuration = [Configuration]::new()
         [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
-        
+
         [String] ToString() {
-            Return $This.CreateItem()
+            Return $This.ToStringInternal()
         }
 
-        [String] Hidden CreateItem() {
+        [String] Hidden ToStringInternal() {
 
             # create the .things bridge definition from the bridge properties
-
-            [String] $Return = $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
+            [String] $Return = $This.Class + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
             If ( $This.label ) { $Return += ' "' + $This.label + '"' }
             If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
 
             # if the bridge has configuration values, insert them in square brackets
             # and take care of indentation - Openhab is quite picky about misalignment :-)
 
-            If ( $This.Configuration.Count -gt 0 ) {
-                $Return += " [`r`n"
-                Foreach ( $Config in $This.Configuration ) {
-                    $Return += '  ' + $Config.ValueName + '=' + $Config.ToString() + ",`r`n"
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n]" # # strip last comma, close section
+            If ( $This.Configuration.Items.Count -gt 0 ) {
+                $Return += ' ' + $This.Configuration.ToString( 0, $script:BridgeConfigSingleLine )
             }
 
             # if there are things using this bridge, include them in the bridge definition within curly brackets
@@ -56,14 +116,14 @@ begin {
             If ( $This.Things.Count -gt 0 ) {
                 $Return += " {`r`n"
                 Foreach ( $Thing in $This.Things ) {
-                    # ToString( $true ) means "this thing is a child of a bridge" - this adds indendation
-                    # for pretty formatting and adjusts the thing definition for bridge bound things according
-                    # to the description above
-                    $Return += $Thing.ToString( $True )
+                    $Return += $Thing.ToString( 2, $True ) # indentation 2 spaces more and the thing is a child of the bridge
                 }
                 $Return += "}`r`n"
+            } Else {
+                $Return += "`r`n"
             }
-            Return $Return
+            # add a final empty line for better reading
+            Return $Return + "`r`n"
         }
     }
 
@@ -81,41 +141,38 @@ begin {
         [String] $ThingID
         [String] $label
         [String] $Location
-        [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
+        [Configuration] $Configuration = [Configuration]::new()
         [Collections.Arraylist] $Channels = [Collections.ArrayList]::new()
         
         [String] ToString( ){
-            Return $This.CreateItem( $False )
+            Return $This.ToStringInternal( 0, $False )
         }
-        [String] ToString( $IsBridgeChild ) {
-            Return $This.CreateItem( $IsBridgeChild )
+        [String] ToString( [int] $Indent ) {
+            Return $This.ToStringInternal( $Indent, $False )
         }
-
-        [String] Hidden CreateItem( $IsBridgeChild ) {
+        [String] ToString( [int] $Indent, [bool] $IsBridgeChild ) {
+            Return $This.ToStringInternal( $Indent, $IsBridgeChild )
+        }
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $IsBridgeChild ) {
 
             # create the .things item definition from the item properties
 
             # if the item is a child of a bridge, we want 2 spaces more at the beginning of each line
             # and we have a different string composition
 
+            $Spacing = ' ' * $Indent
             If ( $IsBridgeChild ) { 
-                $Indent = 2 
-                [String] $Return = ' ' * $Indent + $This.GetType().Name + ' ' + $This.TypeID + ' ' + $This.ThingID
+                [String] $Return = $Spacing + $This.Class + ' ' + $This.TypeID + ' ' + $This.ThingID
             } Else { 
-                $Indent = 0 
-                [String] $Return = ' ' * $Indent + $This.GetType().Name + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
+                [String] $Return = $Spacing + $This.Class + ' ' + $This.BindingID + ':' + $This.TypeID + ':' + $This.ThingID
             }
             If ( $This.label ) { $Return += ' "' + $This.label + '"' }
             If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
 
             # if the thing has configuration values, add them in square brackets
     
-            If ( $This.Configuration.Count -gt 0 ) {
-                $Return += ' [ '
-                Foreach ( $Config in $This.Configuration ) {
-                    $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
+            If ( $This.Configuration.Items.Count -gt 0 ) {
+                $Return += ' ' + $This.Configuration.ToString( $Indent, $script:ThingConfigSingleLine )
             }
             
             # if the thing has channels, include them in curly brackets as well
@@ -123,14 +180,18 @@ begin {
             
             If ( $This.Channels.Count -gt 0 ) {
                 $Return += " {`r`n"
-                $Return += ' ' * $Indent + "  Channels:`r`n"
+                $Return += $Spacing + "  Channels:`r`n"
                 Foreach ( $Channel in $This.Channels ) {
                     $Return += $Channel.ToString( $Indent + 4 )
                 }
-                $Return += ' ' * $Indent + '}'
+                $Return += $Spacing + '}'
             }
             $Return += "`r`n"
-            Return $Return 
+            If ( -not $IsBridgeChild ) {
+                # add a final empty line for better reading if it is a standalone thing
+                $Return += "`r`n"
+            }
+            Return $Return
         }
 
     }
@@ -148,36 +209,29 @@ begin {
         [String] $Type
         [String] $ID
         [String] $Name
-        [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
+        [Configuration] $Configuration = [Configuration]::new()
         
         [String] ToString( ){
-            Return $This.CreateItem( 4 )
+            Return $This.ToStringInternal( 4 )
         }
-
         [String] ToString( [int] $Indent ) {
-            Return $This.CreateItem( $Indent )
+            Return $This.ToStringInternal( $Indent )
         }
 
-        [String] Hidden CreateItem( [int] $Indent = 4 ){
+        [String] Hidden ToStringInternal( [int] $Indent ){
 
             [String] $Return = ''
 
             # create the .things channel definition from the channel properties
             # if the channel has configuration values, append them in square brackets
             
-            If ( $This.Configuration.Count -gt 0 ) {
+            If ( $This.Configuration.Items.Count -gt 0 ) {
                 $Return += ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
                 If ( $This.Name ) {
                     $Return += ' "' + $This.Name + '"'
                 }
-                
-                $Return += ' [ '
-                Foreach ( $Config in $This.Configuration ) {
-                    $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]`r`n" # strip last comma, close section
+                $Return += ' ' + $This.Configuration.ToString( $Indent, $script:ChannelConfigSingleLine ) + "`r`n"
             }
-
             Return $Return
         }
 
@@ -196,10 +250,9 @@ begin {
         [String] $label
         [String] $category
         [String] $iconName
-        [Collections.ArrayList] $Bindings = [Collections.ArrayList]::new()
         [Collections.ArrayList] $groups = [Collections.ArrayList]::new()
         [Collections.ArrayList] $tags = [Collections.ArrayList]::new()
-        [Collections.ArrayList] $metadata = [Collections.ArrayList]::new()
+        [ItemConfiguration] $configuration = [ItemConfiguration]::new()
     
         # required for aggregate groups
         [string] $baseItemType 
@@ -207,10 +260,10 @@ begin {
         [Collections.ArrayList] $functionParams = [Collections.ArrayList]::new()
     
         [String] ToString( ) {
-            Return $This.CreateItem()
+            Return $This.ToStringInternal( )
         }
     
-        [String] Hidden CreateItem() {
+        [String] Hidden ToStringInternal( ) {
     
             # item definition string in .items files as documented, see above
             [String] $Return = $This.itemType
@@ -246,33 +299,23 @@ begin {
                 Foreach ( $Group in $This.Groups ) {
                     $Return += $Group + ', '
                 }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + " )" # strip last comma, close section
+                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' )' # strip last comma, close section
             }
             If ( $This.tags.Count -ge 1 ) {
                 $Return += ' [ '
                 Foreach ( $Tag in $This.tags ) {
                     $Return += '"' + $Tag + '", '
                 }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + " ]" # strip last comma, close section
+                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
             }
     
-            If ( $This.Bindings.Count + $This.metadata.Count -gt 0 ) {
-                # both bindings and metadata go into the same section, so we need to handle them together
-                $Return += " {`r`n"
-                If ( $This.Bindings.Count -ge 1 ) {
-                    Foreach ( $Binding in $This.Bindings ) {
-                        $Return += '  ' + $Binding.ToString() + ",`r`n"
-                    }
-                }
-                If ( $This.metadata.Count -ge 1 ) {
-                    Foreach ( $Meta in $This.metadata ) {
-                        $Return += '  ' + $Meta.ToString() + ",`r`n"
-                    }
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 3 ) + "`r`n}" # strip last comma, close section
+            If ( $This.configuration.Items.Count -gt 0 ) {
+                # both bindings and metadata go into the same $Thing.metadata $Property
+                # indent by 2 spaces
+                $Return += ' ' + $This.Configuration.ToString( 0, $script:ItemMetaSingleLine )
             }
-    
-            Return $Return
+            # add final new line for better reading
+            Return $Return + "`r`n"
         }
     }
     
@@ -285,23 +328,22 @@ begin {
         [String] $name
         [String] $uid
         [String] $itemName
-        [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
+        [Configuration] $Configuration = [Configuration]::new()
     
         [String] ToString() {
-            Return $This.CreateBinding()
+            Return $This.ToStringInternal( 0 )
+        }
+        [String] ToString( [int] $Indent ) {
+            Return $This.ToStringInternal( $Indent )
         }
     
-        [String] Hidden CreateBinding() {
-    
+        [String] Hidden ToStringInternal( [int] $Indent ) {
             # binding definition string in .items files as documented, see above
-            [String] $Return = 'channel="' + $This.uid + '"'
+            $Spacing = ' ' * $Indent
+            [String] $Return = $Spacing + 'channel="' + $This.uid + '"'
     
-            If ( $This.Configuration.Count -gt 0 ) {
-                $Return += ' [ '
-                Foreach ( $Config in $This.Configuration ) {
-                    $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
+            If ( $This.Configuration.Items.Count -gt 0 ) {
+                $Return += ' ' + $This.Configuration.ToString( $Indent + 2, $script:MetaConfigSingleLine )
             }
             Return $Return
         }
@@ -315,21 +357,19 @@ begin {
         [String] $type
         [String] $value
         [String] $itemName
-        [Collections.ArrayList] $Configuration = [Collections.ArrayList]::new()
+        [Configuration] $Configuration = [Configuration]::new()
     
         [String] ToString() {
-            Return $This.CreateMeta()
+            Return $This.ToStringInternal( 0 )
         }
-    
-        [String] Hidden CreateMeta () {
-            [String] $Return = $This.type + '="' + $This.value + '"'
-            If ( $This.Configuration.Count -gt 0 ) {
-                # if it has configurations, create a section and insert all of them
-                $Return += ' [ '
-                Foreach ( $Config in $This.Configuration ) {
-                    $Return += $Config.ValueName + '=' + $Config.ToString() + ', '
-                }
-                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]' # strip last comma, close section
+        [String] ToString( [int] $Indent ) {
+            Return $This.ToStringInternal( $Indent )
+        }
+        [String] Hidden ToStringInternal ( [int] $Indent ) {
+            $Spacing = ' ' * $Indent
+            [String] $Return = $Spacing + $This.type + '="' + $This.value + '"'
+            If ( $This.Configuration.Items.Count -gt 0 ) {
+                $Return += ' ' + $This.Configuration.ToString( $Indent, $script:MetaConfigSingleLine )
             }
             Return $Return
         }
@@ -339,14 +379,13 @@ begin {
     Class Config {
 
         # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type
-        # to make things easier, this class provides them and handles their types
+        # to make things easier, this class handles them and their types
         [String] $ValueType
         [String] $ValueName
         [String] $ValueData
-        # meta configuration behaves weird in terms of data types... bool and decimal must be enclosed in quotes.
+        # item meta configuration behaves weird in terms of data types... bool and decimal must be enclosed in quotes.
         [Bool] $isMetaConfig
     
-        Config () {}
         Config ( [String] $ValueName, [String] $ValueData ) {
             $This.Valuename = $ValueName
             $This.ValueData = $ValueData
@@ -368,13 +407,13 @@ begin {
                     $This.ValueType = 'string'
                 }
             }
-            $This.isMeteConfig = $false
+            $This.isMetaConfig = $false
         }
         Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData ) {
             $This.ValueType = $ValueType
             $This.Valuename = $ValueName
             $This.ValueData = $ValueData
-            $This.isMeteConfig = $false
+            $This.isMetaConfig = $false
         }
     
         Config ( [String] $ValueType, [String] $ValueName, [String] $ValueData, [Bool] $isMetaConfig ) {
@@ -385,26 +424,24 @@ begin {
         }
     
         [String] ToString() {
-            Return $This.ValueToString( $This.ValueData, $This.ValueType, $This.isMetaConfig )
+            Return $This.ToStringInternal( 0 )
         }
-        [String] ToString( [String] $ValueData, [String] $ValueType ) {
-            Return $This.ValueToString( $ValueData, $ValueType, $This.isMetaConfig )
+        [String] ToString( [int] $Indent) {
+            Return $This.ToStringInternal( $Indent )
         }
-        [String] ToString( [String] $ValueData, [String] $ValueType, [Bool] $isMetaConfig ) {
-            Return $This.ValueToString( $ValueData, $ValueType, $isMetaConfig )
-        }
-    
-        [String] Hidden ValueToString ( [String] $ValueData, [String] $ValueType, [bool] $isMetaConfig ) {
-            [String] $Return = ''
-            Switch ( $ValueType ) {
+        [String] Hidden ToStringInternal ( $Indent) {
+            $Spacing = ' ' * $Indent
+            [String] $Return = $Spacing + $This.ValueName + '='
+            Switch ( $This.ValueType ) {
                 'int' {
-                    $Return = $ValueData
+                    $Return += $This.ValueData
+                    break
                 }
                 'decimal' {
                     # for decimals, we need dot separated values in the item file. This depends on the current locale,
                     # we need to force the decimal to be converted first to a single float depending on the current separator
                     # that ConvertFrom-JSON insert, and then to the en-US string format where the separator is a dot.
-                    $DecimalValue = $ValueData
+                    $DecimalValue = $This.ValueData
                     If ( $DecimalValue -match ',') {
                         $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
                     } Else {
@@ -413,23 +450,28 @@ begin {
                     # for item configurations, decimals cannot carry a decimal ValueType and must be enclosed
                     # in quotes
                     # $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' )) + '"'
-                    $Return = $DecimalValue.ToString( [cultureinfo]::new('en-US' ))
-                    If ( $isMetaConfig ) {
-                        $Return = '"' + $Return + '"'
+                    $DecimalValue = $DecimalValue.ToString( [cultureinfo]::new('en-US' ))
+                    If ( $This.isMetaConfig ) {
+                        $DecimalValue = '"' + $DecimalValue + '"'
                     }
+                    $Return += $DecimalValue
+                    break
                 }
                 'bool' {
-                    $Return = $ValueData.ToString().ToLower()
-                    If ( $isMetaConfig ) {
-                        $Return = '"' + $Return + '"'
+                    $BoolValue = $This.ValueData.ToString().ToLower()
+                    If ( $This.isMetaConfig ) {
+                        $BoolValue = '"' + $BoolValue + '"'
                     }
+                    $Return += $BoolValue
+                    break
                 }
                 'string' {
                     # need to escape \ and " for semi-JSON used in .items
-                    $Return = '"' + $ValueData.Replace( '\', '\\' ).Replace( '"', '\"' ) + '"'
+                    $Return += '"' + $This.ValueData.Replace( '\', '\\' ).Replace( '"', '\"' ) + '"'
+                    break
                 }
                 default {
-                    $Return = $ValueData.ToString()
+                    $Return += $This.ValueData.ToString()
                 }
             }
             Return $Return
@@ -437,11 +479,61 @@ begin {
     
     }
 
+    class Configuration {
+        [Collections.ArrayList] $Items = [Collections.ArrayList]::new()
+        
+        [String] ToString(){
+            Return $This.ToStringInternal( 0, $false )
+        }
+        [String] ToSTring( [int] $Indent ) {
+            Return $This.ToStringInternal( $Indent, $false )
+        }
+        [String] ToSTring( [int] $Indent, [Bool] $SingleLine ) {
+            Return $This.ToStringInternal( $Indent, $SingleLine )
+        }
+
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
+            If ( $SingleLine ) {
+                [string] $Return = '[ '
+                Foreach ( $Item in $This.Items ) {
+                    $Return += $Item.ToString() + ', ' 
+                }
+                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' ]'
+            } Else {
+                $NewLine = "`r`n"
+                $Spacing = ' ' * $Indent
+                [string] $Return = '[' + $NewLine
+                Foreach ( $Item in $This.Items ) {
+                    $Return += $Spacing + '  ' + $Item.ToString( ) + ',' + $NewLine
+                }
+                $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
+                $Return += $Spacing + ']'
+            }
+            Return $Return
+        }
+    }
+
+    class ItemConfiguration : Configuration {
+
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
+            $NewLine = "`r`n"
+            $Spacing = ' ' * $Indent
+            [string] $Return = '{' + $NewLine
+            Foreach ( $Item in $This.Items ) {
+                $Return += $Spacing + $Item.ToString( $Indent + 2 ) + ',' + $NewLine
+            }
+            $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
+            $Return += $Spacing + '}'
+            Return $Return
+        }
+    }
+
 }
+
 
 process {
 
-    function Get-Configuration {
+    function Convert-ConfigurationFromJSON {
         param (
             [Object] $ConfigurationJSON,
             [Bool] $isMetaConfig = $false
@@ -485,7 +577,7 @@ process {
                 $Bridge.BindingID = $JSON.value.UID.Split( ':', 3 )[0]
                 $Bridge.BridgeType = $JSON.value.UID.Split( ':', 3 )[1]
                 $Bridge.BridgeID = $JSON.value.UID.Split( ':', 3 )[2]
-                $Bridge.Configuration = Get-Configuration -ConfigurationJSON $JSON.value.Configuration
+                $Bridge.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.Configuration
 
                 [void] $Things.Add( $Bridge )
                 [void] $Bridges.Add( $Property.Name )
@@ -515,7 +607,7 @@ process {
             }
         
             $Thing.Location = $JSON.value.location
-            $Thing.Configuration = Get-Configuration -ConfigurationJSON $JSON.value.Configuration
+            $Thing.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.Configuration
        
             Foreach ( $Ch in $JSON.value.channels ) {
                 Write-Verbose "Processing thing channel: $( $Ch.UID )"
@@ -532,7 +624,7 @@ process {
                     # channel ID needs to be extracted from channel UID - always last segment (after last ':')
                     $Channel.ID = $Matches.ID
                 }
-                $Channel.Configuration = Get-Configuration -ConfigurationJSON $Ch.Configuration
+                $Channel.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $Ch.Configuration
        
                 # only add the channel if any configurations were found
                 # all standard channels (without configuration) will be added anyway by the thing binding automatically
@@ -573,7 +665,7 @@ process {
             $Binding.name = $Property.Name
             $Binding.uid = $JSON.value.ChannelUID.UID
             $Binding.itemName = $JSON.value.itemName
-            $Binding.Configuration = Get-Configuration -ConfigurationJSON $JSON.value.Configuration
+            $Binding.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.Configuration
 
             [void] $Bindings.Add( $Binding )
         }
@@ -598,7 +690,7 @@ process {
             $Metadata.type = $Property.Name.Split( ':' )[0]
             $Metadata.itemName = $Property.Name.Split( ':', 2 )[1]
             $MetaData.value = $JSON.value.value
-            $Metadata.Configuration = Get-Configuration -ConfigurationJSON $JSON.value.configuration
+            $Metadata.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.configuration
         
             [void] $MetaDatas.Add( $MetaData )
         }
@@ -644,12 +736,12 @@ process {
                 [void] $Item.tags.Add( $Tag )
             }
             Foreach ( $Binding in $Bindings | Where-Object { $_.itemName -eq $Item.Name } ) {
-                Write-Verbose "Processing item binding: $( $ItemBinding )"
-                [void] $Item.Bindings.Add( $Binding )
+                Write-Verbose "Processing item binding: $( $Binding )"
+                [void] $Item.configuration.Items.Add( $Binding )
             }
             Foreach ( $Meta in $Metadata | Where-Object { $_.itemName -eq $Item.Name } ) {
                 Write-Verbose "Processing item metadata: $( $Meta )"
-                [void] $Item.metadata.Add( $Meta )
+                [void] $Item.configuration.Items.Add( $Meta )
             }
 
             [void] $Items.Add( $Item )
@@ -661,7 +753,7 @@ process {
         $JSONFolder = $PSScriptRoot
     }
 
-    If ( $Things ) {
+    If ( $CreateThings ) {
         $ThingsJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Thing.JSON" | ConvertFrom-Json
         If ( $OutFileBasename ) {
             $OutFile = "$JSONFolder\$OutfileBasename.things"
@@ -670,12 +762,12 @@ process {
         }
         $Things = Get-Things -ThingsJSON $ThingsJSON -Filter $Filter
         $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
-        Foreach ( $Thing in $Things | Sort-Object -Property BindingID ) {
+        Foreach ( $Thing in $Things | Sort-Object -Property Class, BindingID ) {
             $streamwriter.Write( $Thing.ToString() )
         }
         $streamWriter.Dispose()
     }
-    If ( $Items ) {
+    If ( $CreateItems ) {
         $ItemsJSON = Get-Content "$JSONFolder\org.openhab.core.items.Item.JSON" | ConvertFrom-Json
         $BindingsJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.JSON" | ConvertFrom-Json
         $MetadataJSON = Get-Content "$JSONFolder\org.openhab.core.items.Metadata.JSON" | ConvertFrom-Json
