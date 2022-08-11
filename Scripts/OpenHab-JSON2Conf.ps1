@@ -67,6 +67,7 @@ param (
     [Switch] $ThingConfigSingleLine,
     [Switch] $ChannelConfigSingleLine,
     [Switch] $CreateItems,
+    [Switch] $ItemConfigSingleLine,
     [Switch] $ItemMetaSingleLine,
     [Switch] $MetaConfigSingleLine,
     [String] $OutFileBasename,
@@ -77,7 +78,31 @@ begin {
 
     $Encoding = [Text.Encoding]::GetEncoding( 1252 )
 
-    class Bridge {
+    class ohobject {
+        [string] $class
+        ohobject() {
+            $This.Class = $This.GetType().Name
+        }
+
+        [String] ToString() {
+            Return $This.ToStringInternal( 0, $true )
+        }
+        [String] ToString( [int] $Indent ) {
+            Return $This.ToStringInternal( $Indent, $true )
+        }
+        [String] ToString( [int] $Indent, [bool] $SingleLine ) {
+            Return $This.ToStringInternal( $Indent, $SingleLine )
+        }
+        [String] ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
+            Return ''
+        }
+    }
+
+    class ohitem : ohobject {
+        [Configuration] $Configuration = [Configuration]::new()
+    }
+
+    class Bridge : ohitem {
 
         # generic bridge definition:
         # Bridge <binding_name>:<bridge_type>:<bridge_name> [ <parameters> ] {
@@ -90,14 +115,9 @@ begin {
         [String] $BridgeID
         [String] $label
         [String] $location
-        [Configuration] $Configuration = [Configuration]::new()
         [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
 
-        [String] ToString() {
-            Return $This.ToStringInternal()
-        }
-
-        [String] Hidden ToStringInternal() {
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
 
             # create the .things bridge definition from the bridge properties
             [String] $Return = $This.Class + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
@@ -127,7 +147,7 @@ begin {
         }
     }
 
-    Class Thing {
+    Class Thing : ohitem {
 
         # generic bridge thing definition
         # Thing <type_id> <thing_id> "Label" @ "Location" [ <parameters> ]
@@ -141,18 +161,8 @@ begin {
         [String] $ThingID
         [String] $label
         [String] $Location
-        [Configuration] $Configuration = [Configuration]::new()
         [Collections.Arraylist] $Channels = [Collections.ArrayList]::new()
         
-        [String] ToString( ){
-            Return $This.ToStringInternal( 0, $False )
-        }
-        [String] ToString( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent, $False )
-        }
-        [String] ToString( [int] $Indent, [bool] $IsBridgeChild ) {
-            Return $This.ToStringInternal( $Indent, $IsBridgeChild )
-        }
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $IsBridgeChild ) {
 
             # create the .things item definition from the item properties
@@ -196,7 +206,7 @@ begin {
 
     }
 
-    Class Channel {
+    Class Channel : ohitem {
 
         # generic thing channel definition
         # Channels:
@@ -209,16 +219,8 @@ begin {
         [String] $Type
         [String] $ID
         [String] $Name
-        [Configuration] $Configuration = [Configuration]::new()
         
-        [String] ToString( ){
-            Return $This.ToStringInternal( 4 )
-        }
-        [String] ToString( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent )
-        }
-
-        [String] Hidden ToStringInternal( [int] $Indent ){
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ){
 
             [String] $Return = ''
 
@@ -237,7 +239,7 @@ begin {
 
     }
 
-    class Item {
+    class Item : ohitem {
 
         # generic item definition
         # itemtype itemname "labeltext [stateformat]" <iconname> (group1, group2, ...) ["tag1", "tag2", ...] {bindingconfig}
@@ -252,18 +254,13 @@ begin {
         [String] $iconName
         [Collections.ArrayList] $groups = [Collections.ArrayList]::new()
         [Collections.ArrayList] $tags = [Collections.ArrayList]::new()
-        [ItemConfiguration] $configuration = [ItemConfiguration]::new()
     
         # required for aggregate groups
         [string] $baseItemType 
         [string] $functionName
         [Collections.ArrayList] $functionParams = [Collections.ArrayList]::new()
     
-        [String] ToString( ) {
-            Return $This.ToStringInternal( )
-        }
-    
-        [String] Hidden ToStringInternal( ) {
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
     
             # item definition string in .items files as documented, see above
             [String] $Return = $This.itemType
@@ -311,14 +308,14 @@ begin {
     
             If ( $This.configuration.Items.Count -gt 0 ) {
                 # both channel links and metadata go into the same $Thing.configuration $Property
-                $Return += ' ' + $This.Configuration.ToString( 0, $script:ItemMetaSingleLine )
+                $Return += ' ' + $This.Configuration.ToString( 0, $script:ItemConfigSingleLine )
             }
             # add final new line for better reading
             Return $Return + "`r`n"
         }
     }
-    
-    class Binding {
+
+    class Binding : ohitem {
 
         # generic binding (aka "item channel") definition
         # channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="system:<profileID>", <profile-parameterID>="MyValue", ...]
@@ -327,55 +324,43 @@ begin {
         [String] $name
         [String] $uid
         [String] $itemName
-        [Configuration] $Configuration = [Configuration]::new()
     
-        [String] ToString() {
-            Return $This.ToStringInternal( 0 )
-        }
-        [String] ToString( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent )
-        }
-    
-        [String] Hidden ToStringInternal( [int] $Indent ) {
+        [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
             # binding definition string in .items files as documented, see above
+            If ( $SingleLine ) { $Indent = 0 }
             $Spacing = ' ' * $Indent
             [String] $Return = $Spacing + 'channel="' + $This.uid + '"'
     
             If ( $This.Configuration.Items.Count -gt 0 ) {
-                $Return += ' ' + $This.Configuration.ToString( $Indent + 2, $script:MetaConfigSingleLine )
+                # do not create multiline configuration if the binding itself is on one line...
+                $Return += ' ' + $This.Configuration.ToString( $Indent + 2, $SingleLine -or $script:MetaConfigSingleLine )
             }
             Return $Return
         }
     
     }
     
-    Class Metadata {
+    Class Metadata : ohitem {
     
         # basic metadata properties
         [String] $name
         [String] $type
         [String] $value
         [String] $itemName
-        [Configuration] $Configuration = [Configuration]::new()
-    
-        [String] ToString() {
-            Return $This.ToStringInternal( 0 )
-        }
-        [String] ToString( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent )
-        }
-        [String] Hidden ToStringInternal ( [int] $Indent ) {
+
+        [String] Hidden ToStringInternal ( [int] $Indent, [bool] $SingleLine ) {
+            If ( $SingleLine ) { $Indent = 0 }
             $Spacing = ' ' * $Indent
             [String] $Return = $Spacing + $This.type + '="' + $This.value + '"'
             If ( $This.Configuration.Items.Count -gt 0 ) {
-                $Return += ' ' + $This.Configuration.ToString( $Indent, $script:MetaConfigSingleLine )
+                $Return += ' ' + $This.Configuration.ToString( $Indent + 2, $SingleLine -or $script:MetaConfigSingleLine )
             }
             Return $Return
         }
     
     }
     
-    Class Config {
+    Class Config : ohitem {
 
         # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type
         # to make things easier, this class handles them and their types
@@ -422,13 +407,7 @@ begin {
             $This.isMetaConfig = $isMetaConfig
         }
     
-        [String] ToString() {
-            Return $This.ToStringInternal( 0 )
-        }
-        [String] ToString( [int] $Indent) {
-            Return $This.ToStringInternal( $Indent )
-        }
-        [String] Hidden ToStringInternal ( $Indent) {
+        [String] Hidden ToStringInternal ( [int] $Indent, [bool] $SingleLine ) {
             $Spacing = ' ' * $Indent
             [String] $Return = $Spacing + $This.ValueName + '='
             Switch ( $This.ValueType ) {
@@ -478,19 +457,9 @@ begin {
     
     }
 
-    class Configuration {
+    class Configuration : ohobject {
         [Collections.ArrayList] $Items = [Collections.ArrayList]::new()
         
-        [String] ToString(){
-            Return $This.ToStringInternal( 0, $false )
-        }
-        [String] ToSTring( [int] $Indent ) {
-            Return $This.ToStringInternal( $Indent, $false )
-        }
-        [String] ToSTring( [int] $Indent, [Bool] $SingleLine ) {
-            Return $This.ToStringInternal( $Indent, $SingleLine )
-        }
-
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
             If ( $SingleLine ) {
                 [string] $Return = '[ '
@@ -513,22 +482,31 @@ begin {
     }
 
     class ItemConfiguration : Configuration {
-
+        # item configuration is different from others, here we have
+        # channel links and metadata in curly braces, each of them on their own line
+        # (could be concatenated, but that's a mess to read, so ignore $SingleLine)
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
-            $NewLine = "`r`n"
-            $Spacing = ' ' * $Indent
-            [string] $Return = '{' + $NewLine
-            Foreach ( $Item in $This.Items ) {
-                $Return += $Spacing + $Item.ToString( $Indent + 2 ) + ',' + $NewLine
+            If ( $SingleLine ) {
+                [string] $Return = '{ '
+                Foreach ( $Item in $This.Items ) {
+                    $Return += $Item.ToString( $Indent + 2, $SingleLine ) + ', ' 
+                }
+                $Return = $Return.Substring( 0, $Return.Length - 2 ) + ' }'
+            } Else {
+                $NewLine = "`r`n"
+                $Spacing = ' ' * $Indent
+                [string] $Return = '{' + $NewLine
+                Foreach ( $Item in $This.Items ) {
+                    $Return += $Spacing + '  ' + $Item.ToString( $Indent + 2 ) + ',' + $NewLine
+                }
+                $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
+                $Return += $Spacing + '}'
             }
-            $Return = $Return.Substring( 0, $Return.Length - ( 1 + $NewLine.Length ) ) + $NewLine
-            $Return += $Spacing + '}'
             Return $Return
         }
     }
 
 }
-
 
 process {
 
