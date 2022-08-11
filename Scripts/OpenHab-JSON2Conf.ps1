@@ -310,8 +310,7 @@ begin {
             }
     
             If ( $This.configuration.Items.Count -gt 0 ) {
-                # both bindings and metadata go into the same $Thing.metadata $Property
-                # indent by 2 spaces
+                # both channel links and metadata go into the same $Thing.configuration $Property
                 $Return += ' ' + $This.Configuration.ToString( 0, $script:ItemMetaSingleLine )
             }
             # add final new line for better reading
