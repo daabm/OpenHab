@@ -13,24 +13,35 @@ If you do so, it will look for JSONDB files in its current directory (names MUST
 OpenHab files allow single or multi line notation for configurations and metadata. By default, all values are on their own lines
 which makes the files easy to read but quite lengthy. Use the ...SingleLine parameters to compress the parts you like.
 
+By default, you will get no output. If you want, add -verbose. Be warned, it's massive...
+
 .PARAMETER JSONFolder
 
-Point the script to a different folder to look for JSONDB files. This enables to directly process the current files your OH installation uses
-without copying them before. Be aware that the things/items files will also be written to this folder.
+Point the script to a different folder to look for JSONDB files. This enables direct processing of the files your OpenHab installation uses
+without copying them before. Be aware that the .things/.items files will also be written to this folder unless you specify an -OutFolder.
 
-You can even specify multiple folders at once, but as said: The script will place the output in these folders as well.
+You can even specify multiple folders at once, but as said: The script will place the output in these folders as well without an -OutFolder.
+
+.PARAMETER OutFileBaseName
+
+If you don't like allitems/allthings, specify your own basename. The files will then be named <basename>.things and <basename>.items
+
+.PARAMETER OutFolder
+
+By default, the script will save its results to the same JSONFolder (or the current script folder). If you want to redirect, use this parameter.
+Obviously, if you specified multiple JSONFolder parameters, these will be overwritten by their ancestors because different naming is not implementet right now.
 
 .PARAMETER CreateThings
 
 Create allthings.things
 
+.PARAMETER IncludeDefaultChannels
+
+By default, channels without config parameters will not be included in the .things file to minimize clutter. If you want to include all channels, add this switch.
+
 .PARAMETER CreateItems
 
 Create allitems.items
-
-.PARAMETER OutFileBaseName
-
-If you don't like allitems/allthings, specify your own basename. The files will then be named <basename>.things and <basename>.items
 
 .PARAMETER BridgeConfigSingleLine
 
@@ -56,13 +67,34 @@ Put all channel link configuration parameters and metadata configuration paramet
 
 Use a regex of your choice to filter for things/items of interest. Mainly for testing purposes, but also useful if you want to maintain dedicated files for specific groups of things/items.
 
+.EXAMPLE
+
+.\OpenHab-JSON2Conf.ps1 -CreateThings -CreateItems -ThingConfigSingleLine -ChannelConfigSingleLine
+
+This is the recommended parameter combination. It gives a quite compact .things list which you might not touch that often, and a comprehensive .items list which is easy to read and modify.
+
+.EXAMPLE
+
+.\OpenHab-JSON2Conf.ps1 -JSONFolder @( '\\server1\share\openhab\userdata\jsondb', '\\server2\share\openhab\userdata\jsondb' ) -CreateThings -CreateItems
+
+Create fully line separated .things and .items for both OpenHab JSONDB in the given folders.
+
+.EXAMPLE
+
+.\OpenHab-JSON2Conf.ps1 -CreateThings -ThingConfigSingleLine -ChannelConfigSingleLine -filter 'avm'
+
+Create a .things file that only deals with things and bridges that match to 'avm'. Welcome all Fritz!Box users :-)
+
 #>
 [CmdletBinding()]
 param (
     [Parameter( ValueFromPipeline=$true,Position=0)]
     [ValidateScript( { Test-Path $_ } )]
     [String[]] $JSONFolder,
+    [ValidateScript( { Test-Path $_ } )]
+    [String] $OutFolder,
     [Switch] $CreateThings,
+    [Switch] $IncludeDefaultChannels,
     [Switch] $BridgeConfigSingleLine,
     [Switch] $ThingConfigSingleLine,
     [Switch] $ChannelConfigSingleLine,
@@ -74,16 +106,36 @@ param (
     [String] $Filter = '.*'
 )
 
+# for better understanding, some basic hints:
+# all custom classes override the .ToString() method and accept 2 parameters for it:
+# .ToString( [int] $Indent, [bool] $SingleLine  )
+# $Indent is required for Things - these can be childs of Brindges, and for nice formatting, we then need to indent the whole thing by 2 spaces
+# We also want nice formatting over all, so we leverage the $Indent value to accomplish that.
+# $SingleLine controls if the result (enclosed in either [] or {} ) is returned on a single line or on separate lines for each value.
+# That's a result of the semi-JSON definition language for .things and .items
+# The .ToString() methods never returns leading spaces or line breaks. This makes it possible to append its result in both $SingleLine and not.
+#
+# In the main functions, I am always returning by ,$return to prevent powershell from unwanted array conversion
+# This conversion is not broadly known and happens on most data types that represent arrays/lists.
+#
+# For class constructors, I mostly prefer "none" and add each property individually. Constructors have no named paramters which makes them different
+# to read if you instanciate your class with a full set of properties like [Thing]::new( $Label, $location, $GindingID, $TypeID ),
+# and it also makes the class definition itself harder to read because of a lot of constructors. KISS - keep it simple, stupid!
+
 begin {
 
+    # OpenHab needs UTF-8 or CP1252, we need this for the streamwriter
     $Encoding = [Text.Encoding]::GetEncoding( 1252 )
 
     class ohobject {
+        # basic class for all oh objects
+        # .class property only for sorting the results - makes using Sort-Object easier...
         [string] $class
         ohobject() {
             $This.Class = $This.GetType().Name
         }
 
+        # all oh object classes have these methods to return properly formatted strings, so put them in a base class
         [String] ToString() {
             Return $This.ToStringInternal( 0, $false )
         }
@@ -99,17 +151,17 @@ begin {
     }
 
     class ohitem : ohobject {
+        # if it is a real oh item, it always has a .configuration property to store custom config params
         [Configuration] $configuration = [Configuration]::new()
     }
 
     class Bridge : ohitem {
 
         # generic bridge definition:
-        # Bridge <binding_name>:<bridge_type>:<bridge_name> [ <parameters> ] {
-        #   (array of things)
+        # Bridge <binding_name>:<bridge_type>:<bridge_name> "Displayname" @ "Location" [ <parameters> ] {
+        #   <array of things>
         # }
 
-        # basic bridge properties
         [String] $BindingID
         [String] $BridgeType
         [String] $BridgeID
@@ -120,18 +172,20 @@ begin {
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
 
             # create the .things bridge definition from the bridge properties
+
             [String] $Return = $This.Class + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
             If ( $This.label ) { $Return += ' "' + $This.label + '"' }
             If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
 
-            # if the bridge has configuration values, insert them in square brackets
-            # and take care of indentation - Openhab is quite picky about misalignment :-)
+            # if the current item has configuration values, insert them in square brackets
+            # the [Configuration] class (defined below) handles this.
 
             If ( $This.Configuration.Items.Count -gt 0 ) {
+                # The [configuration].ToString method controls formatting
                 $Return += ' ' + $This.Configuration.ToString( 0, $script:BridgeConfigSingleLine )
             }
 
-            # if there are things using this bridge, include them in the bridge definition within curly brackets
+            # if things use this bridge, include them in the bridge definition within curly braces
 
             If ( $This.Things.Count -gt 0 ) {
                 $Return += " {`r`n"
@@ -142,7 +196,9 @@ begin {
             } Else {
                 $Return += "`r`n"
             }
+
             # add a final empty line for better reading
+
             Return $Return + "`r`n"
         }
     }
@@ -150,11 +206,10 @@ begin {
     Class Thing : ohitem {
 
         # generic bridge thing definition
-        # Thing <type_id> <thing_id> "Label" @ "Location" [ <parameters> ]
+        # Thing <type_id> <thing_id> "Displayname" @ "Location" [ <parameters> ]
         # generic standalone thing definition
-        # Thing <binding_id>:<type_id>:<thing_id> "Label" @ "Location" [ <parameters> ]
+        # Thing <binding_id>:<type_id>:<thing_id> "Displayname" @ "Location" [ <parameters> ]
 
-        # basic thing properties
         [String] $BindingID
         [String] $TypeID
         [String] $BridgeID
@@ -166,9 +221,7 @@ begin {
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $IsBridgeChild ) {
 
             # create the .things item definition from the item properties
-
-            # if the item is a child of a bridge, we want 2 spaces more at the beginning of each line
-            # and we have a different string composition
+            # if the item is a child of a bridge, the string composition is different
 
             $Spacing = ' ' * $Indent
             If ( $IsBridgeChild ) { 
@@ -179,14 +232,15 @@ begin {
             If ( $This.label ) { $Return += ' "' + $This.label + '"' }
             If ( $This.location ) { $Return += ' @ "' + $This.location + '"' }
 
-            # if the thing has configuration values, add them in square brackets
-    
+            # if the current item has configuration values, insert them in square brackets
+            # the [Configuration] class (defined below) handles this.
+            
             If ( $This.Configuration.Items.Count -gt 0 ) {
+                # The configuration.ToString() method controls formatting - for items, this is an overwritten method of the base configuration.ToString() method
                 $Return += ' ' + $This.Configuration.ToString( $Indent, $script:ThingConfigSingleLine )
             }
             
-            # if the thing has channels, include them in curly brackets as well
-            # again, take care of correct indendation
+            # if the thing has channels, include them in curly braces
             
             If ( $This.Channels.Count -gt 0 ) {
                 $Return += " {`r`n"
@@ -198,9 +252,12 @@ begin {
             }
             $Return += "`r`n"
             If ( -not $IsBridgeChild ) {
+
                 # add a final empty line for better reading if it is a standalone thing
+
                 $Return += "`r`n"
             }
+
             Return $Return
         }
 
@@ -211,10 +268,10 @@ begin {
         # generic thing channel definition
         # Channels:
         #   State String : customChannel1 "My Custom Channel" [
+        #     configParameter="Value",
         #     configParameter="Value"
         #   ]
 
-        # channel definition in .item files as documented, see above
         [String] $Kind
         [String] $Type
         [String] $ID
@@ -222,18 +279,11 @@ begin {
         
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ){
 
-            [String] $Return = ''
-
-            # create the .things channel definition from the channel properties
-            # if the channel has configuration values, append them in square brackets
-            
-            If ( $This.Configuration.Items.Count -gt 0 ) {
-                $Return += ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
-                If ( $This.Name ) {
-                    $Return += ' "' + $This.Name + '"'
-                }
-                $Return += ' ' + $This.Configuration.ToString( $Indent, $script:ChannelConfigSingleLine ) + "`r`n"
+            [string] $Return = ' ' * $Indent + $This.Kind.Substring( 0, 1 ).ToUpper() + $This.Kind.Substring( 1 ).ToLower() + ' ' + $This.Type + ' : ' + $This.ID
+            If ( $This.Name ) {
+                $Return += ' "' + $This.Name + '"'
             }
+            $Return += ' ' + $This.Configuration.ToString( $Indent, $script:ChannelConfigSingleLine ) + "`r`n"
             Return $Return
         }
 
@@ -246,7 +296,6 @@ begin {
         # generic group definition
         # Group[:itemtype[:function]] groupname ["labeltext"] [<iconname>] [(group1, group2, ...)] [[ "semanticClass"]] [{<channel links>}]
     
-        # basic item properties
         [String] $itemType
         [String] $Name
         [String] $label
@@ -254,6 +303,8 @@ begin {
         [String] $iconName
         [Collections.ArrayList] $groups = [Collections.ArrayList]::new()
         [Collections.ArrayList] $tags = [Collections.ArrayList]::new()
+        # all classes have a .configuration property. For items, we cannot use it since item configurations are not in [], but in {}, and they need a
+        # different formatting for a clean look of the .items file. So add a new child class of [configuration]...
         [ItemConfiguration] $itemConfiguration = [ItemConfiguration]::new()
     
         # required for aggregate groups
@@ -308,7 +359,9 @@ begin {
             }
     
             If ( $This.itemConfiguration.Items.Count -gt 0 ) {
-                # both channel links and metadata go into the same $Thing.configuration $Property
+                # both channel links and metadata go into the same $Thing.configuration.Items $Property
+                # The [configuration].ToString method controls formatting
+                # items have no indendation, so 0 as first param. Second controls line breaks.
                 $Return += ' ' + $This.itemConfiguration.ToString( 0, $script:ItemConfigSingleLine )
             }
             # add final new line for better reading
@@ -319,21 +372,19 @@ begin {
     class Binding : ohitem {
 
         # generic binding (aka "item channel") definition
-        # channel="<bindingID>:<thing-typeID>:MyThing:myChannel"[profile="system:<profileID>", <profile-parameterID>="MyValue", ...]
+        # channel="<bindingID>:<thing-typeID>:MyThing:myChannel" [profile="<profileID>", <profile-parameter>="MyValue", ...]
     
-        # basic binding properties
         [String] $name
         [String] $uid
         [String] $itemName
     
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
-            # binding definition string in .items files as documented, see above
+            # special handling for $SingleLine -eq $true: No indendation at all...
             If ( $SingleLine ) { $Indent = 0 }
             $Spacing = ' ' * $Indent
             [String] $Return = $Spacing + 'channel="' + $This.uid + '"'
     
             If ( $This.Configuration.Items.Count -gt 0 ) {
-                # do not create multiline configuration if the binding itself is on one line...
                 $Return += ' ' + $This.Configuration.ToString( $Indent + 2, $SingleLine -or $script:MetaConfigSingleLine )
             }
             Return $Return
@@ -343,13 +394,15 @@ begin {
     
     Class Metadata : ohitem {
     
-        # basic metadata properties
+        # generic metadata definition
+        # metatype="metaname" [paramter=value, parameter=value, ...]
         [String] $name
         [String] $type
         [String] $value
         [String] $itemName
 
         [String] Hidden ToStringInternal ( [int] $Indent, [bool] $SingleLine ) {
+            # special handling for $SingleLine -eq $true: No indendation at all...
             If ( $SingleLine ) { $Indent = 0 }
             $Spacing = ' ' * $Indent
             [String] $Return = $Spacing + $This.type + '="' + $This.value + '"'
@@ -363,12 +416,13 @@ begin {
     
     Class Config : ohitem {
 
-        # items, bindings, etc. might have config values. These consist of a name, a value and (optionally) a type
+        # items, bindings, etc. might have config values. These have  a name, value and (optionally) type
         # to make things easier, this class handles them and their types
         [String] $ValueType
         [String] $ValueName
         [String] $ValueData
         # item meta configuration behaves weird in terms of data types... bool and decimal must be enclosed in quotes.
+        # Thus we need to keep track if this config is from a metadata configuration and return properly formatted values in the .ToString() method
         [Bool] $isMetaConfig
     
         Config ( [String] $ValueName, [String] $ValueData ) {
@@ -417,19 +471,17 @@ begin {
                     break
                 }
                 'decimal' {
-                    # for decimals, we need dot separated values in the item file. This depends on the current locale,
+                    # for decimals, we need dot separated values in the .items file. This depends on the current locale,
                     # we need to force the decimal to be converted first to a single float depending on the current separator
-                    # that ConvertFrom-JSON insert, and then to the en-US string format where the separator is a dot.
+                    # that ConvertFrom-JSON inserts, and then to the en-US string format where the separator is a dot.
                     $DecimalValue = $This.ValueData
                     If ( $DecimalValue -match ',') {
                         $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'de-DE' ))
                     } Else {
                         $DecimalValue = $DecimalValue.ToSingle( [cultureinfo]::new( 'en-US' ))
                     }
-                    # for item configurations, decimals cannot carry a decimal ValueType and must be enclosed
-                    # in quotes
-                    # $Return = '"' + $DecimalValue.ToString( [cultureinfo]::new( 'en-US' )) + '"'
                     $DecimalValue = $DecimalValue.ToString( [cultureinfo]::new('en-US' ))
+                    # for item metadata configurations, decimals must be enclosed in quotes
                     If ( $This.isMetaConfig ) {
                         $DecimalValue = '"' + $DecimalValue + '"'
                     }
@@ -438,6 +490,7 @@ begin {
                 }
                 'bool' {
                     $BoolValue = $This.ValueData.ToString().ToLower()
+                    # for item metadata configurations, bool must be enclosed in quotes
                     If ( $This.isMetaConfig ) {
                         $BoolValue = '"' + $BoolValue + '"'
                     }
@@ -445,11 +498,12 @@ begin {
                     break
                 }
                 'string' {
-                    # need to escape \ and " for semi-JSON used in .items
+                    # need to escape \ and " for semi-JSON used in .items and .things
                     $Return += '"' + $This.ValueData.Replace( '\', '\\' ).Replace( '"', '\"' ) + '"'
                     break
                 }
                 default {
+                    # failed to resolve data type, return at least something...
                     $Return += $This.ValueData.ToString()
                 }
             }
@@ -459,6 +513,7 @@ begin {
     }
 
     class Configuration : ohobject {
+        # helper class to format configuration items in a single line or multiple lines
         [Collections.ArrayList] $Items = [Collections.ArrayList]::new()
         
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
@@ -483,9 +538,9 @@ begin {
     }
 
     class ItemConfiguration : Configuration {
-        # item configuration is different from others, here we have
+        # item configuration is different from other configurations, here we have
         # channel links and metadata in curly braces, each of them on their own line
-        # (could be concatenated, but that's a mess to read, so ignore $SingleLine)
+        # (can be concatenated, but that's a mess to read)
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
             If ( $SingleLine ) {
                 [string] $Return = '{ '
@@ -512,12 +567,15 @@ begin {
 process {
 
     function Convert-ConfigurationFromJSON {
+        # convert configuration JSON to the object type we need
+        [CmdletBinding()]
         param (
             [Object] $ConfigurationJSON,
             [Bool] $isMetaConfig = $false
         )
         $Configurations = [Collections.ArrayList]::new()
         Foreach ( $Config in $ConfigurationJSON | Get-Member -MemberType NoteProperty ) {
+            # parse the actual NoteProperty to its individual partes and add it to the $Configurations arraylist
             If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
                 Write-Verbose "Processing configuration: $( $Config.Definition )"
                 $ConfigValue = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData, $isMetaConfig )
@@ -547,8 +605,6 @@ process {
         
                 Write-Verbose "Processing bridge: $( $JSON.value.UID )"
 
-                # basic bridge data
-        
                 $Bridge = [Bridge]::new()
                 $Bridge.label = $JSON.value.label
                 $Bridge.location = $JSON.value.location
@@ -568,8 +624,6 @@ process {
         
             Write-Verbose "Processing thing: $( $JSON.value.UID )"
 
-            # basic thing data
-        
             $Thing = [Thing]::new()
             $Thing.label = $JSON.value.label
             $Thing.location = $JSON.value.location
@@ -604,9 +658,9 @@ process {
                 }
                 $Channel.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $Ch.Configuration
        
-                # only add the channel if any configurations were found
+                # only add the channel if any configurations were found unless -IncludeDefaultChannels
                 # all standard channels (without configuration) will be added anyway by the thing binding automatically
-                If ( $Channel.Configuration.Count -gt 0 ) {
+                If ( $Channel.Configuration.Count -gt 0 -or $IncludeDefaultChannels ) {
                     [void] $Thing.Channels.Add( $Channel )
                 }
             }
@@ -617,12 +671,12 @@ process {
                 $BridgeType = $JSON.value.BridgeUID.Split( ':', 3 )[1]
                 $BridgeID = $JSON.value.BridgeUID.Split( ':', 3 )[2]
                 $Bridge = $Things | Where-Object { $_.BindingID -eq $BindingID -and $_.BridgeType -eq $BridgeType -and $_.BridgeID -eq $BridgeID }
+                # no need to check if we found any bridge - we WILL find one and only one...
                 [void] $Bridge.Things.Add( $Thing )
             } Else {
                 [Void] $Things.Add( $Thing )
             }
         }
-        
         Return ,$Things
     }
 
@@ -684,6 +738,7 @@ process {
             [String] $Filter
         )
 
+        # we need bindings and metadata to assign them to their items later
         $Bindings = Get-Bindings -BindingsJSON $BindingsJSON -Filter $Filter
         $Metadata = Get-Metadata -MetadataJSON $MetadataJSON -Filter $Filter
         
