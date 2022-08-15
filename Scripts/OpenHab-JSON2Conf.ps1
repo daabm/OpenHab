@@ -371,9 +371,9 @@ begin {
         }
     }
 
-    class Binding : ohitem {
+    class ItemChannelLink : ohitem {
 
-        # generic binding (aka "item channel") definition
+        # generic binding (aka "item channel link") definition
         # channel="<bindingID>:<thing-typeID>:MyThing:myChannel" [profile="<profileID>", <profile-parameter>="MyValue", ...]
     
         [String] $name
@@ -688,28 +688,28 @@ process {
         Return ,$Things
     }
 
-    function Get-Bindings {
+    function Get-ItemChannelLinks {
         [CmdletBinding()]
         param (
-            [Object] $BindingsJSON,
+            [Object] $ItemChannelLinksJSON,
             [String] $Filter
         )
 
-        $Bindings = [Collections.ArrayList]::new()
-        Foreach ( $Property in $BindingsJSON | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $Filter } ) {
+        $ItemChannelLinks = [Collections.ArrayList]::new()
+        Foreach ( $Property in $ItemChannelLinksJSON | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -match $Filter } ) {
 
-            $JSON = $BindingsJSON."$( $Property.Name )"
-            Write-Verbose "Processing binding: $( $JSON.value.ChannelUID.UID )"
+            $JSON = $ItemChannelLinksJSON."$( $Property.Name )"
+            Write-Verbose "Processing ItemChannelLink: $( $JSON.value.ChannelUID.UID )"
 
-            $Binding = [Binding]::new()
-            $Binding.name = $Property.Name
-            $Binding.uid = $JSON.value.ChannelUID.UID
-            $Binding.itemName = $JSON.value.itemName
-            $Binding.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.Configuration
+            $ItemChannelLink = [ItemChannelLink]::new()
+            $ItemChannelLink.name = $Property.Name
+            $ItemChannelLink.uid = $JSON.value.ChannelUID.UID
+            $ItemChannelLink.itemName = $JSON.value.itemName
+            $ItemChannelLink.Configuration.Items = Convert-ConfigurationFromJSON -ConfigurationJSON $JSON.value.Configuration.properties
 
-            [void] $Bindings.Add( $Binding )
+            [void] $ItemChannelLinks.Add( $ItemChannelLink )
         }
-        Return ,$Bindings
+        Return ,$ItemChannelLinks
     }
 
     function Get-Metadata {
@@ -741,13 +741,13 @@ process {
         [CmdletBinding()]
         param (
             [Object] $ItemsJSON,
-            [Object] $BindingsJSON,
+            [Object] $ItemChannelLinksJSON,
             [Object] $MetadataJSON,
             [String] $Filter
         )
 
         # we need bindings and metadata to assign them to their items later
-        $Bindings = Get-Bindings -BindingsJSON $BindingsJSON -Filter $Filter
+        $ItemChannelLinks = Get-ItemChannelLinks -ItemChannelLinksJSON $ItemChannelLinksJSON -Filter $Filter
         $Metadata = Get-Metadata -MetadataJSON $MetadataJSON -Filter $Filter
         
         $Items = [Collections.ArrayList]::new()
@@ -776,9 +776,9 @@ process {
                 Write-Verbose "Processing item tag: $( $tag )"
                 [void] $Item.tags.Add( $Tag )
             }
-            Foreach ( $Binding in $Bindings | Where-Object { $_.itemName -eq $Item.Name } ) {
-                Write-Verbose "Processing item binding: $( $Binding )"
-                [void] $Item.itemConfiguration.Items.Add( $Binding )
+            Foreach ( $ItemChannelLink in $ItemChannelLinks | Where-Object { $_.itemName -eq $Item.Name } ) {
+                Write-Verbose "Processing ItemChannelLink: $( $ItemChannelLink )"
+                [void] $Item.itemConfiguration.Items.Add( $ItemChannelLink )
             }
             Foreach ( $Meta in $Metadata | Where-Object { $_.itemName -eq $Item.Name } ) {
                 Write-Verbose "Processing item metadata: $( $Meta )"
@@ -811,14 +811,14 @@ process {
     }
     If ( $CreateItems ) {
         $ItemsJSON = Get-Content "$JSONFolder\org.openhab.core.items.Item.JSON" | ConvertFrom-Json
-        $BindingsJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.JSON" | ConvertFrom-Json
+        $ItemChannelLinksJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.JSON" | ConvertFrom-Json
         $MetadataJSON = Get-Content "$JSONFolder\org.openhab.core.items.Metadata.JSON" | ConvertFrom-Json
         If ( $OutFileBasename ) {
             $OutFile = "$JSONFolder\$OutfileBasename.items"
         } Else {
             $OutFile = "$JSONFolder\allitems.items"
         }
-        $Items = Get-Items -ItemsJSON $ItemsJSON -BindingsJSON $BindingsJSON -MetadataJSON $MetadataJSON -Filter $Filter
+        $Items = Get-Items -ItemsJSON $ItemsJSON -ItemChannelLinksJSON $ItemChannelLinksJSON -MetadataJSON $MetadataJSON -Filter $Filter
         $streamWriter = [IO.StreamWriter]::new( $Outfile, $false, $Encoding )
         # sort by type and name for pretty reading
         ForEach ( $Item in $Items | Sort-Object -Property ItemType, Name ) {
