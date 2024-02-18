@@ -816,8 +816,8 @@ process {
     }
 
     if ( $CreateThings ) {
-        Write-Progress "Reading $JSONFolder\org.openhab.core.thing.Thing.JSON"
-        $ThingsJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Thing.JSON" | ConvertFrom-Json
+        Write-Progress "Reading $JSONFolder\org.openhab.core.thing.Thing.json"
+        $ThingsJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Thing.json" | ConvertFrom-Json
         $Things = Get-Things -ThingsJSON $ThingsJSON -Filter $Filter
         if ( $OutFileBasename ) {
             $OutFile = "$OutFolder\$OutfileBasename.things"
@@ -832,12 +832,12 @@ process {
         $streamWriter.Dispose()
     }
     If ( $CreateItems ) {
-        Write-Progress "Reading $JSONFolder\org.openhab.core.items.Item.JSON"
-        $ItemsJSON = Get-Content "$JSONFolder\org.openhab.core.items.Item.JSON" | ConvertFrom-Json
-        Write-Progress "Reading $JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.JSON"
-        $ItemChannelLinksJSON = Get-Content "$JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.JSON" | ConvertFrom-Json
-        Write-Progress "Reading $JSONFolder\org.openhab.core.items.Metadata.JSON"
-        $MetadataJSON = Get-Content "$JSONFolder\org.openhab.core.items.Metadata.JSON" | ConvertFrom-Json
+        Write-Progress "Reading $JSONFolder\org.openhab.core.items.Item.json"
+        $ItemsJSON = Get-Content "$JSONFolder\org.openhab.core.items.Item.json" | ConvertFrom-Json
+        Write-Progress "Reading $JSONFolder\org.openhab.core.thing.Link.ItemChannelLink.json"
+        $ItemChannelLinksJSON = Get-Content "$JSONFolder\org.openhab.core.thing.link.ItemChannelLink.json" | ConvertFrom-Json
+        Write-Progress "Reading $JSONFolder\org.openhab.core.items.Metadata.json"
+        $MetadataJSON = Get-Content "$JSONFolder\org.openhab.core.items.Metadata.json" | ConvertFrom-Json
         $Items = Get-Items -ItemsJSON $ItemsJSON -ItemChannelLinksJSON $ItemChannelLinksJSON -MetadataJSON $MetadataJSON -Filter $Filter
         if ( $OutFileBasename ) {
             $OutFile = "$OutFolder\$OutfileBasename.items"
