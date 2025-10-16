@@ -129,15 +129,31 @@ begin {
     # OpenHab needs UTF-8 or CP1252, we need this for the streamwriter
     $Encoding = [Text.Encoding]::GetEncoding( 1252 )
 
+    <#
+    .CLASSNAME
+        ohobject
+
+    .SUMMARY
+        Base class for all OpenHab-related classes. Provides a standard interface for class identification and output formatting.
+
+    .PROPERTIES
+        - Class [string]: Holds the class name, used for sorting and identification.
+
+    .METHODS
+        - ToString(): Returns a formatted string of the object.
+        - ToString([int] Indent): Returns a string with the specified indentation.
+        - ToString([int] Indent, [bool] SingleLine): Returns a string with indentation and single-line/multi-line control.
+        - ToStringInternal([int] Indent, [bool] SingleLine): Protected; to be overridden by subclasses to build object string.
+
+    .EXAMPLE
+        Used as a base when creating subclasses for specific OpenHab objects (such as Thing, Bridge, Item).
+    #>
     class ohobject {
-        # basic class for all oh objects
-        # .class property only for sorting the results - makes using Sort-Object easier...
         [string] $class
         ohobject() {
             $This.Class = $This.GetType().Name
         }
 
-        # all oh object classes have these methods to return properly formatted strings, so put them in a base class
         [String] ToString() {
             Return $This.ToStringInternal( 0, $false )
         }
@@ -152,14 +168,50 @@ begin {
         }
     }
 
+    <#
+    .CLASSNAME
+        ohitem
+
+    .SUMMARY
+        Intermediate base class for OpenHab object classes that require configuration properties; inherits from ohobject.
+
+    .PROPERTIES
+        - configuration [Configuration]: Holds configuration parameters as an object for the item.
+
+    .METHODS
+        Inherits all methods from ohobject.
+
+    .EXAMPLE
+        Used as a parent for classes like Thing, Channel, Bridge, and Item to provide configuration handling.
+    #>
     class ohitem : ohobject {
-        # if it is a real oh item, it always has a .configuration property to store custom config params
         [Configuration] $configuration = [Configuration]::new()
     }
 
-    class Bridge : ohitem {
+    <#
+    .CLASSNAME
+        Bridge
 
-        # generic bridge definition:
+    .SUMMARY
+        Represents a Bridge entity in OpenHab, managing connections to devices and containing child things.
+
+    .PROPERTIES
+        - BindingID [string]: The binding (add-on) this bridge belongs to.
+        - BridgeType [string]: The specific type of bridge.
+        - BridgeID [string]: Unique identifier of the bridge instance.
+        - label [string]: Human-readable label.
+        - location [string]: Physical or logical location.
+        - Things [ArrayList]: Collection of Thing objects managed by this bridge.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Builds the bridge and its nested things in OpenHab .things format.
+
+    .EXAMPLE
+        $bridge = [Bridge]::new()
+        $bridge.Label = "Main Bridge"
+        # Add configuration or child things as needed.
+    #>
+    class Bridge : ohitem {
         # Bridge <binding_name>:<bridge_type>:<bridge_name> "Displayname" @ "Location" [ <parameters> ] {
         #   <array of things>
         # }
@@ -172,7 +224,6 @@ begin {
         [Collections.ArrayList] $Things = [Collections.ArrayList]::new()
 
         [String] Hidden ToStringInternal( [int] $Indent, [bool] $SingleLine ) {
-
             # create the .things bridge definition from the bridge properties
 
             [String] $Return = $This.Class + ' ' + $This.BindingID + ':' + $This.BridgeType + ':' + $This.BridgeID
@@ -205,6 +256,30 @@ begin {
         }
     }
 
+    <#
+    .CLASSNAME
+        Thing
+
+    .SUMMARY
+        Represents an OpenHab Thing, either standalone or as a child of a bridge, including its channels.
+
+    .PROPERTIES
+        - BindingID [string]: The binding (add-on) for this thing.
+        - TypeID [string]: Type of the thing.
+        - BridgeID [string]: Optional bridge association.
+        - ThingID [string]: Unique identifier of the thing.
+        - label [string]: Human-readable label.
+        - location [string]: Physical/logical location.
+        - Channels [ArrayList]: Channels (endpoints) of the thing.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] IsBridgeChild): Assembles the textual thing definition, handling nesting and configuration.
+
+    .EXAMPLE
+        $thing = [Thing]::new()
+        $thing.Label = "My Thing"
+        # Set other properties or add channels as needed.
+    #>
     Class Thing : ohitem {
 
         # generic bridge thing definition
@@ -265,6 +340,28 @@ begin {
 
     }
 
+    <#
+    .CLASSNAME
+        Channel
+
+    .SUMMARY
+        Represents a channel of a Thing in OpenHab, modeling data points or actions.
+
+    .PROPERTIES
+        - Kind [string]: Channel nature (e.g., STATE, TRIGGER).
+        - Type [string]: Data type (e.g., "String").
+        - ID [string]: Channel identifier.
+        - Name [string]: Human-readable label.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Builds the string for the channel, formatting configuration as needed.
+
+    .EXAMPLE
+        $chan = [Channel]::new()
+        $chan.Kind = "STATE"
+        $chan.Type = "String"
+        $chan.ID = "Temp"
+    #>
     Class Channel : ohitem {
 
         # generic thing channel definition
@@ -291,6 +388,34 @@ begin {
 
     }
 
+    <#
+    .CLASSNAME
+        Item
+
+    .SUMMARY
+        Represents an OpenHab Item or Group for the .items file, including configuration, tags, and group membership.
+
+    .PROPERTIES
+        - itemType [string]: Type of the item (Switch, Number, etc).
+        - Name [string]: Unique name for the item.
+        - label [string]: Display label.
+        - category [string]: Icon/category for the item.
+        - iconName [string]: Icon for UI.
+        - groups [ArrayList]: Groups this item belongs to.
+        - tags [ArrayList]: Tags for semantic UI/functions.
+        - itemConfiguration [ItemConfiguration]: Contains channel links and metadata.
+        - baseItemType [string]: For aggregate groups, the item type being aggregated over.
+        - functionName [string]: For aggregate groups, the aggregation function.
+        - functionParams [ArrayList]: Parameters for the aggregation function.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Builds the .items item string, including configuration/metadata.
+
+    .EXAMPLE
+        $item = [Item]::new()
+        $item.ItemType = "Switch"
+        $item.Name = "Light1"
+    #>    
     class Item : ohitem {
 
         # generic item definition
@@ -371,6 +496,25 @@ begin {
         }
     }
 
+    <#
+    .CLASSNAME
+        ItemChannelLink
+
+    .SUMMARY
+        Models the binding between an item and a channel within OpenHab.
+
+    .PROPERTIES
+        - name [string]: Name of the link.
+        - uid [string]: Channel UID.
+        - itemName [string]: Name of the item bound.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Outputs the link in configuration format.
+
+    .EXAMPLE
+        $link = [ItemChannelLink]::new()
+        $link.uid = "zwave:device:abc:node3:switch_binary"
+    #>
     class ItemChannelLink : ohitem {
 
         # generic binding (aka "item channel link") definition
@@ -394,6 +538,27 @@ begin {
     
     }
     
+    <#
+    .CLASSNAME
+        Metadata
+
+    .SUMMARY
+        Represents item metadata—additional attributes/settings for OpenHab items.
+
+    .PROPERTIES
+        - name [string]: Name (combined: type:itemName) in JSON.
+        - type [string]: Metadata type.
+        - value [string]: Metadata value.
+        - itemName [string]: Associated item.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Formats the metadata block.
+
+    .EXAMPLE
+        $meta = [Metadata]::new()
+        $meta.type = "stateDescription"
+        $meta.itemName = "Light1"
+    #>
     Class Metadata : ohitem {
     
         # generic metadata definition
@@ -415,7 +580,56 @@ begin {
         }
     
     }
-    
+
+    <#
+    .CLASSNAME
+        Config
+
+    .SUMMARY
+        Represents a configuration parameter, including data type inference and proper formatting.
+
+    .PROPERTIES
+        - ValueType [string]: "int", "bool", "decimal", or "string".
+        - ValueName [string]: Name/key of the parameter.
+        - ValueData [string]: Raw value.
+        - isMetaConfig [bool]: If generated as part of a metadata configuration.
+
+    .CONSTRUCTORS
+        - ([string] ValueName, [string] ValueData): Autodetect type.
+        - ([string] ValueType, [string] ValueName, [string] ValueData)
+        - ([string] ValueType, [string] ValueName, [string] ValueData, [bool] isMetaConfig)
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Outputs parameter in .items or .things format, with correct quoting.
+
+    .EXAMPLE
+        $conf = [Config]::new("int", "refreshInterval", "60")
+    #>
+
+    <#
+    .CLASSNAME
+        Config
+
+    .SUMMARY
+        Represents a configuration parameter, including data type inference and proper formatting.
+
+    .PROPERTIES
+        - ValueType [string]: "int", "bool", "decimal", or "string".
+        - ValueName [string]: Name/key of the parameter.
+        - ValueData [string]: Raw value.
+        - isMetaConfig [bool]: If generated as part of a metadata configuration.
+
+    .CONSTRUCTORS
+        - ([string] ValueName, [string] ValueData): Autodetect type.
+        - ([string] ValueType, [string] ValueName, [string] ValueData)
+        - ([string] ValueType, [string] ValueName, [string] ValueData, [bool] isMetaConfig)
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Outputs parameter in .items or .things format, with correct quoting.
+
+    .EXAMPLE
+        $conf = [Config]::new("int", "refreshInterval", "60")
+    #>
     Class Config : ohitem {
 
         # items, bindings, etc. might have config values. These have  a name, value and (optionally) type
@@ -514,6 +728,23 @@ begin {
     
     }
 
+    <#
+    .CLASSNAME
+        Configuration
+
+    .SUMMARY
+        Holds and formats a collection of configuration entries (Config objects) for OpenHab objects.
+
+    .PROPERTIES
+        - Items [ArrayList]: List containing Config objects.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Outputs the configuration block, with control over inline or multiline formatting.
+
+    .EXAMPLE
+        $config = [Configuration]::new()
+        $config.Items.Add([Config]::new("refreshInterval", "60"))
+    #>
     class Configuration : ohobject {
         # helper class to format configuration items in a single line or multiple lines
         [Collections.ArrayList] $Items = [Collections.ArrayList]::new()
@@ -542,6 +773,24 @@ begin {
         }
     }
 
+    <#
+    .CLASSNAME
+        ItemConfiguration
+
+    .SUMMARY
+        Specialized configuration collection for OpenHab Items, formatting curly-brace config blocks (bindings/metadata).
+
+    .PROPERTIES
+        Inherits Items [ArrayList] from Configuration.
+
+    .METHODS
+        - ToStringInternal([int] Indent, [bool] SingleLine): Formats items configuration curly-brace block.
+
+    .EXAMPLE
+        $icfg = [ItemConfiguration]::new()
+        $icfg.Items.Add($linkObj)
+        $icfg.Items.Add($metaObj)
+    #>
     class ItemConfiguration : Configuration {
         # item configuration is different from other configurations, here we have
         # channel links and metadata in curly braces, each of them on their own line
@@ -574,6 +823,25 @@ begin {
 
 process {
 
+    <#
+    .SYNOPSIS
+        Converts a JSON object representing configuration into an array of Config objects.
+
+    .DESCRIPTION
+        Iterates over the properties of a configuration JSON object, parses each property into a Config object (with type inference), and returns an array of these objects. Handles special formatting for metadata configurations.
+
+    .PARAMETER ConfigurationJSON
+        The JSON object containing configuration properties to convert.
+
+    .PARAMETER isMetaConfig
+        Boolean indicating if the configuration is for metadata (affects quoting/formatting).
+
+    .OUTPUTS
+        [System.Collections.ArrayList] of [Config]
+
+    .EXAMPLE
+        $configs = Convert-ConfigurationFromJSON -ConfigurationJSON $json.value.Configuration
+    #>
     function Convert-ConfigurationFromJSON {
         # convert configuration JSON to the object type we need
         [CmdletBinding()]
@@ -583,7 +851,7 @@ process {
         )
         $Configurations = [Collections.ArrayList]::new()
         Foreach ( $Config in $ConfigurationJSON | Get-Member -MemberType NoteProperty ) {
-            # parse the actual NoteProperty to its individual partes and add it to the $Configurations arraylist
+            # parse the actual NoteProperty to its individual parts and add it to the $Configurations arraylist
             If ( $Config.Definition -match "^(?<ValueType>\w+)\s+$( $Config.Name )=(?<ValueData>.+)$" ) {
                 Write-Verbose "Processing configuration: $( $Config.Definition )"
                 $ConfigValue = [Config]::new( $Matches.ValueType, $Config.Name, $Matches.ValueData, $isMetaConfig )
@@ -593,6 +861,25 @@ process {
         Return ,$Configurations
     }
 
+    <#
+    .SYNOPSIS
+        Parses OpenHab Thing JSON and returns an array of Bridge and Thing objects.
+
+    .DESCRIPTION
+        Processes the JSON structure for things, distinguishing between bridges and standalone things, and builds the corresponding object hierarchy. Applies a regex filter to select relevant things/bridges.
+
+    .PARAMETER ThingsJSON
+        The JSON object containing all things.
+
+    .PARAMETER Filter
+        Regex string to filter which things/bridges are processed.
+
+    .OUTPUTS
+        [System.Collections.ArrayList] of [Bridge] and [Thing]
+
+    .EXAMPLE
+        $things = Get-Things -ThingsJSON $json -Filter 'zwave'
+    #>
     Function Get-Things {
         [CmdletBinding()]
         param (
@@ -688,6 +975,25 @@ process {
         Return ,$Things
     }
 
+    <#
+    .SYNOPSIS
+        Converts ItemChannelLink JSON into an array of ItemChannelLink objects.
+
+    .DESCRIPTION
+        Iterates through the JSON structure for item-channel links, creating an ItemChannelLink object for each entry that matches the filter.
+
+    .PARAMETER ItemChannelLinksJSON
+        The JSON object containing item-channel link definitions.
+
+    .PARAMETER Filter
+        Regex string to filter which links are processed.
+
+    .OUTPUTS
+        [System.Collections.ArrayList] of [ItemChannelLink]
+
+    .EXAMPLE
+        $links = Get-ItemChannelLinks -ItemChannelLinksJSON $json -Filter 'Light'
+    #>
     function Get-ItemChannelLinks {
         [CmdletBinding()]
         param (
@@ -712,6 +1018,25 @@ process {
         Return ,$ItemChannelLinks
     }
 
+    <#
+    .SYNOPSIS
+        Converts Metadata JSON into an array of Metadata objects.
+
+    .DESCRIPTION
+        Iterates through the JSON structure for item metadata, creating a Metadata object for each entry that matches the filter.
+
+    .PARAMETER MetadataJSON
+        The JSON object containing metadata definitions.
+
+    .PARAMETER Filter
+        Regex string to filter which metadata entries are processed.
+
+    .OUTPUTS
+        [System.Collections.ArrayList] of [Metadata]
+
+    .EXAMPLE
+        $metas = Get-Metadata -MetadataJSON $json -Filter 'stateDescription'
+    #>
     function Get-Metadata {
         [CmdletBinding()]
         param (
@@ -737,6 +1062,31 @@ process {
         Return ,$Metadatas
     }
 
+    <#
+    .SYNOPSIS
+        Converts Item JSON, ItemChannelLink JSON, and Metadata JSON into an array of Item objects.
+
+    .DESCRIPTION
+        Processes the JSON structure for items, channel links, and metadata, assembling complete Item objects with their associated configuration, group, tag, and metadata information. Applies a regex filter to select relevant items.
+
+    .PARAMETER ItemsJSON
+        The JSON object containing item definitions.
+
+    .PARAMETER ItemChannelLinksJSON
+        The JSON object containing item-channel link definitions.
+
+    .PARAMETER MetadataJSON
+        The JSON object containing metadata definitions.
+
+    .PARAMETER Filter
+        Regex string to filter which items are processed.
+
+    .OUTPUTS
+        [System.Collections.ArrayList] of [Item]
+
+    .EXAMPLE
+        $items = Get-Items -ItemsJSON $itemJson -ItemChannelLinksJSON $linkJson -MetadataJSON $metaJson -Filter 'Temperature'
+    #>
     function Get-Items {
         [CmdletBinding()]
         param (
