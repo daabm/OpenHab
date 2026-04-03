@@ -1563,13 +1563,14 @@ slots:
                                         - component: animateTransform
                                           config:
                                             attributeName: transform
-                                            begin: 0s
-                                            dur: 2s
                                             type: rotate
+                                            begin: 0s
+                                            dur: =(4.5 - (#props.power_heatpump/props.power_heatpump_max) * 4)
                                             from: 0 245 228
                                             to: 360 245 228
                                             repeatCount: indefinite
-                                            visible: =(#props.power_heatpump > props.power_min)
+                                            visible: true
+                                            # visible: =(#props.power_heatpump > props.power_min)
                                   - component: path
                                     config:
                                       d: M418.913,482.596c0,4.084-3.316,7.404-7.408,7.404h-35.199c-4.092,0-7.41-3.319-7.41-7.404v-14.824
