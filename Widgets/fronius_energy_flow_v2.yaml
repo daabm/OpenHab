@@ -5,323 +5,323 @@ tags:
   - solar
 props:
   parameters:
-    - name: title
+    - default: Fronius Power Flow
       label: Title
+      name: title
       required: false
       type: TEXT
-      default: Fronius Power Flow
       groupName: design
-    - name: exponent
-      label: Exponent
-      required: true
-      advanced: true
-      type: DECIMAL
-      default: 0.68
+    - default: "0.68"
       description: "Exponent for the scale (default: 0.68; 1=linear, reasonable values
         range from 0.5 to 2)"
-      groupName: design
-    - name: power_min
-      label: Mininum Power value
+      label: Exponent
+      name: exponent
       required: true
-      advanced: true
       type: DECIMAL
-      default: 10
-      description: Minimum value for any power flow to be regarded active. Power below this value
-        will be displayed, but regarded inactivity.
       groupName: design
-    - name: color_solar
-      label: Solar plant color
-      required: true
       advanced: true
-      type: TEXT
-      default: gold
+    - default: "10"
+      description: Minimum value for any power flow to be regarded active. Power below
+        this value will be displayed, but regarded inactivity.
+      label: Mininum Power value
+      name: power_min
+      required: true
+      type: DECIMAL
+      groupName: design
+      advanced: true
+    - default: gold
       description: CSS color name or hex value (#xxxxxx) for the solar plant
-      groupName: design
-    - name: color_battery
-      label: Battery color
+      label: Solar plant color
+      name: color_solar
       required: true
-      advanced: true
       type: TEXT
-      default: limegreen
+      groupName: design
+      advanced: true
+    - default: limegreen
       description: CSS color name or hex value (#xxxxxx) for the solar battery
-      groupName: design
-    - name: color_inverter
-      label: Solar inverter color
+      label: Battery color
+      name: color_battery
       required: true
-      advanced: true
       type: TEXT
-      default: red
+      groupName: design
+      advanced: true
+    - default: red
       description: CSS color name or hex value (#xxxxxx) for the solar inverter
-      groupName: design
-    - name: color_grid
-      label: Grid color
+      label: Solar inverter color
+      name: color_inverter
       required: true
-      advanced: true
       type: TEXT
-      default: purple
+      groupName: design
+      advanced: true
+    - default: purple
       description: CSS color name or hex value (#xxxxxx) for the grid
-      groupName: design
-    - name: color_house
-      label: House color
+      label: Grid color
+      name: color_grid
       required: true
-      advanced: true
       type: TEXT
-      default: deepskyblue
+      groupName: design
+      advanced: true
+    - default: deepskyblue
       description: CSS color name or hex value (#xxxxxx) for the house
-      groupName: design
-    - name: color_ev
-      label: EV color
+      label: House color
+      name: color_house
       required: true
-      advanced: true
       type: TEXT
-      default: royalblue
+      groupName: design
+      advanced: true
+    - default: royalblue
       description: CSS color name or hex value (#xxxxxx) for the electric vehicle
-      groupName: design
-    - name: color_laundry
-      label: Laundry color
+      label: EV color
+      name: color_ev
       required: true
-      advanced: true
       type: TEXT
-      default: brown
+      groupName: design
+      advanced: true
+    - default: brown
       description: CSS color name or hex value (#xxxxxx) for the laundry
-      groupName: design
-    - name: color_heatpump
-      label: Heat pump color
+      label: Laundry color
+      name: color_laundry
       required: true
+      type: TEXT
+      groupName: design
       advanced: true
-      type: TEXT
-      default: darkorange
+    - default: darkorange
       description: CSS color name or hex value (#xxxxxx) for the heat pump
-      groupName: design
-    - name: power_solar
-      label: Solar power
+      label: Heat pump color
+      name: color_heatpump
       required: true
       type: TEXT
-      context: item
+      groupName: design
+      advanced: true
+    - context: item
       description: Solar plant actual power in watts.
-      groupName: data_sources_pv
-    - name: power_solar1
-      label: MPP tracker 1 power
-      required: false
+      label: Solar power
+      name: power_solar
+      required: true
       type: TEXT
-      context: item
+      groupName: data_sources_pv
+    - context: item
       description: Solar actual power of maximum power point tracker 1 in watts. Shows
         in the popup hint of the solar plant.
-      groupName: data_sources_pv
-    - name: power_solar2
-      label: MPP tracker 2 power
+      label: MPP tracker 1 power
+      name: power_solar1
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_pv
+    - context: item
       description: Solar actual power of maximum power point tracker 2 in watts. Shows
         in the popup hint of the solar plant.
-      groupName: data_sources_pv
-    - name: power_inverter
-      label: Inverter power
-      required: true
-      type: TEXT
-      context: item
-      description: Solar inverter actual power.
-      groupName: data_sources_pv
-    - name: power_solar_max
-      label: Inverter maximum power
-      required: true
-      type: INTEGER
-      default: 10000
-      min: 800
-      description: Solar inverter maximum power.
-      groupName: data_sources_pv
-    - name: power_house
-      label: House power
-      required: true
-      type: TEXT
-      context: item
-      description: House actual power consumption.
-      groupName: data_sources_pv
-    - name: power_house_max
-      label: House maximum power
-      required: true
-      type: INTEGER
-      default: 22000
-      min: 3840
-      description: House maximum power consumption. Typically, this relates to your
-        primary fuse amperage.
-      groupName: data_sources_pv
-      advanced: true
-    - name: power_autonomy
-      label: Autonomy
+      label: MPP tracker 2 power
+      name: power_solar2
       required: false
       type: TEXT
-      context: item
-      description: Power actual autonomy in percent.
       groupName: data_sources_pv
-    - name: power_grid
-      label: Grid power
+    - context: item
+      description: Solar inverter actual power.
+      label: Inverter power
+      name: power_inverter
       required: true
       type: TEXT
-      context: item
-      description: Grid actual power delivery/consumption.
       groupName: data_sources_pv
-    - name: power_grid_max
-      label: Grid maximum power
+    - default: "10000"
+      description: Solar inverter maximum power.
+      label: Inverter maximum power
+      name: power_solar_max
       required: true
-      advanced: true
       type: INTEGER
-      default: 22000
+      min: 800
+      groupName: data_sources_pv
+    - context: item
+      description: House actual power consumption.
+      label: House power
+      name: power_house
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - default: "22000"
+      description: House maximum power consumption. Typically, this relates to your
+        primary fuse amperage.
+      label: House maximum power
+      name: power_house_max
+      required: true
+      type: INTEGER
       min: 3840
+      groupName: data_sources_pv
+      advanced: true
+    - context: item
+      description: Power actual autonomy in percent.
+      label: Autonomy
+      name: power_autonomy
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Grid actual power delivery/consumption.
+      label: Grid power
+      name: power_grid
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - default: "22000"
       description: Grid maximum power delivery/consumption. Usually the same as house
         maximum  power.
-      groupName: data_sources_pv
-    - name: power_battery
-      label: Battery power
+      label: Grid maximum power
+      name: power_grid_max
       required: true
-      type: TEXT
-      context: item
-      description: Solar battery actual power delivery/consumption.
-      groupName: data_sources_pv
-    - name: soc_battery
-      label: Battery SOC
-      required: true
-      type: TEXT
-      context: item
-      description: State of charge of the solar battery.
-      groupName: data_sources_pv
-    - name: energy_battery
-      label: Battery capacity
-      required: true
-      advanced: true
       type: INTEGER
-      default: 10200
-      min: 1000
-      description: Solar battery energy capacity in Wh.
+      min: 3840
       groupName: data_sources_pv
-    - name: power_heatpump
-      label: Heat pump power
+      advanced: true
+    - context: item
+      description: Solar battery actual power delivery/consumption.
+      label: Battery power
+      name: power_battery
       required: true
       type: TEXT
-      context: item
+      groupName: data_sources_pv
+    - context: item
+      description: State of charge of the solar battery.
+      label: Battery SOC
+      name: soc_battery
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - default: "10200"
+      description: Solar battery energy capacity in Wh.
+      label: Battery capacity
+      name: energy_battery
+      required: true
+      type: INTEGER
+      min: 1000
+      groupName: data_sources_pv
+      advanced: true
+    - context: item
       description: Power the heat pump consumes for heating and drinking water. If you
         don't select an item for this value, the heat pump will not be visible
         in the widget.
-      groupName: data_sources_heating
-    - name: power_heatpump_max
-      label: Heatpump maximum power
+      label: Heat pump power
+      name: power_heatpump
       required: true
-      advanced: true
-      type: INTEGER
-      default: 8000
-      min: 1000
+      type: TEXT
+      groupName: data_sources_heating
+    - default: "8000"
       description: Maximum power the heatpump can consume. Can be found in your pump's
         technical specifications.
-      groupName: data_sources_heating
-    - name: power_heating
-      label: Heat pump - heating
+      label: Heatpump maximum power
+      name: power_heatpump_max
       required: true
-      type: TEXT
-      context: item
+      type: INTEGER
+      min: 1000
+      groupName: data_sources_heating
+      advanced: true
+    - context: item
       description: Heat pump power consumption for heating. Used to determine heating
         system state (heating/drinking water/defrosting/standby).
-      groupName: data_sources_heating
-    - name: power_drinking
-      label: Heat pump - drinking water
+      label: Heat pump - heating
+      name: power_heating
       required: true
       type: TEXT
-      context: item
+      groupName: data_sources_heating
+    - context: item
       description: Heating system power consumption for drinking water. Used to
         determine heating system state (heating/drinking
         water/defrosting/standby).
-      groupName: data_sources_heating
-    - name: temp_heatpump
-      label: Heat pump water flow temperature
-      required: false
+      label: Heat pump - drinking water
+      name: power_drinking
+      required: true
       type: TEXT
-      context: item
+      groupName: data_sources_heating
+    - context: item
       description: Heat pump water temperature - pre-flow temp of heat pump or
         whatever value suits your needs.
-      groupName: data_sources_heating
-    - name: status_heatpump
-      label: Heat pump COP
+      label: Heat pump water flow temperature
+      name: temp_heatpump
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_heating
+    - context: item
       description: Heat pump efficiency (Coefficient of power, COP)
-      groupName: data_sources_heating
-    - name: power_ev
-      label: EV battery power
+      label: Heat pump COP
+      name: status_heatpump
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_heating
+    - context: item
       description: EV battery charging power. If you don't select an item for this
         value, the EV will not be visible in the widget.
-      groupName: data_sources_ev
-    - name: soc_ev
-      label: EV battery SOC
+      label: EV battery power
+      name: power_ev
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_ev
+    - context: item
       description: State of charge of the EV battery. If you don't select an item for
         this value, the EV will not be visible in the widget.
-      groupName: data_sources_ev
-    - name: range_ev
-      label: EV range
+      label: EV battery SOC
+      name: soc_ev
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_ev
+    - context: item
       description: EV estimated driving range.
-      groupName: data_sources_ev
-    - name: chargestate_ev
-      label: EV charging state
+      label: EV range
+      name: range_ev
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_ev
+    - context: item
       description: Current charging state of the EV
-      groupName: data_sources_ev
-    - name: connected_ev
-      label: EV connection state
+      label: EV charging state
+      name: chargestate_ev
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_ev
+    - context: item
       description: Current connection state of the EV
-      groupName: data_sources_ev
-    - name: power_laundry
-      label: Laundry power
+      label: EV connection state
+      name: connected_ev
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_ev
+    - context: item
       description: Current power consumption of the laundry room. If you don't select
         an item for this value, the laundry will not be visible in the widget.
-      groupName: data_sources_laundry
-    - name: power_washing
-      label: Washing power
+      label: Laundry power
+      name: power_laundry
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_laundry
+    - context: item
       description: Current power consumption of the cloth washing machine
-      groupName: data_sources_laundry
-    - name: power_drying
-      label: Drying power
+      label: Washing power
+      name: power_washing
       required: false
       type: TEXT
-      context: item
+      groupName: data_sources_laundry
+    - context: item
       description: Current power consumption of the cloth drying machine
-      groupName: data_sources_laundry
-    - name: power_dehumidify
-      label: Dehumidifying power
+      label: Drying power
+      name: power_drying
       required: false
       type: TEXT
-      context: item
-      description: Current power consumption of the dehumidifier
       groupName: data_sources_laundry
-    - name: power_laundry_max
-      label: Maximum laundry power
+    - context: item
+      description: Current power consumption of the dehumidifier
+      label: Dehumidifying power
+      name: power_dehumidify
       required: false
-      advanced: true
-      type: INTEGER
-      default: 2000
-      min: 1000
+      type: TEXT
+      groupName: data_sources_laundry
+    - default: "2000"
       description: Maximum power the laundry can consume. Used to calculate percent
         background.
+      label: Maximum laundry power
+      name: power_laundry_max
+      required: false
+      type: INTEGER
+      min: 1000
       groupName: data_sources_laundry
+      advanced: true
   parameterGroups:
     - name: design
       label: Design elements
@@ -333,7 +333,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 3, 2026, 5:58:51 PM
+timestamp: Apr 4, 2026, 12:18:07 AM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -348,12 +348,12 @@ slots:
           the highest value in the system. The value correlates to the area of
           the dot, not its radius to give a better visual feedback.
           'scale_to_deg' makes sure the input value does not exceed
-          power_xxxx_max and scales everything to 270°.
-          'switch_color' handles power less than props.power_min and sets the color dependent
-          on the data_source, based on the dictionary in the function.
+          power_xxxx_max and scales everything to 270°. 'switch_color' handles
+          power less than props.power_min and sets the color dependent on the
+          data_source, based on the dictionary in the function.
           'switch_magnitude' switches between W an kW depending on the input
-          value.
-          'to_cartesian' converts degree to cartesian coordinates to be used by arc."
+          value. 'to_cartesian' converts degree to cartesian coordinates to be
+          used by arc."
         functions:
           arc_flag: "=degree => degree < 180 ? 0 : 1"
           resize_dot: "=value => Math.abs(value) < props.power_min ? 0 :
@@ -380,11 +380,11 @@ slots:
           - component: f7-block
             config:
               style:
+                content-justify: center
                 display: flex
                 height: 100%
-                width: 100%
-                content-justify: center
                 padding: 5%
+                width: 100%
             slots:
               default:
                 - component: svg
@@ -492,7 +492,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "solar")
+                                            fill: =fn.switch_color(#props.power_solar, "pv")
                                             r: =fn.resize_dot(#props.power_solar)
                                           slots:
                                             default:
@@ -535,8 +535,8 @@ slots:
                                   dominant-baseline: central
                                   fill: dimgray
                                   font-family: sans-serif
-                                  font-weight: bold
                                   font-size: 11px
+                                  font-weight: bold
                                   letter-spacing: 1px
                                   text-anchor: middle
                                   translate: 0px 0px
@@ -550,15 +550,15 @@ slots:
                             - component: svg
                               config:
                                 comment: solar pv icon
-                                height: 44px
-                                width: 44px
-                                viewBox: 0 0 24 24
-                                x: 28px
-                                y: 28px
                                 fill: =fn.switch_color(#props.power_solar, "pv")
+                                height: 44px
                                 stroke: =fn.switch_color(#props.power_solar, "pv")
                                 stroke-miterlimit: 10
                                 stroke-width: 0.3px
+                                viewBox: 0 0 24 24
+                                width: 44px
+                                x: 28px
+                                y: 28px
                               slots:
                                 default:
                                   - component: path
@@ -566,72 +566,72 @@ slots:
                                       d: M12 8 a4 4 0 1 0 4 4 A4 4 0 0 0 12 8 Z
                                   - component: rect
                                     config:
+                                      height: 4
+                                      rx: 0.75
+                                      width: 1.5
                                       x: 11.25
                                       y: 2
-                                      width: 1.5
-                                      height: 4
-                                      rx: 0.75
                                   - component: rect
                                     config:
+                                      height: 4
+                                      rx: 0.75
+                                      width: 1.5
                                       x: 11.25
                                       y: 18
-                                      width: 1.5
-                                      height: 4
-                                      rx: 0.75
                                   - component: rect
                                     config:
-                                      x: 19.25
-                                      y: 10
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(32 -8) rotate(90)
+                                      width: 1.5
+                                      x: 19.25
+                                      y: 10
                                   - component: rect
                                     config:
-                                      x: 3.25
-                                      y: 10
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(16 8) rotate(90)
+                                      width: 1.5
+                                      x: 3.25
+                                      y: 10
                                   - component: rect
                                     config:
-                                      x: 16.91
-                                      y: 15.66
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(42.63 17.66) rotate(135)
+                                      width: 1.5
+                                      x: 16.91
+                                      y: 15.66
                                   - component: rect
                                     config:
-                                      x: 5.59
-                                      y: 4.34
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(15.31 6.34) rotate(135)
+                                      width: 1.5
+                                      x: 5.59
+                                      y: 4.34
                                   - component: rect
                                     config:
-                                      x: 5.59
-                                      y: 15.66
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(-1.66 34.63) rotate(-135)
+                                      width: 1.5
+                                      x: 5.59
+                                      y: 15.66
                                   - component: rect
                                     config:
-                                      x: 16.91
-                                      y: 4.34
-                                      width: 1.5
                                       height: 4
                                       rx: 0.75
                                       transform: translate(25.66 23.31) rotate(-135)
+                                      width: 1.5
+                                      x: 16.91
+                                      y: 4.34
                                   - component: title
                                     config:
-                                      visible: =((props.power_solar1 || props.power_solar2) ? true:false)
                                       content: '="MPPT1: " + fn.switch_magnitude(#props.power_solar1) + "\r\n" +
                                         "MPPT2: " +
                                         fn.switch_magnitude(#props.power_solar2)'
+                                      visible: =((props.power_solar1 || props.power_solar2) ? true:false)
                       - component: g
                         config:
                           comment: Grid
@@ -748,8 +748,8 @@ slots:
                                   dominant-baseline: central
                                   fill: dimgray
                                   font-family: sans-serif
-                                  font-weight: bold
                                   font-size: 11px
+                                  font-weight: bold
                                   letter-spacing: 1px
                                   text-anchor: middle
                                   translate: 200px 0px
@@ -763,12 +763,12 @@ slots:
                             - component: svg
                               config:
                                 comment: grid icon
+                                fill: =fn.switch_color(#props.power_grid, "grid")
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 24 24
+                                width: 44px
                                 x: 228px
                                 y: 28px
-                                fill: =fn.switch_color(#props.power_grid, "grid")
                               slots:
                                 default:
                                   - component: path
@@ -846,8 +846,8 @@ slots:
                                   dominant-baseline: central
                                   fill: dimgray
                                   font-family: sans-serif
-                                  font-weight: bold
                                   font-size: 11px
+                                  font-weight: bold
                                   letter-spacing: 1px
                                   text-anchor: middle
                                   translate: 0px 200px
@@ -861,12 +861,12 @@ slots:
                             - component: svg
                               config:
                                 comment: solar battery icon
+                                fill: =fn.switch_color(#props.power_battery "battery")
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 24 24
+                                width: 44px
                                 x: 28px
                                 y: 228px
-                                fill: =fn.switch_color(#props.power_battery "battery")
                               slots:
                                 default:
                                   - component: defs
@@ -876,10 +876,11 @@ slots:
                                           config:
                                             comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
                                             id: gradient_battery
-                                            x1: 0%
-                                            x2: 0%
-                                            y1: 100%
-                                            y2: 0%
+                                            x1: 0
+                                            x2: 0
+                                            y1: 20.5
+                                            y2: 6
+                                            gradientUnits: userSpaceOnUse
                                           slots:
                                             default:
                                               - component: stop
@@ -903,10 +904,11 @@ slots:
                                             comment: Gradient for solar battery charging flash. y1 = 100% means "start at
                                               bottom"
                                             id: gradient_charge
-                                            x1: 0%
-                                            x2: 0%
-                                            y1: 100%
-                                            y2: 0%
+                                            x1: 0
+                                            x2: 0
+                                            y1: 20.5
+                                            y2: 6
+                                            gradientUnits: userSpaceOnUse
                                           slots:
                                             default:
                                               - component: stop
@@ -915,11 +917,11 @@ slots:
                                                   stop-color: white
                                               - component: stop
                                                 config:
-                                                  offset: =(1 - (#props.soc_battery))
+                                                  offset: =#props.soc_battery
                                                   stop-color: white
                                               - component: stop
                                                 config:
-                                                  offset: =(1 - (#props.soc_battery))
+                                                  offset: =#props.soc_battery
                                                   stop-color: =fn.switch_color(#props.power_battery "battery")
                                               - component: stop
                                                 config:
@@ -928,40 +930,40 @@ slots:
                                   - component: rect
                                     config:
                                       comment: positive pole of battery icon
-                                      x: 9.25
-                                      y: 3
-                                      width: 5.5
                                       height: 1.5
                                       rx: 0.5
                                       ry: 0.5
+                                      width: 5.5
+                                      x: 9.25
+                                      y: 3
                                   - component: rect
                                     config:
                                       comment: outer frame of battery icon
-                                      x: 7
-                                      y: 5.5
-                                      width: 10
+                                      fill: url(#gradient_battery)
                                       height: 16
                                       rx: 1
                                       ry: 1
-                                      stroke-width: 1
                                       stroke: =fn.switch_color(#props.power_battery "battery")
-                                      fill: url(#gradient_battery)
+                                      stroke-width: 1
+                                      width: 10
+                                      x: 7
+                                      y: 5.5
                                   - component: polygon
                                     config:
                                       comment: flash icon when charging
+                                      fill: url(#gradient_charge)
                                       points: 12.55,11.9 12.55,8 9.8,13.6 11.45,13.6 11.45,17.2 14.14,11.9
                                       stroke: =fn.switch_color(#props.power_battery "battery")
-                                      stroke-width: 0.3
                                       stroke-linejoint: miter
                                       stroke-miterlimit: 5
-                                      fill: url(#gradient_charge)
+                                      stroke-width: 0.3
                                       visible: =(#props.power_battery < (props.power_min * -1))
                                   - component: title
                                     config:
-                                      visible: =((props.power_battery || props.soc_battery) ? true:false)
                                       content: '=(#props.power_battery > 0 ? "Disc" : "C") + "harging: " +
                                         fn.switch_magnitude(#props.power_battery)
                                         + "\r\n" + "SOC: " + @props.soc_battery'
+                                      visible: =((props.power_battery || props.soc_battery) ? true:false)
                       - component: g
                         config:
                           comment: Inverter
@@ -1013,63 +1015,63 @@ slots:
                               config:
                                 comment: inverter icon
                                 height: 44px
-                                width: 44px
-                                viewBox: 0 0 70 70
-                                x: 128px
-                                y: 128px
                                 stroke: dimgray
                                 stroke-miterlimit: 10
+                                viewBox: 0 0 70 70
+                                width: 44px
+                                x: 128px
+                                y: 128px
                               slots:
                                 default:
                                   - component: rect
                                     config:
-                                      x: 5.65
-                                      y: 3
-                                      width: 58.7
+                                      fill: none
                                       height: 64
                                       rx: 6.8
-                                      fill: none
                                       stroke-width: 2px
+                                      width: 58.7
+                                      x: 5.65
+                                      y: 3
                                   - component: circle
                                     config:
                                       cx: 35.03
                                       cy: 29.61
-                                      r: 11
                                       fill: lightgray
+                                      r: 11
                                   - component: circle
                                     config:
                                       cx: 15
                                       cy: 40
-                                      r: 4
                                       fill: darkgray
+                                      r: 4
                                   - component: path
                                     config:
+                                      d: M40.19,52H36.73a2,2,0,0,0-3.46,0H29.81a1.08,1.08,0,1,0,0,2.15h3.46a2,2,0,0,0,3.46,0h3.46a1.08,1.08,0,1,0,0-2.15Z
                                       fill: none
                                       fill-rule: evenodd
-                                      d: M40.19,52H36.73a2,2,0,0,0-3.46,0H29.81a1.08,1.08,0,1,0,0,2.15h3.46a2,2,0,0,0,3.46,0h3.46a1.08,1.08,0,1,0,0-2.15Z
                                   - component: path
                                     config:
+                                      d: M34.89,61.87c-3.24,0-5.87-.73-5.87-1.62s2.63-1.64,5.87-1.64,5.87.74,5.87,1.64S38.13,61.87,34.89,61.87Z
                                       fill: crimson
                                       fill-rule: evenodd
-                                      d: M34.89,61.87c-3.24,0-5.87-.73-5.87-1.62s2.63-1.64,5.87-1.64,5.87.74,5.87,1.64S38.13,61.87,34.89,61.87Z
                                   - component: line
                                     config:
                                       fill: none
                                       x1: 5.07
-                                      y1: 53.08
                                       x2: 28.73
+                                      y1: 53.08
                                       y2: 53.08
                                   - component: line
                                     config:
                                       fill: none
                                       x1: 41.27
-                                      y1: 53.08
                                       x2: 64.93
+                                      y1: 53.08
                                       y2: 53.08
                                   - component: title
                                     config:
-                                      visible: =(props.power_autonomy ? true:false)
                                       content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
+                                      visible: =(props.power_autonomy ? true:false)
                       - component: g
                         config:
                           comment: EV battery
@@ -1160,8 +1162,8 @@ slots:
                               config:
                                 comment: car icon
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 24 24
+                                width: 44px
                                 x: 428px
                                 y: 28px
                               slots:
@@ -1189,9 +1191,9 @@ slots:
                                         17.5 13.5C17.7761 13.5 18 13.7239 18 14Z
                                       fill: none
                                       stroke: =fn.switch_color(#props.power_ev, "ev")
-                                      stroke-width: 2
                                       stroke-linecap: round
                                       stroke-linejoin: round
+                                      stroke-width: 2
                                   - component: title
                                     config:
                                       content: '="State: " + @props.chargestate_ev + "\r\n" + "Charge: " +
@@ -1287,12 +1289,12 @@ slots:
                             - component: svg
                               config:
                                 comment: laundry icon
+                                fill: =fn.switch_color(#props.power_laundry, "laundry")
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 1024 1024
+                                width: 44px
                                 x: 228px
                                 y: 228px
-                                fill: =fn.switch_color(#props.power_laundry, "laundry")
                               slots:
                                 default:
                                   - component: path
@@ -1535,12 +1537,12 @@ slots:
                             - component: svg
                               config:
                                 comment: laundry icon
+                                fill: =fn.switch_color(#props.power_heatpump, "heatpump")
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 490 490
+                                width: 44px
                                 x: 428px
                                 y: 228px
-                                fill: =fn.switch_color(#props.power_heatpump, "heatpump")
                               slots:
                                 default:
                                   - component: path
@@ -1563,14 +1565,13 @@ slots:
                                         - component: animateTransform
                                           config:
                                             attributeName: transform
-                                            type: rotate
                                             begin: 0s
                                             dur: =(4.5 - (#props.power_heatpump/props.power_heatpump_max) * 4)
-                                            from: 0 245 228
-                                            to: 360 245 228
+                                            from: 0 245 226
+                                            to: 360 245 226
                                             repeatCount: indefinite
-                                            visible: true
-                                            # visible: =(#props.power_heatpump > props.power_min)
+                                            type: rotate
+                                            visible: =(#props.power_heatpump > props.power_min)
                                   - component: path
                                     config:
                                       d: M418.913,482.596c0,4.084-3.316,7.404-7.408,7.404h-35.199c-4.092,0-7.41-3.319-7.41-7.404v-14.824
@@ -1697,12 +1698,12 @@ slots:
                             - component: svg
                               config:
                                 comment: house icon (power plug)
+                                fill: =fn.switch_color(#props.power_house, "house")
                                 height: 44px
-                                width: 44px
                                 viewBox: 0 0 24 24
+                                width: 44px
                                 x: 328px
                                 y: 128px
-                                fill: =fn.switch_color(#props.power_house, "house")
                               slots:
                                 default:
                                   - component: path
@@ -1751,10 +1752,10 @@ slots:
                             - component: use
                               config:
                                 comment: EV dial segments
-                                visible: =((props.power_ev && props.soc_ev ) ? true:false)
                                 style:
                                   transform: =`rotate(${loop.degree}deg)`
                                   transform-origin: 450px 50px
+                                visible: =((props.power_ev && props.soc_ev ) ? true:false)
                                 x: 400px
                                 xlink:href: "#few_segment_line"
                                 y: 0px
@@ -1790,22 +1791,22 @@ slots:
                             - component: use
                               config:
                                 comment: laundry dial segments
-                                visible: =(props.power_laundry ? true:false)
                                 style:
                                   transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
                                     Math.pow(270, props.exponent))}deg)`
                                   transform-origin: 250px 250px
+                                visible: =(props.power_laundry ? true:false)
                                 x: 200px
                                 xlink:href: "#few_segment_line"
                                 y: 200px
                             - component: use
                               config:
                                 comment: heatpump dial segments
-                                visible: =(props.power_heatpump ? true:false)
                                 style:
                                   transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
                                     Math.pow(270, props.exponent))}deg)`
                                   transform-origin: 450px 250px
+                                visible: =(props.power_heatpump ? true:false)
                                 x: 400px
                                 xlink:href: "#few_segment_line"
                                 y: 200px
