@@ -108,7 +108,7 @@ props:
       name: power_solar1
       required: false
       type: TEXT
-      groupName: data_sources_solar4
+      groupName: data_sources_solar
     - context: item
       description: Solar actual power of maximum power point tracker 2 in watts. Shows
         in the popup hint of the solar plant.
@@ -155,14 +155,14 @@ props:
       name: power_autonomy
       required: false
       type: TEXT
-      groupName: data_sources_
+      groupName: data_sources_solar
     - context: item
       description: Grid actual power delivery/consumption.
       label: Grid power
       name: power_grid
       required: true
       type: TEXT
-      groupName: data_sources_s
+      groupName: data_sources_solar
     - default: "22000"
       description: Grid maximum power delivery/consumption. Usually the same as house
         maximum  power.
@@ -171,7 +171,7 @@ props:
       required: true
       type: INTEGER
       min: 3840
-      groupName: data_sources_s
+      groupName: data_sources_solar
       advanced: true
     - context: item
       description: Solar battery actual power delivery/consumption.
@@ -179,14 +179,14 @@ props:
       name: power_battery
       required: true
       type: TEXT
-      groupName: data_sources_s
+      groupName: data_sources_solar
     - context: item
       description: State of charge of the solar battery.
       label: Battery SOC
       name: soc_battery
       required: true
       type: TEXT
-      groupName: data_sources_s
+      groupName: data_sources_solar
     - default: "10200"
       description: Solar battery energy capacity in Wh.
       label: Battery capacity
@@ -194,7 +194,7 @@ props:
       required: true
       type: INTEGER
       min: 1000
-      groupName: data_sources_s
+      groupName: data_sources_solar
       advanced: true
     - context: item
       description: Power the heat pump consumes for heating and drinking water. If you
@@ -204,8 +204,8 @@ props:
       name: power_heatpump
       required: true
       type: TEXT
-      groupName: data_sources_heating
-    - default: "8000"
+      groupName: data_sources_heatpump
+    - default: "5000"
       description: Maximum power the heatpump can consume. Can be found in your pump's
         technical specifications.
       label: Heatpump maximum power
@@ -213,7 +213,7 @@ props:
       required: true
       type: INTEGER
       min: 1000
-      groupName: data_sources_heating
+      groupName: data_sources_heatpump
       advanced: true
     - context: item
       description: Heat pump power consumption for heating. Used to determine heating
@@ -222,7 +222,7 @@ props:
       name: power_heating
       required: true
       type: TEXT
-      groupName: data_sources_heating
+      groupName: data_sources_heatpump
     - context: item
       description: Heating system power consumption for drinking water. Used to
         determine heating system state (heating/drinking
@@ -231,7 +231,7 @@ props:
       name: power_drinking
       required: true
       type: TEXT
-      groupName: data_sources_heating
+      groupName: data_sources_heatpump
     - context: item
       description: Heat pump water temperature - pre-flow temp of heat pump or
         whatever value suits your needs.
@@ -239,14 +239,14 @@ props:
       name: temp_heatpump
       required: false
       type: TEXT
-      groupName: data_sources_heating
+      groupName: data_sources_heatpump
     - context: item
       description: Heat pump efficiency (Coefficient of power, COP)
       label: Heat pump COP
       name: status_heatpump
       required: false
       type: TEXT
-      groupName: data_sources_heating
+      groupName: data_sources_heatpump
     - context: item
       description: EV battery charging power. If you don't select an item for this
         value, the EV will not be visible in the widget.
@@ -326,11 +326,11 @@ props:
   parameterGroups:
     - name: design
       label: Design elements
-    - name: data_sources_s
+    - name: data_sources_solar
       label: Data sources (solar plant, inverter and grid)
     - name: data_sources_ev
       label: Data sources (electric vehicle)
-    - name: data_sources_heating
+    - name: data_sources_heatpump
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
@@ -551,9 +551,7 @@ slots:
                             - component: svg
                               config:
                                 comment: solar icon
-                                fill: =fn.switch_color(#props.power_solar, "solar")
                                 height: 44px
-                                stroke: =fn.switch_color(#props.power_solar, "solar")
                                 stroke-miterlimit: 10
                                 stroke-width: 0.3px
                                 viewBox: 0 0 24 24
@@ -562,9 +560,37 @@ slots:
                                 y: 28px
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
+                                            id: gradient_solar
+                                            x1: 0
+                                            x2: 0
+                                            y1: 2
+                                            y2: 20
+                                            gradientUnits: userSpaceOnUse
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: =fn.switch_color(#props.power_solar, "solar")
+                                              - component: stop
+                                                config:
+                                                  offset: =(#props.power_solar / props.power_solar_max)
+                                                  stop-color: =fn.switch_color(#props.power_solar, "solar")
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =fn.switch_color(0, "solar")
                                   - component: path
                                     config:
                                       d: M12 8 a4 4 0 1 0 4 4 A4 4 0 0 0 12 8 Z
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -572,6 +598,8 @@ slots:
                                       width: 1.5
                                       x: 11.25
                                       y: 2
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -579,6 +607,8 @@ slots:
                                       width: 1.5
                                       x: 11.25
                                       y: 18
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -587,6 +617,8 @@ slots:
                                       width: 1.5
                                       x: 19.25
                                       y: 10
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -595,6 +627,8 @@ slots:
                                       width: 1.5
                                       x: 3.25
                                       y: 10
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -603,6 +637,8 @@ slots:
                                       width: 1.5
                                       x: 16.91
                                       y: 15.66
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -611,6 +647,8 @@ slots:
                                       width: 1.5
                                       x: 5.59
                                       y: 4.34
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -619,6 +657,8 @@ slots:
                                       width: 1.5
                                       x: 5.59
                                       y: 15.66
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: rect
                                     config:
                                       height: 4
@@ -627,6 +667,8 @@ slots:
                                       width: 1.5
                                       x: 16.91
                                       y: 4.34
+                                      fill: url(#gradient_solar)
+                                      stroke: url(#gradient_solar)
                                   - component: title
                                     config:
                                       content: '="MPPT1: " + fn.switch_magnitude(#props.power_solar1) + "\r\n" +
@@ -808,7 +850,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_battery "battery")
+                                            fill: =fn.switch_color(#props.power_battery, "battery")
                                             r: =fn.resize_dot(#props.power_battery)
                                           slots:
                                             default:
@@ -827,7 +869,7 @@ slots:
                               config:
                                 comment: Battery dial.
                                 style:
-                                  stroke: =fn.switch_color(#props.power_battery "battery")
+                                  stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                 x: 0px
                                 xlink:href: "#few_rings"
                                 y: 200px
@@ -838,7 +880,7 @@ slots:
                                   ${fn.to_cartesian(#props.soc_battery * 270)}`
                                 fill: rgba(0, 0, 0, 0)
                                 style:
-                                  stroke: =fn.switch_color(#props.power_battery "battery")
+                                  stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                   stroke-width: 14px
                                   translate: 0px 200px
                             - component: text
@@ -862,7 +904,7 @@ slots:
                             - component: svg
                               config:
                                 comment: solar battery icon
-                                fill: =fn.switch_color(#props.power_battery "battery")
+                                fill: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                 height: 44px
                                 viewBox: 0 0 24 24
                                 width: 44px
@@ -887,11 +929,11 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: =fn.switch_color(#props.power_battery "battery")
+                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
-                                                  stop-color: =fn.switch_color(#props.power_battery "battery")
+                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
@@ -923,11 +965,11 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
-                                                  stop-color: =fn.switch_color(#props.power_battery "battery")
+                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =fn.switch_color(#props.power_battery "battery")
+                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                   - component: rect
                                     config:
                                       comment: positive pole of battery icon
@@ -944,7 +986,7 @@ slots:
                                       height: 16
                                       rx: 1
                                       ry: 1
-                                      stroke: =fn.switch_color(#props.power_battery "battery")
+                                      stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
                                       stroke-width: 1
                                       width: 10
                                       x: 7
@@ -987,7 +1029,7 @@ slots:
                                   props.power_solar_max))} 1
                                   ${fn.to_cartesian(fn.scale_to_deg(#props.power_inverter,
                                   props.power_solar_max))}`
-                                fill: rgba(0, 0, 0, 0)
+                                fill: none
                                 style:
                                   stroke: '=(#props.power_inverter < props.max_solar_power) ?
                                     fn.switch_color(#props.power_inverter,
@@ -1567,7 +1609,7 @@ slots:
                                           config:
                                             attributeName: transform
                                             begin: 0s
-                                            dur: =(4.5 - (#props.power_heatpump/props.power_heatpump_max) * 4)
+                                            dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) * 4))
                                             from: 0 245 226
                                             to: 360 245 226
                                             repeatCount: indefinite
