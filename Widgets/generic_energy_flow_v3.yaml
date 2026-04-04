@@ -1,0 +1,1267 @@
+uid: generic_energy_flow_v3
+tags:
+  - energy
+  - fronius
+  - solar
+props:
+  parameters:
+    - default: Fronius Power Flow
+      label: Title
+      name: title
+      required: false
+      type: TEXT
+      groupName: design
+    - default: "0.68"
+      description: "Exponent for the scale (default: 0.68; 1=linear, reasonable values
+        range from 0.5 to 2)"
+      label: Exponent
+      name: exponent
+      required: false
+      groupName: design
+      advanced: true
+    - default: gold
+      description: CSS color name for the solar plant
+      label: Solar plant color
+      name: color_solar
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: red
+      description: CSS color name for the solar inverter
+      label: Solar plant color
+      name: color_inverter
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: green
+      description: CSS color name for the house
+      label: House color
+      name: color_house
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: seagreen
+      description: CSS color name for the solar battery
+      label: Battery color
+      name: color_battery
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: royalblue
+      description: CSS color name for the electric vehicle
+      label: EV color
+      name: color_ev
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: gray
+      description: CSS color name for the grid
+      label: Grid color
+      name: color_grid
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: brown
+      description: CSS color name for the laundry
+      label: Laundry color
+      name: color_laundry
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: red
+      description: CSS color name for the heat pump
+      label: Heat pump color
+      name: color_heatpump
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - context: item
+      description: Current solar power in Watts. Typically this would be the solar
+        yield item for a Fronius inverter.
+      label: Solar power
+      name: power_solar
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current solar power of MPPT1 in Watts.
+      label: MPPT 1
+      name: power_solar1
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current solar power of MPPT2 in Watts
+      label: MPPT 2
+      name: power_solar2
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: inverter power. Used to calculate percent background.
+      label: inverter power
+      name: power_inverter
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - default: "10000"
+      description: Maximum solar inverter power. Used to calculate percent background.
+      label: Maximum inverter power
+      name: power_solar_max
+      required: true
+      type: INTEGER
+      min: 1000
+      groupName: data_sources_pv
+    - context: item
+      description: Current house power consumption
+      label: House power
+      name: power_load
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current energy autonomy.
+      label: Autonomy
+      name: power_autonomy
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Power the grid delivers or receives
+      label: Grid power
+      name: power_grid
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - default: "22000"
+      description: Maximum power to and from grid. Used to calculate percent background.
+      label: Maximum grid power
+      name: power_grid_max
+      required: false
+      type: INTEGER
+      min: 1
+      groupName: data_sources_pv
+      advanced: true
+    - context: item
+      description: Power the solar battery delivers or consumes
+      label: Battery power
+      name: power_battery
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: State of charge of the solar battery
+      label: Solar battery SOC
+      name: soc_battery
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Power the heating system consumes for heating and drinking water.
+      label: Heating system power consumption
+      name: power_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - default: "8000"
+      description: Maximum power the heatpump can consume. Used to calculate percent
+        background.
+      label: Maximum heatpump power
+      name: power_heatpump_max
+      required: false
+      type: INTEGER
+      min: 1000
+      groupName: data_sources_heating
+      advanced: true
+    - context: item
+      description: Heating system power consumption for heating. Only used to
+        determine heating system state.
+      label: Heating system power consumption for heating
+      name: power_heating
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system power consumption for drinking water. Only used to
+        determine heating system state.
+      label: Heating system power - drinking water
+      name: power_drinking
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system water temperature - pre-flow temp of heat pump or
+        whatever value suits your needs.
+      label: Heating system water temperature
+      name: temp_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system efficiency (Coefficient of power, COP)
+      label: Heating system COP
+      name: status_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: EV battery charging power
+      label: EV battery charging power
+      name: power_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: EV battery state of charge
+      label: EV battery percent
+      name: soc_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: EV driving range estimated
+      label: EV range
+      name: range_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current charging state of the EV
+      label: EV charging state
+      name: chargestate_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current connection state of the EV
+      label: EV connection state
+      name: connected_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current power consumption of the laundry room
+      label: Laundry power
+      name: power_laundry
+      required: false
+      type: TEXT
+      groupName: data_sources_laundry
+    - default: "2000"
+      description: Maximum power the laundry can consume. Used to calculate percent
+        background.
+      label: Maximum laundry power
+      name: power_laundry_max
+      required: false
+      type: INTEGER
+      min: 1000
+      groupName: data_sources_laundry
+      advanced: true
+  parameterGroups:
+    - name: design
+      label: Design elements
+      description: Group of parameters which determine the visual appearance of the widget.
+    - name: data_sources_pv
+      label: Data sources (solar plant)
+      description: Group of parameters which deliver data for solar power production.
+    - name: data_sources_ev
+      label: Data sources (electric vehicle)
+      description: Group of parameters which deliver data for electric vehicles.
+    - name: data_sources_heating
+      label: Data sources (heating system)
+      description: Group of parameters which deliver data for heating and drinking water.
+    - name: data_sources_laundry
+      label: Data sources (laundry room)
+      description: Group of parameters which deliver data for washing and drying clothes.
+timestamp: Apr 1, 2026, 2:51:29 PM
+component: f7-card
+config:
+  comment: This component determines the size of the widget.
+  outline: true
+  title: =props.title
+slots:
+  default:
+    - component: oh-context
+      config:
+        comment: "'arc_flag' determines which arc should be drawn (short or long).
+          'resize_dot' adjusts the size of the energy flow dots in relation to
+          the highest value in the system. The value correlates to the area of
+          the dot, not its radius to give a better visual feedback.
+          'scale_to_deg' makes sure the input value does not exceed
+          max_solar_power or max_grid_power and scales everything to 270°.
+          'switch_color' handles power less than 1 and sets the color dependent
+          on the data_source, based on the dictionary in the function.
+          'switch_magnitude' switches between W an kW depending on the input
+          value. 'to_cartesian' converts degree to cartesian coordinates to be
+          used by arc."
+        functions:
+          arc_flag: "=degree => degree < 180 ? 0 : 1"
+          resize_dot: "=value => Math.abs(value) < 10 ? 0 :
+            `${Math.pow(Math.max(Math.abs(value) / Math.max(
+            (Math.abs(#props.power_load) + (#props.power_grid > 0 ?
+            #props.power_grid : 0)), Math.abs(#props.power_grid),
+            Math.abs(#props.power_solar), Math.abs(#props.power_battery)),
+            0.05), 0.5) * 5}px`"
+          scale_to_deg: =(value, max) => Math.pow(Math.min(Math.abs(value), max) * (270 /
+            max), props.exponent) * (270 / Math.pow(270, props.exponent))
+          switch_color: '=(value, type) => (Math.abs(value) >= 1) ? {"pv": props.color_solar,
+            "grid": "#999999", "inverter": "#e2001a", "load": "#71afcd",
+            "battery": "#6cbe58", "ev": "#000000", "laundry": "#000000"}[type] :
+            "grey"'
+          switch_magnitude: "=value => Math.abs(value) > 999 ? `${(value /
+            1000).toFixed(Math.abs(value) > 9999 ? 1 : 2)} kW` :
+            `${Math.round(value) | 0} W`"
+          to_cartesian: =degree => (50 + Math.sin(degree * Math.PI / 180) * 41) + " " +
+            (50 - Math.cos(degree * Math.PI / 180) * 41)
+      slots:
+        default:
+          - component: f7-block
+            config:
+              style:
+                display: flex
+                height: 100%
+                width: 100%
+                content-justify: center
+                padding: 5%
+            slots:
+              default:
+                - component: svg
+                  config:
+                    comment: The component scales freely to the size of its parent.
+                    height: 100%
+                    viewBox: 0 0 500 300
+                    width: 100%
+                  slots:
+                    default:
+                      - component: defs
+                        slots:
+                          default:
+                            - component: symbol
+                              config:
+                                id: few_segment_line
+                              slots:
+                                default:
+                                  - component: line
+                                    config:
+                                      comment: Separator line for the dial.
+                                      style:
+                                        stroke: white
+                                        stroke-width: 1px
+                                      x1: 50px
+                                      x2: 50px
+                                      y1: 2px
+                                      y2: 16px
+                            - component: symbol
+                              config:
+                                comment: "Draws the background of each dial: Outer ring, scale backdrop, inner
+                                  Ring."
+                                id: few_rings
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      comment: Outer ring. The stroke color uses the base color with less opacity.
+                                      cx: 50px
+                                      cy: 50px
+                                      fill: white
+                                      r: 49.5px
+                                      style:
+                                        stroke-opacity: 0.4
+                                        stroke-width: 1px
+                                  - component: circle
+                                    config:
+                                      comment: Inner ring. The stroke color uses the base color with less opacity.
+                                      cx: 50px
+                                      cy: 50px
+                                      fill: rgba(0, 0, 0, 0)
+                                      r: 32.5px
+                                      style:
+                                        stroke-opacity: 0.4
+                                        stroke-width: 1px
+                                  - component: path
+                                    config:
+                                      comment: Background of the dial. The stroke color uses the base color with less
+                                        opacity.
+                                      cx: 50px
+                                      cy: 50px
+                                      d: M50 9 A41 41 0 1 1 9 50
+                                      fill: rgba(0, 0, 0, 0)
+                                      r: 41px
+                                      style:
+                                        stroke-opacity: 0.4
+                                        stroke-width: 14px
+                            - component: path
+                              config:
+                                comment: Path for numerical display of value.
+                                d: M9,50 A41 41 0 0 1 50 9
+                                fill: rgba(0, 0, 0, 0)
+                                id: few_text_path
+                                stroke-width: 0px
+                      - component: g
+                        config:
+                          comment: Solar panel
+                          id: few_solarpanel
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Solar energy flow visualisation
+                                id: few_solar_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization solar.
+                                      d: M80 80 L120 120
+                                      id: few_solar_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#f7c002"
+                                            r: =fn.resize_dot(#props.solar_power)
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_solar_path"
+                            - component: use
+                              config:
+                                comment: PV dial.
+                                style:
+                                  stroke: =fn.switch_color(#props.power_solar, "pv")
+                                x: 0px
+                                xlink:href: "#few_rings"
+                                y: 0px
+                            - component: path
+                              config:
+                                comment: Dial, using an exponential scale. If the value exceeds power_solar_max,
+                                  the color dial turns red.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_solar,
+                                  props.power_solar_max))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_solar,
+                                  props.power_solar_max))}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: '=(Math.abs(#props.power_solar) < props.power_solar_max) ?
+                                    fn.switch_color(#props.power_solar, "pv") :
+                                    "#f70202"'
+                                  stroke-width: 14px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-weight: bold
+                                  font-size: 11px
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 0px 0px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_solar)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: Solar pv icon.
+                                height: 44px
+                                width: 44px
+                                x: 28px
+                                xlink:href: =`/icon/fronius_pv?format=svg&anyFormat=true&iconset=classic`
+                                y: 28px
+                      - component: g
+                        config:
+                          comment: Battery
+                          id: few_battery
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Energy flow visualisation
+                                id: few_battery_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization battery.
+                                      d: '=#props.power_battery >= 0 ? "M220 80 L180 120" : "M180 120 L220 80"'
+                                      id: few_battery_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#6cbe58"
+                                            r: =fn.resize_dot(#props.power_battery)
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_battery_path"
+                            - component: use
+                              config:
+                                comment: Battery dial.
+                                style:
+                                  stroke: "#6cbe58"
+                                x: 200px
+                                xlink:href: "#few_rings"
+                                y: 0px
+                            - component: path
+                              config:
+                                comment: Dial, using a linear scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(#props.soc_battery * 270)} 1
+                                  ${fn.to_cartesian(#props.soc_battery * 270)}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: "#6cbe58"
+                                  stroke-width: 14px
+                                  translate: 200px 0px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-weight: bold
+                                  font-size: 11px
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 200px 0px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(-1 * (#props.power_battery))
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: Battery icon
+                                height: 44px
+                                width: 44px
+                                x: 228px
+                                xlink:href: '=`/icon/fronius_battery${#props.power_battery < 0 ? "_charging" :
+                                  ""}-${25 * Math.round(#props.soc_battery *
+                                  4)}?format=svg&anyFormat=true&iconset=classic`'
+                                y: 28px
+                              slots:
+                                default:
+                                  - component: title
+                                    config:
+                                      content: '=`${#props.soc_battery > 0 ? "Disc" : "C"}harging with
+                                        ${fn.switch_magnitude(Math.abs(#props.power_battery))}.`'
+                      - component: g
+                        config:
+                          comment: Grid
+                          id: few_grid
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Grid energy flow visualisation
+                                id: few_grid_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: PV to grid energy flow visualization.
+                                      d: M120 180 L80 220
+                                      id: few_grid_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#999999"
+                                            r: "=fn.resize_dot(#props.power_grid < 0 ? #props.power_grid : 0)"
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_grid_path"
+                            - component: g
+                              config:
+                                comment: Grid to load energy flow visualisation.
+                                id: few_grid_to_load_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization grid.
+                                      d: M100 250 L300 150
+                                      id: few_grid_load_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 4
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#999999"
+                                            r: "=fn.resize_dot(#props.power_grid > 0 ? #props.power_grid : 0)"
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 5s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_grid_load_path"
+                            - component: use
+                              config:
+                                comment: Grid dial.
+                                style:
+                                  stroke: "#999999"
+                                x: 0px
+                                xlink:href: "#few_rings"
+                                y: 200px
+                            - component: path
+                              config:
+                                comment: Dial, using a exponential scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_grid,
+                                  props.power_grid_max))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_grid,
+                                  props.power_grid_max))}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: =fn.switch_color(#props.power_grid, "grid")
+                                  stroke-width: 14px
+                                  translate: 0px 200px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-weight: bold
+                                  font-size: 11px
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 0px 200px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_grid)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: grid icon
+                                height: 44px
+                                width: 44px
+                                x: 28px
+                                xlink:href: /icon/fronius_grid?format=svg&anyFormat=true&iconset=classic
+                                y: 228px
+                      - component: g
+                        config:
+                          comment: Inverter
+                          id: few_inverter
+                        slots:
+                          default:
+                            - component: use
+                              config:
+                                comment: Inverter dial.
+                                style:
+                                  stroke: =fn.switch_color(#props.power_inverter, "inverter")
+                                x: 100px
+                                xlink:href: "#few_rings"
+                                y: 100px
+                            - component: path
+                              config:
+                                comment: Dial, using an exponential scale. If the value exceeds max_solar_power,
+                                  the color dial turns red.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_inverter,
+                                  props.power_solar_max))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_inverter,
+                                  props.power_solar_max))}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: '=(Math.abs(#props.power_inverter) < props.max_solar_power) ?
+                                    fn.switch_color(#props.power_inverter,
+                                    "inverter") : "#f70202"'
+                                  stroke-width: 14px
+                                  translate: 100px 100px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-size: 11px
+                                  font-weight: bold
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 100px 100px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_inverter)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: inverter icon.
+                                height: 44px
+                                width: 44px
+                                x: 128px
+                                xlink:href: =`/icon/fronius_gen24?format=svg&anyFormat=true&iconset=classic`
+                                y: 128px
+                              slots:
+                                default:
+                                  - component: title
+                                    config:
+                                      content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
+                      - component: g
+                        config:
+                          comment: EV battery
+                          id: few_ev
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: EV energy flow visualisation
+                                id: few_ev_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization load.
+                                      d: M380 120 L420 80
+                                      id: few_load_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#71afcd"
+                                            r: =fn.resize_dot(#props.power_ev)
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_load_path"
+                            - component: use
+                              config:
+                                comment: EV battery dial.
+                                style:
+                                  stroke: =fn.switch_color(#props.power_ev, "ev")
+                                x: 400px
+                                xlink:href: "#few_rings"
+                                y: 0px
+                            - component: path
+                              config:
+                                comment: Dial, using a linear scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(#props.soc_ev * 270)} 1
+                                  ${fn.to_cartesian(#props.soc_ev * 270)}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: =fn.switch_color(#props.power_ev)
+                                  stroke-width: 14px
+                                  translate: 400px 0px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-size: 11px
+                                  font-weight: bold
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 400px 0px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_ev)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: inverter icon.
+                                height: 44px
+                                width: 44px
+                                x: 428px
+                                xlink:href: =`/icon/car?format=svg&anyFormat=true&iconset=classic`
+                                y: 28px
+                              slots:
+                                default:
+                                  - component: title
+                                    config:
+                                      content: "=`State: ${@props.chargestate_ev || '--'}`"
+                      - component: g
+                        config:
+                          comment: Laundry
+                          id: few_laundry
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Laundry energy flow visualisation
+                                id: few_laundry_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization load.
+                                      d: M320 180 L280 220
+                                      id: few_load_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#71afcd"
+                                            r: =fn.resize_dot(#props.power_laundry)
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_load_path"
+                            - component: use
+                              config:
+                                comment: Laundry power dial
+                                style:
+                                  stroke: =fn.switch_color(#props.power_laundry, "laundry")
+                                x: 200px
+                                xlink:href: "#few_rings"
+                                y: 200px
+                            - component: path
+                              config:
+                                comment: Dial, using a linear scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(#props.power_laundry * 270)} 1
+                                  ${fn.to_cartesian(#props.power_laundry *
+                                  270)}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: =fn.switch_color(#props.power_laundry, "laundry")
+                                  stroke-width: 14px
+                                  translate: 200px 200px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-size: 11px
+                                  font-weight: bold
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 200px 200px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_laundry)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: inverter icon.
+                                height: 44px
+                                width: 44px
+                                x: 228px
+                                xlink:href: =`/icon/washing-machine?format=svg&anyFormat=true&iconset=classic`
+                                y: 228px
+                      - component: g
+                        config:
+                          comment: Heatpump
+                          id: few_heatpump
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Heatpump energy flow visualisation
+                                id: few_heatpump_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization load.
+                                      d: M380 180 L420 220
+                                      id: few_load_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#71afcd"
+                                            r: =fn.resize_dot(#props.power_heatpump)
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_load_path"
+                            - component: use
+                              config:
+                                comment: Heatpump power dial
+                                style:
+                                  stroke: =fn.switch_color(#props.power_heatpump, "heatpump")
+                                x: 400px
+                                xlink:href: "#few_rings"
+                                y: 200px
+                            - component: path
+                              config:
+                                comment: Dial, using an exponential scale. If the value exceeds max_solar_power,
+                                  the color dial turns red.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_heatpump,
+                                  props.power_heatpump_max))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_heatpump,
+                                  props.power_heatpump_max))}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: '=(Math.abs(#props.power_heatpump) < props.power_heatpump_max) ?
+                                    fn.switch_color(#props.power_heatpump,
+                                    "heatpump") : "#f70202"'
+                                  stroke-width: 14px
+                                  translate: 400px 200px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-size: 11px
+                                  font-weight: bold
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 400px 200px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_heatpump)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: inverter icon.
+                                height: 44px
+                                width: 44px
+                                x: 428px
+                                xlink:href: =`/icon/heatpump?format=png&anyFormat=true&iconset=classic`
+                                y: 228px
+                      - component: g
+                        config:
+                          comment: Load
+                          id: few_few_load
+                        slots:
+                          default:
+                            - component: g
+                              config:
+                                comment: Load energy flow visualisation
+                                id: few_oad_energy_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: Energy flow visualization load.
+                                      d: M200 150 L300 150
+                                      id: few_load_path
+                                      style:
+                                        stroke: "#999999"
+                                        stroke_width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 2
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            fill: "#71afcd"
+                                            r: "=fn.resize_dot(#props.power_load + (#props.power_grid > 0 ?
+                                              #props.power_grid : 0))"
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 3s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_load_path"
+                            - component: use
+                              config:
+                                comment: Load dial
+                                style:
+                                  stroke: "#71afcd"
+                                x: 300px
+                                xlink:href: "#few_rings"
+                                y: 100px
+                            - component: path
+                              config:
+                                comment: Dial, using a exponential scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_load,
+                                  props.power_grid_max))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_load,
+                                  props.power_grid_max))}`
+                                fill: rgba(0, 0, 0, 0)
+                                style:
+                                  stroke: =fn.switch_color(#props.power_load, "load")
+                                  stroke-width: 14px
+                                  translate: 300px 100px
+                            - component: text
+                              config:
+                                style:
+                                  dominant-baseline: central
+                                  fill: rgb(127, 127, 127)
+                                  font-family: sans-serif
+                                  font-size: 11px
+                                  font-weight: bold
+                                  letter-spacing: 1px
+                                  text-anchor: middle
+                                  translate: 300px 100px
+                              slots:
+                                default:
+                                  - component: textPath
+                                    config:
+                                      content: =fn.switch_magnitude(#props.power_load)
+                                      startOffset: 50%
+                                      xlink:href: "#few_text_path"
+                            - component: image
+                              config:
+                                comment: Load icon
+                                height: 44px
+                                width: 44px
+                                x: 328px
+                                xlink:href: =`/icon/fronius_consumption?format=svg&anyFormat=true&iconset=classic`
+                                y: 128px
+                      - component: oh-repeater
+                        config:
+                          comment: Draws the segments of the dials, using an exponential scale.
+                          for: degree
+                          fragment: true
+                          rangeStart: 0
+                          rangeStep: 13.5
+                          rangeStop: 270
+                          sourceType: range
+                        slots:
+                          default:
+                            - component: use
+                              config:
+                                comment: Battery dial segments.
+                                style:
+                                  transform: =`rotate(${loop.degree}deg)`
+                                  transform-origin: 250px 50px
+                                x: 200px
+                                xlink:href: "#few_segment_line"
+                                y: 0px
+                            - component: use
+                              config:
+                                comment: PV dial segments
+                                style:
+                                  transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
+                                    Math.pow(270, props.exponent))}deg)`
+                                  transform-origin: 50px 50px
+                                x: 0px
+                                xlink:href: "#few_segment_line"
+                                y: 0px
+                            - component: use
+                              config:
+                                comment: Inverter dial segments
+                                style:
+                                  transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
+                                    Math.pow(270, props.exponent))}deg)`
+                                  transform-origin: 150px 150px
+                                x: 100px
+                                xlink:href: "#few_segment_line"
+                                y: 100px
+                            - component: use
+                              config:
+                                comment: Load dial segments
+                                style:
+                                  transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
+                                    Math.pow(270, props.exponent))}deg)`
+                                  transform-origin: 350px 150px
+                                x: 300px
+                                xlink:href: "#few_segment_line"
+                                y: 100px
+                            - component: use
+                              config:
+                                comment: Grid dial segments
+                                style:
+                                  transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
+                                    Math.pow(270, props.exponent))}deg)`
+                                  transform-origin: 50px 250px
+                                x: 0px
+                                xlink:href: "#few_segment_line"
+                                y: 200px
+                            - component: use
+                              config:
+                                comment: EV dial segments
+                                style:
+                                  transform: =`rotate(${loop.degree}deg)`
+                                  transform-origin: 450px 50px
+                                x: 400px
+                                xlink:href: "#few_segment_line"
+                                y: 0px
+                            - component: use
+                              config:
+                                comment: heating dial segments
+                                style:
+                                  transform: =`rotate(${loop.degree}deg)`
+                                  transform-origin: 450px 250px
+                                x: 400px
+                                xlink:href: "#few_segment_line"
+                                y: 200px
+                            - component: use
+                              config:
+                                comment: laundry dial segments
+                                style:
+                                  transform: =`rotate(${loop.degree}deg)`
+                                  transform-origin: 250px 250px
+                                x: 200px
+                                xlink:href: "#few_segment_line"
+                                y: 200px

@@ -1,0 +1,827 @@
+uid: generic_energy_flow_v2
+tags: []
+props:
+  parameters:
+    - default: "10000"
+      description: Maximum solar inverter power in watt. Used to calculate usage
+        percent background.
+      label: Maximum inverter power
+      name: power_solar_max
+      required: true
+      type: INTEGER
+      min: 1000
+      groupName: design
+    - default: "22000"
+      description: Maximum power to and from grid in watt. Used to calculate from/to
+        grid percent background.
+      label: Maximum grid power
+      name: power_grid_max
+      required: false
+      type: INTEGER
+      min: 1
+      groupName: design
+      advanced: true
+    - default: "8000"
+      description: Maximum electric power the heatpump can consume. Used to calculate
+        heatpump power percent background.
+      label: Maximum heatpump power
+      name: power_heatpump_max
+      required: false
+      type: INTEGER
+      min: 1000
+      groupName: design
+      advanced: true
+    - default: gold
+      description: CSS color name for the solar plant
+      label: Solar plant color
+      name: color_solar
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: green
+      description: CSS color name for the house
+      label: House color
+      name: color_house
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: seagreen
+      description: CSS color name for the solar battery
+      label: Battery color
+      name: color_battery
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: royalblue
+      description: CSS color name for the electric vehicle
+      label: EV color
+      name: color_ev
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: red
+      description: CSS color name for the heat pump
+      label: Heat pump color
+      name: color_heatpump
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - default: gray
+      description: CSS color name for the grid
+      label: Grid color
+      name: color_grid
+      required: false
+      type: TEXT
+      groupName: design
+      advanced: true
+    - context: item
+      description: Current solar power in Watts. Typically this would be the solar
+        yield item for a Fronius inverter.
+      label: Solar power
+      name: power_solar
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current solar power of MPPT1 in Watts.
+      label: MPPT 1
+      name: power_solar1
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current solar power of MPPT2 in Watts
+      label: MPPT 2
+      name: power_solar2
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Current energy autonomy Smartmeter.
+      label: Autonomy
+      name: power_autonomy
+      required: true
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Power the grid delivers or receives
+      label: Grid power
+      name: power_grid
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Power the solar battery delivers or consumes
+      label: Battery power
+      name: power_battery
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: State of charge of the solar battery
+      label: Solar battery SOC
+      name: soc_battery
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+    - context: item
+      description: Power the heating system consumes for heating and drinking water.
+      label: Heating system power consumption
+      name: power_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system power consumption for heating. Only used to
+        determine heating system state.
+      label: Heating system power consumption for heating
+      name: power_heating
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system power consumption for drinking water. Only used to
+        determine heating system state.
+      label: Heating system power - drinking water
+      name: power_drinking
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system water temperature - pre-flow temp of heat pump or
+        whatever value suits your needs.
+      label: Heating system water temperature
+      name: temp_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Heating system efficiency (Coefficient of power, COP)
+      label: Heating system COP
+      name: status_heatpump
+      required: false
+      type: TEXT
+      groupName: data_sources_heating
+    - context: item
+      description: Current charging power of the EV battery
+      label: EV battery charging power
+      name: power_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: EV battery state of charge
+      label: EV battery percent
+      name: soc_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: EV driving range estimated
+      label: EV range
+      name: range_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current charging state of the EV
+      label: EV charging state
+      name: chargestate_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current connection state of the EV
+      label: EV connection state
+      name: connected_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: Current house power consumption
+      label: House power
+      name: power_house
+      required: false
+      type: TEXT
+      groupName: data_sources_pv
+  parameterGroups:
+    - name: design
+      label: Design elements
+      description: Group of parameters which determine the visual appearance of the widget.
+    - name: data_sources_pv
+      label: Data sources (solar plant)
+      description: Group of parameters which deliver data for solar power production.
+    - name: data_sources_ev
+      label: Data sources (electric vehicle)
+      description: Group of parameters which deliver data for electric vehicles.
+    - name: data_sources_heating
+      label: Data sources (heating system)
+      description: Group of parameters which deliver data for heating and drinking water.
+timestamp: Mar 30, 2026, 7:31:10 PM
+component: f7-block
+config:
+  style:
+    width: 700px
+slots:
+  default:
+    - component: oh-context
+      config:
+        comment: "'resize_dot' adjusts the size of the energy flow dots in relation to
+          the highest value in the system. The value correlates to the area of
+          the dot, not its radius to give a better visual feedback.
+          'switch_magnitude' switches between W an kW depending on the input
+          value."
+        functions:
+          resize_dot: "=value => Math.abs(value) < 10 ? 0 :
+            `${Math.pow(Math.max(Math.abs(value) / Math.max(
+            (Math.abs(#props.power_house) + (#props.power_grid > 0 ?
+            #props.power_grid : 0)), Math.abs(#props.power_grid),
+            Math.abs(#props.power_solar), Math.abs(#props.power_battery),
+            Math.abs(#props.power_ev), Math.abs(#props.power_heatpump)), 0.05),
+            0.5) * 7}px`"
+          switch_magnitude: "=value => Math.abs(value) > 999 ? `${(Math.abs(value) /
+            1000).toFixed(Math.abs(value) > 9999 ? 1 : 2)} kW` :
+            `${Math.round(Math.abs(value)) | 0} W`"
+      slots:
+        default:
+          - component: f7-row
+            config:
+              style:
+                height: 90px
+                display: flex
+            slots:
+              default:
+                - component: f7-col
+                  config:
+                    style:
+                      width: 5%
+                      height: 70px
+                - component: f7-col
+                  config:
+                    comment: box - solar plant
+                    align: center
+                    style:
+                      width: 15%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                      border: ='1px solid '+props.color_solar
+                      border-radius: 10px
+                      background: ='linear-gradient(to top, transparent 0%, '+props.color_solar+' '+
+                        (#props.power_solar*100/props.power_solar_max)+'%,
+                        transparent '+
+                        (#props.power_solar*100/props.power_solar_max)+'% )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: =(#props.power_solar) > (props.power_solar_max/20) ?
+                            'f7:sun_max_fill':'f7:sun_max'
+                      - component: Label
+                        config:
+                          text: ="Total " + fn.switch_magnitude(#props.power_solar)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: ="MPPT1 " + fn.switch_magnitude(#props.power_solar1)
+                          style:
+                            font-size: 12px
+                      - component: Label
+                        config:
+                          text: ="MPPT2 " + fn.switch_magnitude(#props.power_solar2)
+                          style:
+                            font-size: 12px
+                - component: f7-col
+                  config:
+                    style:
+                      width: 25%
+                      height: 100%
+                  slots:
+                    default:
+                      - component: svg
+                        config:
+                          comment: energy flow - solar plant
+                          viewBox: 0 0 170 50
+                          xlmns: http://www.w3.org/2000/svg
+                          style:
+                            height: 100%
+                            width: 100%
+                        slots:
+                          default:
+                            - component: path
+                              config:
+                                id: energyflowsolarplant
+                                d: M 0 35 L 121 35 A 35 35 0 0 1 156 70
+                                stroke: =props.color_solar
+                                stroke-width: 1
+                                fill: none
+                            - component: oh-repeater
+                              config:
+                                comment: Sets up the circles, indicating the energy flow.
+                                for: offset
+                                fragment: true
+                                rangeStart: 0
+                                rangeStep: 1
+                                rangeStop: 3
+                                sourceType: range
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      fill: =props.color_solar
+                                      r: =fn.resize_dot(#props.power_solar)
+                                    slots:
+                                      default:
+                                        - component: animateMotion
+                                          config:
+                                            begin: =`${loop.offset}s`
+                                            calcMode: linear
+                                            dur: 4s
+                                            repeatCount: indefinite
+                                          slots:
+                                            default:
+                                              - component: mpath
+                                                config:
+                                                  xlink:href: "#energyflowsolarplant"
+                - component: f7-col
+                  config:
+                    align: center
+                    style:
+                      width: 10%
+                      height: 100%
+                      fill: none
+                - component: f7-col
+                  config:
+                    style:
+                      width: 25%
+                      height: 100%
+                  slots:
+                    default:
+                      - component: svg
+                        config:
+                          comment: energy flow - EV
+                          viewBox: 0 0 170 50
+                          xlmns: http://www.w3.org/2000/svg
+                          style:
+                            height: 100%
+                            width: 100%
+                        slots:
+                          default:
+                            - component: path
+                              config:
+                                id: energyflowev
+                                d: M 0 70 A 35 35 0 0 1 35 35 L 170 35
+                                stroke: =props.color_ev
+                                stroke-width: 1
+                                visible: =(@props.connected_ev) == 'disconnected' ? false:true
+                                fill: none
+                            - component: oh-repeater
+                              config:
+                                comment: Sets up the circles, indicating the energy flow.
+                                for: offset
+                                fragment: true
+                                rangeStart: 0
+                                rangeStep: 1
+                                rangeStop: 3
+                                sourceType: range
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      fill: =props.color_ev
+                                      r: =fn.resize_dot(#props.power_ev)
+                                    slots:
+                                      default:
+                                        - component: animateMotion
+                                          config:
+                                            begin: =`${loop.offset}s`
+                                            calcMode: linear
+                                            dur: 4s
+                                            repeatCount: indefinite
+                                          slots:
+                                            default:
+                                              - component: mpath
+                                                config:
+                                                  xlink:href: "#energyflowev"
+                - component: f7-col
+                  config:
+                    comment: box - EV
+                    align: center
+                    style:
+                      width: 15%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                      border: ='1px solid '+props.color_ev
+                      border-radius: 10px
+                      background: ='linear-gradient(to top, transparent 0%, '+props.color_ev+'
+                        '+#props.soc_ev + '%, transparent '+#props.soc_ev+'% )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: f7:car_fill
+                      - component: Label
+                        config:
+                          text: =@props.chargestate_ev
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =fn.switch_magnitude(#props.power_ev)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =#props.soc_ev+" % | "+@props.range_ev
+                          style:
+                            font-size: 12px
+                - component: f7-col
+                  config:
+                    style:
+                      width: 5%
+                      height: 70px
+          - component: f7-row
+            config:
+              style:
+                width: 100%
+                height: 90px
+            slots:
+              default:
+                - component: f7-col
+                  config:
+                    align: center
+                    style:
+                      width: 20%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                - component: f7-col
+                  config:
+                    align: center
+                    style:
+                      width: 20%
+                      height: 100%
+                - component: f7-col
+                  config:
+                    comment: box - house
+                    align: center
+                    style:
+                      width: 20%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                      border: ='1px solid '+props.color_house
+                      border-radius: 20px
+                      background: ='linear-gradient(to top, transparent 0%, '+props.color_house+' '+
+                        (#props.power_autonomy*100)+'%, transparent '+
+                        (#props.power_autonomy*100)+'% )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: f7:house
+                      - component: Label
+                        config:
+                          text: ="Consumption"
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =fn.switch_magnitude(#props.power_house)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: ="Autonomy "+@props.power_autonomy
+                          style:
+                            font-size: 12px
+                - component: f7-col
+                  config:
+                    comment: energy flow - battery
+                    style:
+                      width: 20%
+                      height: 100%
+                  slots:
+                    default:
+                      - component: svg
+                        config:
+                          viewBox: 0 0 156 70
+                          xlmns: http://www.w3.org/2000/svg
+                          style:
+                            height: 100%
+                            width: 100%
+                        slots:
+                          default:
+                            - component: path
+                              config:
+                                id: energyflowbattery
+                                d: '=(#props.power_battery) > 0 ? "M 156 35 L 0 35" : "M 0 35 L 156 35"'
+                                stroke: =props.color_battery
+                                stroke-width: 1
+                                fill: none
+                            - component: oh-repeater
+                              config:
+                                comment: Sets up the circles, indicating the energy flow.
+                                for: offset
+                                fragment: true
+                                rangeStart: 0
+                                rangeStep: 1
+                                rangeStop: 3
+                                sourceType: range
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      fill: =props.color_battery
+                                      r: =fn.resize_dot(#props.power_battery)
+                                    slots:
+                                      default:
+                                        - component: animateMotion
+                                          config:
+                                            begin: =`${loop.offset}s`
+                                            calcMode: linear
+                                            dur: 4s
+                                            repeatCount: indefinite
+                                          slots:
+                                            default:
+                                              - component: mpath
+                                                config:
+                                                  xlink:href: "#energyflowbattery"
+                - component: f7-col
+                  config:
+                    comment: box - battery
+                    align: center
+                    style:
+                      width: 15%
+                      height: 100%
+                      border: ='1px solid '+props.color_battery
+                      border-radius: 10px
+                      background: ='linear-gradient(to top, transparent 0%, '+props.color_battery+'
+                        '+(#props.soc_battery*100)+ '%, transparent
+                        '+(#props.soc_battery*100)+'% )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: =(#props.soc_battery) > 0.5 ? 'f7:battery_100':'f7:battery_25'
+                      - component: Label
+                        config:
+                          text: =(#props.power_battery) > 0 ? "Discharging":"Charging"
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =fn.switch_magnitude(#props.power_battery)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =@props.soc_battery
+                          style:
+                            font-size: 12px
+                - component: f7-col
+                  config:
+                    style:
+                      width: 5%
+                      height: 70px
+          - component: f7-row
+            config:
+              style:
+                width: 100%
+                height: 90px
+            slots:
+              default:
+                - component: f7-col
+                  config:
+                    align: center
+                    style:
+                      width: 5%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                - component: f7-col
+                  config:
+                    comment: box - grid
+                    align: center
+                    style:
+                      width: 15%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                      border: ='1px solid '+props.color_grid
+                      border-radius: 10px
+                      background: ='linear-gradient('+(#props.power_grid > 0 ? "to top":"to
+                        bottom")+', transparent 0%, '+props.color_grid+' '+
+                        Math.abs(#props.power_grid*100/props.power_grid_max)+'%,
+                        transparent '+
+                        Math.abs(#props.power_grid*100/props.power_grid_max)+'%
+                        )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: if:mdi:transmission-tower
+                      - component: Label
+                        config:
+                          text: ="Power "+(#props.power_grid > 0 ? "from":"to")+" grid"
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =fn.switch_magnitude(#props.power_grid)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                - component: f7-col
+                  config:
+                    style:
+                      width: 25%
+                      height: 100%
+                  slots:
+                    default:
+                      - component: svg
+                        config:
+                          comment: energy path - grid
+                          viewBox: 0 0 170 90
+                          xlmns: http://www.w3.org/2000/svg
+                          style:
+                            height: 100%
+                            width: 100%
+                        slots:
+                          default:
+                            - component: path
+                              config:
+                                id: energyflowgrid
+                                d: '=(#props.power_grid) < 0 ? "M 156 0 A 35 35 0 0 1 121 35 L 0 35 " : "M 0 35
+                                  L 121 35 A 35 35 0 0 0 156 0"'
+                                stroke: =props.color_grid
+                                stroke-width: 1
+                                fill: none
+                            - component: oh-repeater
+                              config:
+                                comment: Sets up the circles, indicating the energy flow.
+                                for: offset
+                                fragment: true
+                                rangeStart: 0
+                                rangeStep: 1
+                                rangeStop: 3
+                                sourceType: range
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      fill: =props.color_grid
+                                      r: =fn.resize_dot(#props.power_grid)
+                                    slots:
+                                      default:
+                                        - component: animateMotion
+                                          config:
+                                            begin: =`${loop.offset}s`
+                                            calcMode: linear
+                                            dur: 4s
+                                            repeatCount: indefinite
+                                          slots:
+                                            default:
+                                              - component: mpath
+                                                config:
+                                                  xlink:href: "#energyflowgrid"
+                - component: f7-col
+                  config:
+                    align: center
+                    style:
+                      width: 10%
+                      height: 100%
+                      fill: none
+                - component: f7-col
+                  config:
+                    comment: energy path - heatpump
+                    style:
+                      width: 25%
+                      height: 100%
+                  slots:
+                    default:
+                      - component: svg
+                        config:
+                          viewBox: 0 0 170 90
+                          xlmns: http://www.w3.org/2000/svg
+                          style:
+                            height: 100%
+                            width: 100%
+                        slots:
+                          default:
+                            - component: path
+                              config:
+                                id: energyflowheatpump
+                                d: M 0 0 A 35 35 0 0 0 35 35 L 170 35
+                                stroke: =props.color_heatpump
+                                stroke-width: 1
+                                fill: none
+                            - component: oh-repeater
+                              config:
+                                comment: Sets up the circles, indicating the energy flow.
+                                for: offset
+                                fragment: true
+                                rangeStart: 0
+                                rangeStep: 1
+                                rangeStop: 3
+                                sourceType: range
+                              slots:
+                                default:
+                                  - component: circle
+                                    config:
+                                      fill: =props.color_heatpump
+                                      r: =fn.resize_dot(#props.power_heatpump)
+                                    slots:
+                                      default:
+                                        - component: animateMotion
+                                          config:
+                                            begin: =`${loop.offset}s`
+                                            calcMode: linear
+                                            dur: 4s
+                                            repeatCount: indefinite
+                                          slots:
+                                            default:
+                                              - component: mpath
+                                                config:
+                                                  xlink:href: "#energyflowheatpump"
+                - component: f7-col
+                  config:
+                    comment: box - heatpump
+                    align: center
+                    style:
+                      width: 15%
+                      height: 100%
+                      display: flex
+                      align-items: center
+                      justify-content: space-around
+                      flex-direction: column
+                      border: ='1px solid '+props.color_heatpump
+                      border-radius: 10px
+                      background: ='linear-gradient(to top, transparent 0%, '+props.color_heatpump+'
+                        '+
+                        (#props.power_heatpump*100/props.power_heatpump_max)+'%,
+                        transparent '+
+                        (#props.power_heatpump*100/props.power_heatpump_max)+'%
+                        )'
+                      fill: none
+                  slots:
+                    default:
+                      - component: oh-icon
+                        config:
+                          icon: f7:thermometer
+                      - component: Label
+                        config:
+                          text: =(#props.power_heating) > 0 ? "Heating":(#props.power_drinking) > 0 ?
+                            "Drinking water":(#props.power_heatpump) > 0 ?
+                            "Defrosting":"Standby"
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: =fn.switch_magnitude(#props.power_heatpump)
+                          style:
+                            font-size: 12px
+                            font-weight: bold
+                      - component: Label
+                        config:
+                          text: ="COP " + (#props.status_heatpump) + " | "  + (@props.temp_heatpump)
+                          style:
+                            font-size: 12px
+                - component: f7-col
+                  config:
+                    style:
+                      width: 5%
+                      height: 70px
