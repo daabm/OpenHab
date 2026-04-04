@@ -20,10 +20,11 @@ props:
       type: DECIMAL
       groupName: design
       advanced: true
-    - default: "10"
+    - default: "20"
       description: Minimum value for any power flow to be regarded active. Power below
-        this value will be displayed, but regarded inactivity.
-      label: Mininum Power value
+        this value will be displayed, but regarded inactive and no power flow will be shown.
+        This allows for ignoring energy meter misreadings.
+      label: Mininum power value
       name: power_min
       required: true
       type: DECIMAL
@@ -953,10 +954,10 @@ slots:
                                       comment: flash icon when charging
                                       fill: url(#gradient_charge)
                                       points: 12.55,11.9 12.55,8 9.8,13.6 11.45,13.6 11.45,17.2 14.14,11.9
-                                      stroke: =fn.switch_color(#props.power_battery "battery")
+                                      stroke: white
                                       stroke-linejoint: miter
                                       stroke-miterlimit: 5
-                                      stroke-width: 0.3
+                                      stroke-width: 0.2
                                       visible: =(#props.power_battery < (props.power_min * -1))
                                   - component: title
                                     config:
