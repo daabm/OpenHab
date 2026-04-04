@@ -1,4 +1,4 @@
-uid: generic_energy_flow_v3
+uid: fronius_energy_flow_v2
 tags:
   - energy
   - fronius
@@ -22,8 +22,8 @@ props:
       advanced: true
     - default: "20"
       description: Minimum value for any power flow to be regarded active. Power below
-        this value will be displayed, but regarded inactive and no power flow will be shown.
-        This allows for ignoring energy meter misreadings.
+        this value will be displayed, but regarded inactive and no power flow
+        will be shown. This allows for ignoring energy meter misreadings.
       label: Mininum power value
       name: power_min
       required: true
@@ -334,7 +334,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 4, 2026, 12:18:07 AM
+timestamp: Apr 4, 2026, 2:55:57 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -365,8 +365,8 @@ slots:
             0.05), 0.5) * 5}px`"
           scale_to_deg: =(value, max) => Math.pow(Math.min(Math.abs(value), max) * (270 /
             max), props.exponent) * (270 / Math.pow(270, props.exponent))
-          switch_color: '=(value, type) => (Math.abs(value) >= props.power_min) ? {"solar":
-            props.color_solar, "grid": props.color_grid, "inverter":
+          switch_color: '=(value, type) => (Math.abs(value) >= props.power_min) ?
+            {"solar": props.color_solar, "grid": props.color_grid, "inverter":
             props.color_inverter, "house": props.color_house, "battery":
             props.color_battery, "ev": props.color_ev, "laundry":
             props.color_laundry, "heatpump": props.color_heatpump}[type] :
@@ -527,7 +527,8 @@ slots:
                                 fill: none
                                 style:
                                   stroke: =(#props.power_solar < props.power_solar_max) ?
-                                    fn.switch_color(#props.power_solar, "solar"):"red"
+                                    fn.switch_color(#props.power_solar,
+                                    "solar"):"red"
                                   stroke-width: 14px
                             - component: text
                               config:
@@ -868,7 +869,9 @@ slots:
                               config:
                                 comment: Battery dial.
                                 style:
-                                  stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                  stroke: =(#props.soc_battery > 0.07 ?
+                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                    "battery"))
                                 x: 0px
                                 xlink:href: "#few_rings"
                                 y: 200px
@@ -879,7 +882,9 @@ slots:
                                   ${fn.to_cartesian(#props.soc_battery * 270)}`
                                 fill: rgba(0, 0, 0, 0)
                                 style:
-                                  stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                  stroke: =(#props.soc_battery > 0.07 ?
+                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                    "battery"))
                                   stroke-width: 14px
                                   translate: 0px 200px
                             - component: text
@@ -903,7 +908,9 @@ slots:
                             - component: svg
                               config:
                                 comment: solar battery icon
-                                fill: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                fill: =(#props.soc_battery > 0.07 ?
+                                  props.color_battery:fn.switch_color(#props.power_battery,
+                                  "battery"))
                                 height: 44px
                                 viewBox: 0 0 24 24
                                 width: 44px
@@ -928,11 +935,15 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                                  stop-color: =(#props.soc_battery > 0.07 ?
+                                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                                    "battery"))
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
-                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                                  stop-color: =(#props.soc_battery > 0.07 ?
+                                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                                    "battery"))
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
@@ -964,11 +975,15 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: =#props.soc_battery
-                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                                  stop-color: =(#props.soc_battery > 0.07 ?
+                                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                                    "battery"))
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                                  stop-color: =(#props.soc_battery > 0.07 ?
+                                                    props.color_battery:fn.switch_color(#props.power_battery,
+                                                    "battery"))
                                   - component: rect
                                     config:
                                       comment: positive pole of battery icon
@@ -985,7 +1000,9 @@ slots:
                                       height: 16
                                       rx: 1
                                       ry: 1
-                                      stroke: =(#props.soc_battery > 0.07 ? props.color_battery:fn.switch_color(#props.power_battery, "battery"))
+                                      stroke: =(#props.soc_battery > 0.07 ?
+                                        props.color_battery:fn.switch_color(#props.power_battery,
+                                        "battery"))
                                       stroke-width: 1
                                       width: 10
                                       x: 7
@@ -1608,9 +1625,10 @@ slots:
                                           config:
                                             attributeName: transform
                                             begin: 0s
-                                            dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) * 4))
-                                            from: 0 245 226
-                                            to: 360 245 226
+                                            dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) *
+                                              4))
+                                            from: 360 245 226
+                                            to: 0 245 226
                                             repeatCount: indefinite
                                             type: rotate
                                             visible: =(#props.power_heatpump > props.power_min)
