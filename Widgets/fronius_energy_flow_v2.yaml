@@ -526,9 +526,8 @@ slots:
                                   props.power_solar_max))}`
                                 fill: none
                                 style:
-                                  stroke: '=(#props.power_solar < props.power_solar_max) ?
-                                    fn.switch_color(#props.power_solar, "solar") :
-                                    "red"'
+                                  stroke: =(#props.power_solar < props.power_solar_max) ?
+                                    fn.switch_color(#props.power_solar, "solar"):"red"
                                   stroke-width: 14px
                             - component: text
                               config:
@@ -570,7 +569,7 @@ slots:
                                             x1: 0
                                             x2: 0
                                             y1: 2
-                                            y2: 20
+                                            y2: 24
                                             gradientUnits: userSpaceOnUse
                                           slots:
                                             default:
@@ -1678,7 +1677,7 @@ slots:
                                       fragment: true
                                       rangeStart: 0
                                       rangeStep: 1
-                                      rangeStop: 2
+                                      rangeStop: 4
                                       sourceType: range
                                     slots:
                                       default:
@@ -1693,7 +1692,7 @@ slots:
                                                 config:
                                                   begin: =`${loop.offset}s`
                                                   calcMode: linear
-                                                  dur: 3s
+                                                  dur: 4s
                                                   repeatCount: indefinite
                                                 slots:
                                                   default:
