@@ -99,7 +99,7 @@ props:
       name: power_solar
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_solar
     - context: item
       description: Solar actual power of maximum power point tracker 1 in watts. Shows
         in the popup hint of the solar plant.
@@ -107,7 +107,7 @@ props:
       name: power_solar1
       required: false
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_solar4
     - context: item
       description: Solar actual power of maximum power point tracker 2 in watts. Shows
         in the popup hint of the solar plant.
@@ -115,14 +115,14 @@ props:
       name: power_solar2
       required: false
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_solar
     - context: item
       description: Solar inverter actual power.
       label: Inverter power
       name: power_inverter
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_solar
     - default: "10000"
       description: Solar inverter maximum power.
       label: Inverter maximum power
@@ -130,14 +130,14 @@ props:
       required: true
       type: INTEGER
       min: 800
-      groupName: data_sources_pv
+      groupName: data_sources_solar
     - context: item
       description: House actual power consumption.
       label: House power
       name: power_house
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_solar
     - default: "22000"
       description: House maximum power consumption. Typically, this relates to your
         primary fuse amperage.
@@ -146,7 +146,7 @@ props:
       required: true
       type: INTEGER
       min: 3840
-      groupName: data_sources_pv
+      groupName: data_sources_solar
       advanced: true
     - context: item
       description: Power actual autonomy in percent.
@@ -154,14 +154,14 @@ props:
       name: power_autonomy
       required: false
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_
     - context: item
       description: Grid actual power delivery/consumption.
       label: Grid power
       name: power_grid
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_s
     - default: "22000"
       description: Grid maximum power delivery/consumption. Usually the same as house
         maximum  power.
@@ -170,7 +170,7 @@ props:
       required: true
       type: INTEGER
       min: 3840
-      groupName: data_sources_pv
+      groupName: data_sources_s
       advanced: true
     - context: item
       description: Solar battery actual power delivery/consumption.
@@ -178,14 +178,14 @@ props:
       name: power_battery
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_s
     - context: item
       description: State of charge of the solar battery.
       label: Battery SOC
       name: soc_battery
       required: true
       type: TEXT
-      groupName: data_sources_pv
+      groupName: data_sources_s
     - default: "10200"
       description: Solar battery energy capacity in Wh.
       label: Battery capacity
@@ -193,7 +193,7 @@ props:
       required: true
       type: INTEGER
       min: 1000
-      groupName: data_sources_pv
+      groupName: data_sources_s
       advanced: true
     - context: item
       description: Power the heat pump consumes for heating and drinking water. If you
@@ -325,7 +325,7 @@ props:
   parameterGroups:
     - name: design
       label: Design elements
-    - name: data_sources_pv
+    - name: data_sources_s
       label: Data sources (solar plant, inverter and grid)
     - name: data_sources_ev
       label: Data sources (electric vehicle)
@@ -364,7 +364,7 @@ slots:
             0.05), 0.5) * 5}px`"
           scale_to_deg: =(value, max) => Math.pow(Math.min(Math.abs(value), max) * (270 /
             max), props.exponent) * (270 / Math.pow(270, props.exponent))
-          switch_color: '=(value, type) => (Math.abs(value) >= props.power_min) ? {"pv":
+          switch_color: '=(value, type) => (Math.abs(value) >= props.power_min) ? {"solar":
             props.color_solar, "grid": props.color_grid, "inverter":
             props.color_inverter, "house": props.color_house, "battery":
             props.color_battery, "ev": props.color_ev, "laundry":
@@ -492,7 +492,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "pv")
+                                            fill: =fn.switch_color(#props.power_solar, "solar")
                                             r: =fn.resize_dot(#props.power_solar)
                                           slots:
                                             default:
@@ -509,9 +509,9 @@ slots:
                                                         xlink:href: "#few_solar_path"
                             - component: use
                               config:
-                                comment: PV dial.
+                                comment: Solar dial.
                                 style:
-                                  stroke: =fn.switch_color(#props.power_solar, "pv")
+                                  stroke: =fn.switch_color(#props.power_solar, "solar")
                                 x: 0px
                                 xlink:href: "#few_rings"
                                 y: 0px
@@ -526,7 +526,7 @@ slots:
                                 fill: none
                                 style:
                                   stroke: '=(#props.power_solar < props.power_solar_max) ?
-                                    fn.switch_color(#props.power_solar, "pv") :
+                                    fn.switch_color(#props.power_solar, "solar") :
                                     "red"'
                                   stroke-width: 14px
                             - component: text
@@ -549,10 +549,10 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: solar pv icon
-                                fill: =fn.switch_color(#props.power_solar, "pv")
+                                comment: solar icon
+                                fill: =fn.switch_color(#props.power_solar, "solar")
                                 height: 44px
-                                stroke: =fn.switch_color(#props.power_solar, "pv")
+                                stroke: =fn.switch_color(#props.power_solar, "solar")
                                 stroke-miterlimit: 10
                                 stroke-width: 0.3px
                                 viewBox: 0 0 24 24
@@ -1731,7 +1731,7 @@ slots:
                           default:
                             - component: use
                               config:
-                                comment: PV dial segments
+                                comment: Solar dial segments
                                 style:
                                   transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
                                     Math.pow(270, props.exponent))}deg)`
