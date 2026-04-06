@@ -1017,6 +1017,18 @@ slots:
                                       stroke-miterlimit: 5
                                       stroke-width: 0.2
                                       visible: =(#props.power_battery < (props.power_min * -1))
+                                  - component: text
+                                    config:
+                                      comment: state of charge when discharging
+                                      fill: url(#gradient_charge)
+                                      stroke: white
+                                      stroke-width: 0.2
+                                      visible: =(#props.power_battery > (props.power_min * -1))
+                                      content: =@props.soc_battery
+                                      x: 4.5
+                                      y: 15.5
+                                      font-size: 5px
+                                      transform: rotate(270 12,13.5)
                                   - component: title
                                     config:
                                       content: '=(#props.power_battery > 0 ? "Disc" : "C") + "harging: " +
