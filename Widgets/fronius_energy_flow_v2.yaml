@@ -334,7 +334,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 4, 2026, 2:55:57 PM
+timestamp: Apr 6, 2026, 11:03:14 AM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -1595,7 +1595,7 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: laundry icon
+                                comment: heatpump icon
                                 fill: =fn.switch_color(#props.power_heatpump, "heatpump")
                                 height: 44px
                                 viewBox: 0 0 490 490
@@ -1627,8 +1627,8 @@ slots:
                                             begin: 0s
                                             dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) *
                                               4))
-                                            from: 360 245 226
-                                            to: 0 245 226
+                                            from: 0 245 226
+                                            to: 360 245 226
                                             repeatCount: indefinite
                                             type: rotate
                                             visible: =(#props.power_heatpump > props.power_min)
