@@ -388,7 +388,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 10, 2026, 3:35:26 PM
+timestamp: Apr 10, 2026, 3:52:30 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -614,7 +614,6 @@ slots:
                                   - component: oh-link
                                     config:
                                       action: analyzer
-                                      # actionGroupPopupItem: =props.popup_solar
                                       actionAnalyzerItems:
                                         - =props.power_solar
                                         - =props.power_solar1
@@ -994,7 +993,6 @@ slots:
                                   - component: oh-link
                                     config:
                                       action: analyzer
-                                      # actionGroupPopupItem: =props.popup_battery
                                       actionAnalyzerItems:
                                         - =props.power_battery
                                         - =props.soc_battery
