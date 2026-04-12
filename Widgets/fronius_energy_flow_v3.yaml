@@ -1,4 +1,4 @@
-uid: fronius_energy_flow_v2
+uid: fronius_energy_flow_v3
 tags:
   - energy
   - fronius
@@ -102,6 +102,14 @@ props:
       type: TEXT
       groupName: data_sources_solar
     - context: item
+      description: Solar plant popup item, e.g. a a group that contains all relevant
+        solar plant data.
+      label: Solar plant popup item
+      name: popup_solar
+      required: false
+      type: TEXT
+      groupName: data_sources_solar
+    - context: item
       description: Solar actual power of maximum power point tracker 1 in watts. Shows
         in the popup hint of the solar plant.
       label: MPP tracker 1 power
@@ -124,9 +132,17 @@ props:
       required: true
       type: TEXT
       groupName: data_sources_solar
+    - context: item
+      description: Inverter popup item, e.g. a a group that contains all relevant
+        inverter data.
+      label: Solar inverter popup item
+      name: popup_inverter
+      required: false
+      type: TEXT
+      groupName: data_sources_solar
     - default: "10000"
       description: Solar inverter maximum power.
-      label: Inverter maximum power
+      label: Solar inverter maximum power
       name: power_solar_max
       required: true
       type: INTEGER
@@ -137,6 +153,13 @@ props:
       label: House power
       name: power_house
       required: true
+      type: TEXT
+      groupName: data_sources_solar
+    - context: item
+      description: House popup item, e.g. a a group that contains all relevant house data.
+      label: House popup item
+      name: popup_house
+      required: false
       type: TEXT
       groupName: data_sources_solar
     - default: "22000"
@@ -181,6 +204,14 @@ props:
       type: TEXT
       groupName: data_sources_solar
     - context: item
+      description: Solar battery popup item, e.g. a a group that contains all relevant
+        solar battery data.
+      label: Solar battery popup item
+      name: popup_battery
+      required: false
+      type: TEXT
+      groupName: data_sources_solar
+    - context: item
       description: State of charge of the solar battery.
       label: Battery SOC
       name: soc_battery
@@ -205,7 +236,7 @@ props:
       required: true
       type: TEXT
       groupName: data_sources_heatpump
-    - default: "5000"
+    - default: "4000"
       description: Maximum power the heatpump can consume. Can be found in your pump's
         technical specifications.
       label: Heatpump maximum power
@@ -215,6 +246,14 @@ props:
       min: 1000
       groupName: data_sources_heatpump
       advanced: true
+    - context: item
+      description: Heat pump popup item, e.g. a a group that contains all relevant
+        heatpump data.
+      label: Heat pump popup item
+      name: popup_heating
+      required: false
+      type: TEXT
+      groupName: data_sources_heatpump
     - context: item
       description: Heat pump power consumption for heating. Used to determine heating
         system state (heating/drinking water/defrosting/standby).
@@ -247,6 +286,13 @@ props:
       required: false
       type: TEXT
       groupName: data_sources_heatpump
+    - context: item
+      description: EV car popup item, e.g. a a group that contains all relevant EV car data.
+      label: EV car popup item
+      name: popup_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
     - context: item
       description: EV battery charging power. If you don't select an item for this
         value, the EV will not be visible in the widget.
@@ -293,6 +339,14 @@ props:
       type: TEXT
       groupName: data_sources_laundry
     - context: item
+      description: Laundry popup item, e.g. a a group that contains all relevant
+        laundry data.
+      label: Laundry - popup item
+      name: popup_laundry
+      required: false
+      type: TEXT
+      groupName: data_sources_laundry
+    - context: item
       description: Current power consumption of the cloth washing machine
       label: Washing power
       name: power_washing
@@ -334,7 +388,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 6, 2026, 11:03:14 AM
+timestamp: Apr 10, 2026, 3:52:30 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -384,7 +438,7 @@ slots:
                 content-justify: center
                 display: flex
                 height: 100%
-                padding: 0%
+                padding: 5%
                 width: 100%
             slots:
               default:
@@ -550,131 +604,153 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: solar icon
+                                comment: solar icon area
                                 height: 44px
-                                stroke-miterlimit: 10
-                                stroke-width: 0.3px
-                                viewBox: 0 0 24 24
                                 width: 44px
                                 x: 28px
                                 y: 28px
                               slots:
                                 default:
-                                  - component: defs
+                                  - component: oh-link
+                                    config:
+                                      action: analyzer
+                                      actionAnalyzerItems:
+                                        - =props.power_solar
+                                        - =props.power_solar1
+                                        - =props.power_solar2
                                     slots:
                                       default:
-                                        - component: linearGradient
+                                        - component: svg
                                           config:
-                                            comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
-                                            id: gradient_solar
-                                            x1: 0
-                                            x2: 0
-                                            y1: 2
-                                            y2: 24
-                                            gradientUnits: userSpaceOnUse
+                                            comment: solar icon
+                                            height: 100%
+                                            stroke-miterlimit: 10
+                                            stroke-width: 0.3px
+                                            viewBox: 0 0 24 24
+                                            width: 100%
                                           slots:
                                             default:
-                                              - component: stop
+                                              - component: defs
+                                                slots:
+                                                  default:
+                                                    - component: linearGradient
+                                                      config:
+                                                        comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
+                                                        id: gradient_solar
+                                                        x1: 0
+                                                        x2: 0
+                                                        y1: 2
+                                                        y2: 24
+                                                        gradientUnits: userSpaceOnUse
+                                                      slots:
+                                                        default:
+                                                          - component: stop
+                                                            config:
+                                                              offset: 0
+                                                              stop-color: =fn.switch_color(#props.power_solar, "solar")
+                                                          - component: stop
+                                                            config:
+                                                              offset: =(#props.power_solar / props.power_solar_max)
+                                                              stop-color: =fn.switch_color(#props.power_solar, "solar")
+                                                          - component: stop
+                                                            config:
+                                                              offset: 1
+                                                              stop-color: =fn.switch_color(0, "solar")
+                                              - component: rect
                                                 config:
-                                                  offset: 0
-                                                  stop-color: =fn.switch_color(#props.power_solar, "solar")
-                                              - component: stop
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: path
                                                 config:
-                                                  offset: =(#props.power_solar / props.power_solar_max)
-                                                  stop-color: =fn.switch_color(#props.power_solar, "solar")
-                                              - component: stop
+                                                  d: M12 8 a4 4 0 1 0 4 4 A4 4 0 0 0 12 8 Z
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
                                                 config:
-                                                  offset: 1
-                                                  stop-color: =fn.switch_color(0, "solar")
-                                  - component: path
-                                    config:
-                                      d: M12 8 a4 4 0 1 0 4 4 A4 4 0 0 0 12 8 Z
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      width: 1.5
-                                      x: 11.25
-                                      y: 2
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      width: 1.5
-                                      x: 11.25
-                                      y: 18
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(32 -8) rotate(90)
-                                      width: 1.5
-                                      x: 19.25
-                                      y: 10
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(16 8) rotate(90)
-                                      width: 1.5
-                                      x: 3.25
-                                      y: 10
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(42.63 17.66) rotate(135)
-                                      width: 1.5
-                                      x: 16.91
-                                      y: 15.66
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(15.31 6.34) rotate(135)
-                                      width: 1.5
-                                      x: 5.59
-                                      y: 4.34
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(-1.66 34.63) rotate(-135)
-                                      width: 1.5
-                                      x: 5.59
-                                      y: 15.66
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: rect
-                                    config:
-                                      height: 4
-                                      rx: 0.75
-                                      transform: translate(25.66 23.31) rotate(-135)
-                                      width: 1.5
-                                      x: 16.91
-                                      y: 4.34
-                                      fill: url(#gradient_solar)
-                                      stroke: url(#gradient_solar)
-                                  - component: title
-                                    config:
-                                      content: '="MPPT1: " + fn.switch_magnitude(#props.power_solar1) + "\r\n" +
-                                        "MPPT2: " +
-                                        fn.switch_magnitude(#props.power_solar2)'
-                                      visible: =((props.power_solar1 || props.power_solar2) ? true:false)
+                                                  height: 4
+                                                  rx: 0.75
+                                                  width: 1.5
+                                                  x: 11.25
+                                                  y: 2
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  width: 1.5
+                                                  x: 11.25
+                                                  y: 18
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(32 -8) rotate(90)
+                                                  width: 1.5
+                                                  x: 19.25
+                                                  y: 10
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(16 8) rotate(90)
+                                                  width: 1.5
+                                                  x: 3.25
+                                                  y: 10
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(42.63 17.66) rotate(135)
+                                                  width: 1.5
+                                                  x: 16.91
+                                                  y: 15.66
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(15.31 6.34) rotate(135)
+                                                  width: 1.5
+                                                  x: 5.59
+                                                  y: 4.34
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(-1.66 34.63) rotate(-135)
+                                                  width: 1.5
+                                                  x: 5.59
+                                                  y: 15.66
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: rect
+                                                config:
+                                                  height: 4
+                                                  rx: 0.75
+                                                  transform: translate(25.66 23.31) rotate(-135)
+                                                  width: 1.5
+                                                  x: 16.91
+                                                  y: 4.34
+                                                  fill: url(#gradient_solar)
+                                                  stroke: url(#gradient_solar)
+                                              - component: title
+                                                config:
+                                                  content: '="MPPT1: " + fn.switch_magnitude(#props.power_solar1) + "\r\n" +
+                                                    "MPPT2: " +
+                                                    fn.switch_magnitude(#props.power_solar2)'
+                                                  visible: =((props.power_solar1 || props.power_solar2) ? true:false)
                       - component: g
                         config:
                           comment: Grid
@@ -907,134 +983,156 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: solar battery icon
-                                fill: =(#props.soc_battery > 0.07 ?
-                                  props.color_battery:fn.switch_color(#props.power_battery,
-                                  "battery"))
+                                comment: solar battery icon area
                                 height: 44px
-                                viewBox: 0 0 24 24
                                 width: 44px
                                 x: 28px
                                 y: 228px
                               slots:
                                 default:
-                                  - component: defs
+                                  - component: oh-link
+                                    config:
+                                      action: analyzer
+                                      actionAnalyzerItems:
+                                        - =props.power_battery
+                                        - =props.soc_battery
                                     slots:
                                       default:
-                                        - component: linearGradient
+                                        - component: svg
                                           config:
-                                            comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
-                                            id: gradient_battery
-                                            x1: 0
-                                            x2: 0
-                                            y1: 20.5
-                                            y2: 6
-                                            gradientUnits: userSpaceOnUse
+                                            comment: solar battery icon
+                                            fill: =(#props.soc_battery > 0.07 ?
+                                              props.color_battery:fn.switch_color(#props.power_battery,
+                                              "battery"))
+                                            height: 100%>
+                                            viewBox: 0 0 24 24
+                                            width: 100%
                                           slots:
                                             default:
-                                              - component: stop
+                                              - component: defs
+                                                slots:
+                                                  default:
+                                                    - component: linearGradient
+                                                      config:
+                                                        comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
+                                                        id: gradient_battery
+                                                        x1: 0
+                                                        x2: 0
+                                                        y1: 20.5
+                                                        y2: 6
+                                                        gradientUnits: userSpaceOnUse
+                                                      slots:
+                                                        default:
+                                                          - component: stop
+                                                            config:
+                                                              offset: 0
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: white
+                                                          - component: stop
+                                                            config:
+                                                              offset: 1
+                                                              stop-color: white
+                                                    - component: linearGradient
+                                                      config:
+                                                        comment: Gradient for solar battery charging flash. y1 = 100% means "start at
+                                                          bottom"
+                                                        id: gradient_charge
+                                                        x1: 0
+                                                        x2: 0
+                                                        y1: 20.5
+                                                        y2: 6
+                                                        gradientUnits: userSpaceOnUse
+                                                      slots:
+                                                        default:
+                                                          - component: stop
+                                                            config:
+                                                              offset: 0
+                                                              stop-color: white
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: white
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                                          - component: stop
+                                                            config:
+                                                              offset: 1
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                              - component: rect
                                                 config:
-                                                  offset: 0
-                                                  stop-color: =(#props.soc_battery > 0.07 ?
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: rect
+                                                config:
+                                                  comment: positive pole of battery icon
+                                                  height: 1.5
+                                                  rx: 0.5
+                                                  ry: 0.5
+                                                  width: 5.5
+                                                  x: 9.25
+                                                  y: 3
+                                              - component: rect
+                                                config:
+                                                  comment: outer frame of battery icon
+                                                  fill: url(#gradient_battery)
+                                                  height: 16
+                                                  rx: 1
+                                                  ry: 1
+                                                  stroke: =(#props.soc_battery > 0.07 ?
                                                     props.color_battery:fn.switch_color(#props.power_battery,
                                                     "battery"))
-                                              - component: stop
+                                                  stroke-width: 1
+                                                  width: 10
+                                                  x: 7
+                                                  y: 5.5
+                                              - component: polygon
                                                 config:
-                                                  offset: =#props.soc_battery
-                                                  stop-color: =(#props.soc_battery > 0.07 ?
-                                                    props.color_battery:fn.switch_color(#props.power_battery,
-                                                    "battery"))
-                                              - component: stop
+                                                  comment: flash icon when charging
+                                                  fill: url(#gradient_charge)
+                                                  points: 12.55,11.9 12.55,8 9.8,13.6 11.45,13.6 11.45,17.2 14.14,11.9
+                                                  stroke: white
+                                                  stroke-linejoint: miter
+                                                  stroke-miterlimit: 5
+                                                  stroke-width: 0.2
+                                                  visible: =(#props.power_battery <= 0 )
+                                              - component: text
                                                 config:
-                                                  offset: =#props.soc_battery
-                                                  stop-color: white
-                                              - component: stop
+                                                  comment: state of charge when discharging
+                                                  fill: white
+                                                  stroke: white
+                                                  stroke-width: 0.2
+                                                  visible: =(#props.soc_battery > 0.98 && (#props.power_battery > 0 ))
+                                                  content: =@props.soc_battery
+                                                  x: 4.5
+                                                  y: 15.5
+                                                  font-size: 5px
+                                                  transform: rotate(270 12,13.5)
+                                              - component: title
                                                 config:
-                                                  offset: 1
-                                                  stop-color: white
-                                        - component: linearGradient
-                                          config:
-                                            comment: Gradient for solar battery charging flash. y1 = 100% means "start at
-                                              bottom"
-                                            id: gradient_charge
-                                            x1: 0
-                                            x2: 0
-                                            y1: 20.5
-                                            y2: 6
-                                            gradientUnits: userSpaceOnUse
-                                          slots:
-                                            default:
-                                              - component: stop
-                                                config:
-                                                  offset: 0
-                                                  stop-color: white
-                                              - component: stop
-                                                config:
-                                                  offset: =#props.soc_battery
-                                                  stop-color: white
-                                              - component: stop
-                                                config:
-                                                  offset: =#props.soc_battery
-                                                  stop-color: =(#props.soc_battery > 0.07 ?
-                                                    props.color_battery:fn.switch_color(#props.power_battery,
-                                                    "battery"))
-                                              - component: stop
-                                                config:
-                                                  offset: 1
-                                                  stop-color: =(#props.soc_battery > 0.07 ?
-                                                    props.color_battery:fn.switch_color(#props.power_battery,
-                                                    "battery"))
-                                  - component: rect
-                                    config:
-                                      comment: positive pole of battery icon
-                                      height: 1.5
-                                      rx: 0.5
-                                      ry: 0.5
-                                      width: 5.5
-                                      x: 9.25
-                                      y: 3
-                                  - component: rect
-                                    config:
-                                      comment: outer frame of battery icon
-                                      fill: url(#gradient_battery)
-                                      height: 16
-                                      rx: 1
-                                      ry: 1
-                                      stroke: =(#props.soc_battery > 0.07 ?
-                                        props.color_battery:fn.switch_color(#props.power_battery,
-                                        "battery"))
-                                      stroke-width: 1
-                                      width: 10
-                                      x: 7
-                                      y: 5.5
-                                  - component: polygon
-                                    config:
-                                      comment: flash icon when charging
-                                      fill: url(#gradient_charge)
-                                      points: 12.55,11.9 12.55,8 9.8,13.6 11.45,13.6 11.45,17.2 14.14,11.9
-                                      stroke: white
-                                      stroke-linejoint: miter
-                                      stroke-miterlimit: 5
-                                      stroke-width: 0.2
-                                      visible: =(#props.power_battery < (props.power_min * -1))
-                                  - component: text
-                                    config:
-                                      comment: state of charge when discharging
-                                      fill: url(#gradient_charge)
-                                      stroke: white
-                                      stroke-width: 0.2
-                                      visible: =(#props.power_battery > (props.power_min * -1))
-                                      content: =@props.soc_battery
-                                      x: 4.5
-                                      y: 15.5
-                                      font-size: 5px
-                                      transform: rotate(270 12,13.5)
-                                  - component: title
-                                    config:
-                                      content: '=(#props.power_battery > 0 ? "Disc" : "C") + "harging: " +
-                                        fn.switch_magnitude(#props.power_battery)
-                                        + "\r\n" + "SOC: " + @props.soc_battery'
-                                      visible: =((props.power_battery || props.soc_battery) ? true:false)
+                                                  content: '=(#props.power_battery > 0 ? "Disc" : "C") + "harging: " +
+                                                    fn.switch_magnitude(#props.power_battery)
+                                                    + "\r\n" + "SOC: " +
+                                                    @props.soc_battery'
+                                                  visible: =((props.power_battery || props.soc_battery) ? true:false)
                       - component: g
                         config:
                           comment: Inverter
@@ -1084,65 +1182,84 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: inverter icon
+                                comment: inverter icon area
                                 height: 44px
-                                stroke: dimgray
-                                stroke-miterlimit: 10
-                                viewBox: 0 0 70 70
                                 width: 44px
                                 x: 128px
                                 y: 128px
                               slots:
                                 default:
-                                  - component: rect
+                                  - component: oh-link
                                     config:
-                                      fill: none
-                                      height: 64
-                                      rx: 6.8
-                                      stroke-width: 2px
-                                      width: 58.7
-                                      x: 5.65
-                                      y: 3
-                                  - component: circle
-                                    config:
-                                      cx: 35.03
-                                      cy: 29.61
-                                      fill: lightgray
-                                      r: 11
-                                  - component: circle
-                                    config:
-                                      cx: 15
-                                      cy: 40
-                                      fill: darkgray
-                                      r: 4
-                                  - component: path
-                                    config:
-                                      d: M40.19,52H36.73a2,2,0,0,0-3.46,0H29.81a1.08,1.08,0,1,0,0,2.15h3.46a2,2,0,0,0,3.46,0h3.46a1.08,1.08,0,1,0,0-2.15Z
-                                      fill: none
-                                      fill-rule: evenodd
-                                  - component: path
-                                    config:
-                                      d: M34.89,61.87c-3.24,0-5.87-.73-5.87-1.62s2.63-1.64,5.87-1.64,5.87.74,5.87,1.64S38.13,61.87,34.89,61.87Z
-                                      fill: crimson
-                                      fill-rule: evenodd
-                                  - component: line
-                                    config:
-                                      fill: none
-                                      x1: 5.07
-                                      x2: 28.73
-                                      y1: 53.08
-                                      y2: 53.08
-                                  - component: line
-                                    config:
-                                      fill: none
-                                      x1: 41.27
-                                      x2: 64.93
-                                      y1: 53.08
-                                      y2: 53.08
-                                  - component: title
-                                    config:
-                                      content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
-                                      visible: =(props.power_autonomy ? true:false)
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_inverter
+                                    slots:
+                                      default:
+                                        - component: svg
+                                          config:
+                                            comment: inverter icon
+                                            height: 100%
+                                            stroke: dimgray
+                                            stroke-miterlimit: 10
+                                            viewBox: 0 0 70 70
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: rect
+                                                config:
+                                                  fill: none
+                                                  height: 64
+                                                  rx: 6.8
+                                                  stroke-width: 2px
+                                                  width: 58.7
+                                                  x: 5.65
+                                                  y: 3
+                                              - component: circle
+                                                config:
+                                                  cx: 35.03
+                                                  cy: 29.61
+                                                  fill: lightgray
+                                                  r: 11
+                                              - component: circle
+                                                config:
+                                                  cx: 15
+                                                  cy: 40
+                                                  fill: darkgray
+                                                  r: 4
+                                              - component: path
+                                                config:
+                                                  d: M40.19,52H36.73a2,2,0,0,0-3.46,0H29.81a1.08,1.08,0,1,0,0,2.15h3.46a2,2,0,0,0,3.46,0h3.46a1.08,1.08,0,1,0,0-2.15Z
+                                                  fill: none
+                                                  fill-rule: evenodd
+                                              - component: path
+                                                config:
+                                                  d: M34.89,61.87c-3.24,0-5.87-.73-5.87-1.62s2.63-1.64,5.87-1.64,5.87.74,5.87,1.64S38.13,61.87,34.89,61.87Z
+                                                  fill: crimson
+                                                  fill-rule: evenodd
+                                              - component: line
+                                                config:
+                                                  fill: none
+                                                  x1: 5.07
+                                                  x2: 28.73
+                                                  y1: 53.08
+                                                  y2: 53.08
+                                              - component: line
+                                                config:
+                                                  fill: none
+                                                  x1: 41.27
+                                                  x2: 64.93
+                                                  y1: 53.08
+                                                  y2: 53.08
+                                              - component: title
+                                                config:
+                                                  content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
+                                                  visible: =(props.power_autonomy ? true:false)
                       - component: g
                         config:
                           comment: EV battery
@@ -1231,45 +1348,78 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: car icon
+                                comment: car icon area
                                 height: 44px
-                                viewBox: 0 0 24 24
                                 width: 44px
                                 x: 428px
                                 y: 28px
                               slots:
                                 default:
-                                  - component: path
+                                  - component: oh-link
                                     config:
-                                      d: M3 8L5.72187 10.2682C5.90158 10.418 6.12811 10.5 6.36205 10.5H17.6379C17.8719
-                                        10.5 18.0984 10.418 18.2781 10.2682L21
-                                        8M6.5 14H6.51M17.5 14H17.51M8.16065
-                                        4.5H15.8394C16.5571 4.5 17.2198 4.88457
-                                        17.5758 5.50772L20.473 10.5777C20.8183
-                                        11.1821 21 11.8661 21 12.5623V18.5C21
-                                        19.0523 20.5523 19.5 20 19.5H19C18.4477
-                                        19.5 18 19.0523 18 18.5V17.5H6V18.5C6
-                                        19.0523 5.55228 19.5 5 19.5H4C3.44772
-                                        19.5 3 19.0523 3 18.5V12.5623C3 11.8661
-                                        3.18166 11.1821 3.52703 10.5777L6.42416
-                                        5.50772C6.78024 4.88457 7.44293 4.5
-                                        8.16065 4.5ZM7 14C7 14.2761 6.77614 14.5
-                                        6.5 14.5C6.22386 14.5 6 14.2761 6 14C6
-                                        13.7239 6.22386 13.5 6.5 13.5C6.77614
-                                        13.5 7 13.7239 7 14ZM18 14C18 14.2761
-                                        17.7761 14.5 17.5 14.5C17.2239 14.5 17
-                                        14.2761 17 14C17 13.7239 17.2239 13.5
-                                        17.5 13.5C17.7761 13.5 18 13.7239 18 14Z
-                                      fill: none
-                                      stroke: =fn.switch_color(#props.power_ev, "ev")
-                                      stroke-linecap: round
-                                      stroke-linejoin: round
-                                      stroke-width: 2
-                                  - component: title
-                                    config:
-                                      content: '="State: " + @props.chargestate_ev + "\r\n" + "Charge: " +
-                                        @props.soc_ev + "\r\n" + "Est. range: "
-                                        + @props.range_ev'
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_ev
+                                    slots:
+                                      default:
+                                        - component: svg
+                                          config:
+                                            comment: car icon
+                                            height: 100%
+                                            viewBox: 0 0 24 24
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: path
+                                                config:
+                                                  d: M3 8L5.72187 10.2682C5.90158 10.418 6.12811 10.5 6.36205 10.5H17.6379C17.8719
+                                                    10.5 18.0984 10.418 18.2781
+                                                    10.2682L21 8M6.5
+                                                    14H6.51M17.5
+                                                    14H17.51M8.16065
+                                                    4.5H15.8394C16.5571 4.5
+                                                    17.2198 4.88457 17.5758
+                                                    5.50772L20.473
+                                                    10.5777C20.8183 11.1821 21
+                                                    11.8661 21 12.5623V18.5C21
+                                                    19.0523 20.5523 19.5 20
+                                                    19.5H19C18.4477 19.5 18
+                                                    19.0523 18
+                                                    18.5V17.5H6V18.5C6 19.0523
+                                                    5.55228 19.5 5
+                                                    19.5H4C3.44772 19.5 3
+                                                    19.0523 3 18.5V12.5623C3
+                                                    11.8661 3.18166 11.1821
+                                                    3.52703 10.5777L6.42416
+                                                    5.50772C6.78024 4.88457
+                                                    7.44293 4.5 8.16065 4.5ZM7
+                                                    14C7 14.2761 6.77614 14.5
+                                                    6.5 14.5C6.22386 14.5 6
+                                                    14.2761 6 14C6 13.7239
+                                                    6.22386 13.5 6.5
+                                                    13.5C6.77614 13.5 7 13.7239
+                                                    7 14ZM18 14C18 14.2761
+                                                    17.7761 14.5 17.5
+                                                    14.5C17.2239 14.5 17 14.2761
+                                                    17 14C17 13.7239 17.2239
+                                                    13.5 17.5 13.5C17.7761 13.5
+                                                    18 13.7239 18 14Z
+                                                  fill: none
+                                                  stroke: =fn.switch_color(#props.power_ev, "ev")
+                                                  stroke-linecap: round
+                                                  stroke-linejoin: round
+                                                  stroke-width: 2
+                                              - component: title
+                                                config:
+                                                  content: '="State: " + @props.chargestate_ev + "\r\n" + "Charge: " +
+                                                    @props.soc_ev + "\r\n" +
+                                                    "Est. range: " +
+                                                    @props.range_ev'
                       - component: g
                         config:
                           comment: Laundry
@@ -1359,164 +1509,219 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: laundry icon
-                                fill: =fn.switch_color(#props.power_laundry, "laundry")
+                                comment: laundry icon area
                                 height: 44px
-                                viewBox: 0 0 1024 1024
                                 width: 44px
                                 x: 228px
                                 y: 228px
                               slots:
                                 default:
-                                  - component: path
+                                  - component: oh-link
                                     config:
-                                      d: M214.25 133.12h600v790a30 30 0 0 1-30 30h-540a30 30 0 0 1-30-30v-790z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M784.25 960.62h-540a37.54 37.54 0 0 1-37.5-37.5v-790a7.5 7.5 0 0 1
-                                        7.5-7.5h600a7.5 7.5 0 0 1 7.5
-                                        7.5v790a37.54 37.54 0 0 1-37.5 37.5z
-                                        m-562.5-820v782.5a22.53 22.53 0 0 0 22.5
-                                        22.5h540a22.53 22.53 0 0 0
-                                        22.5-22.5v-782.5z
-                                  - component: path
-                                    config:
-                                      d: M244.25 72.5h540a30 30 0 0 1 30 30v170h-600v-170a30 30 0 0 1 30-30z
-                                      fill: white
-                                  - component: path
-                                    config:
-                                      d: M814.25 280h-600a7.5 7.5 0 0 1-7.5-7.5v-170a37.54 37.54 0 0 1
-                                        37.5-37.5h540a37.54 37.54 0 0 1 37.5
-                                        37.5v170a7.5 7.5 0 0 1-7.5 7.5z
-                                        m-592.5-15h585V102.5a22.53 22.53 0 0
-                                        0-22.5-22.5h-540a22.53 22.53 0 0 0-22.5
-                                        22.5z
-                                  - component: path
-                                    config:
-                                      d: M514.25 569.19m-200 0a200 200 0 1 0 400 0 200 200 0 1 0-400 0Z
-                                      fill: white
-                                  - component: path
-                                    config:
-                                      d: M514.25 776.69c-114.42 0-207.5-93.08-207.5-207.5s93.08-207.5 207.5-207.5
-                                        207.5 93.08 207.5 207.5-93.08
-                                        207.5-207.5 207.5z m0-400c-106.15
-                                        0-192.5 86.36-192.5 192.5s86.35 192.5
-                                        192.5 192.5 192.5-86.36
-                                        192.5-192.5-86.35-192.5-192.5-192.5z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M514.25 569.19m-150 0a150 150 0 1 0 300 0 150 150 0 1 0-300 0Z
-                                  - component: path
-                                    config:
-                                      d: M514.34 721.69h-0.09a153.69 153.69 0 0 1-29.65-2.88 2.5 2.5 0 0 1 1-4.91
-                                        148.59 148.59 0 0 0 28.69 2.79 2.54 2.54
-                                        0 0 1 2.54 2.5 2.46 2.46 0 0 1-2.49 2.5z
-                                        m29.25-2.87a2.5 2.5 0 0 1-0.48-5 146.81
-                                        146.81 0 0 0 27.66-8.39 2.5 2.5 0 1 1
-                                        1.92 4.62 151.72 151.72 0 0 1-28.6 8.68
-                                        2.54 2.54 0 0 1-0.5 0.09z
-                                        m-86.65-8.47a2.5 2.5 0 0 1-1-0.19 152.37
-                                        152.37 0 0 1-26.36-14.09 2.5 2.5 0 1 1
-                                        2.78-4.16 147.3 147.3 0 0 0 25.5 13.63
-                                        2.5 2.5 0 0 1-1 4.81z m140.7-14a2.5 2.5
-                                        0 0 1-1.39-4.58 148.45 148.45 0 0 0
-                                        22.33-18.36 2.5 2.5 0 1 1 3.54
-                                        3.54A153.46 153.46 0 0 1 599 696a2.49
-                                        2.49 0 0 1-1.36 0.39z
-                                        m-189.36-18.51a2.49 2.49 0 0 1-1.77-0.73
-                                        153.56 153.56 0 0 1-19-23.08 2.5 2.5 0 0
-                                        1 4.15-2.79A148.55 148.55 0 0 0 410
-                                        673.57a2.5 2.5 0 0 1-1.77 4.27zM639
-                                        655a2.5 2.5 0 0 1-2.08-3.89 147.51
-                                        147.51 0 0 0 13.64-25.49 2.5 2.5 0 1 1
-                                        4.62 1.91 152.57 152.57 0 0 1-14.11
-                                        26.36A2.5 2.5 0 0 1 639 655z
-                                        m-263.31-25.76a2.5 2.5 0 0 1-2.31-1.54
-                                        151.76 151.76 0 0 1-8.7-28.6 2.5 2.5 0 1
-                                        1 4.9-1 146.7 146.7 0 0 0 8.42 27.68 2.5
-                                        2.5 0 0 1-2.31 3.46z m285.71-28.3a2.45
-                                        2.45 0 0 1-0.49 0 2.5 2.5 0 0 1-2-2.94
-                                        148.67 148.67 0 0 0 2.8-28.77v-0.34a2.5
-                                        2.5 0 0 1 2.49-2.51 2.5 2.5 0 0 1 2.5
-                                        2.49v0.36a153.71 153.71 0 0 1-2.9 29.74
-                                        2.5 2.5 0 0 1-2.4 1.97z
-                                        m-297.15-29.08a2.5 2.5 0 0
-                                        1-2.5-2.5v-0.17a153.75 153.75 0 0 1
-                                        2.86-29.57 2.5 2.5 0 1 1 4.91 1 148.75
-                                        148.75 0 0 0-2.77 28.61v0.17a2.5 2.5 0 0
-                                        1-2.5 2.46z m297.08-29.77a2.5 2.5 0 0
-                                        1-2.45-2 146.75 146.75 0 0 0-8.44-27.64
-                                        2.5 2.5 0 1 1 4.61-1.93 151.75 151.75 0
-                                        0 1 8.73 28.59 2.5 2.5 0 0 1-2.45 3z
-                                        m-285.77-27.63a2.5 2.5 0 0 1-2.31-3.46
-                                        152.4 152.4 0 0 1 14.08-26.37 2.5 2.5 0
-                                        0 1 4.16 2.78 147.45 147.45 0 0 0-13.61
-                                        25.5 2.5 2.5 0 0 1-2.32 1.55z
-                                        m263.26-26.37a2.5 2.5 0 0 1-2.08-1.1
-                                        148.53 148.53 0 0 0-18.4-22.3 2.5 2.5 0
-                                        1 1 3.53-3.54 153.67 153.67 0 0 1 19
-                                        23.05 2.5 2.5 0 0 1-2.07 3.9zM408
-                                        465.77a2.5 2.5 0 0 1-1.77-4.27 153.58
-                                        153.58 0 0 1 23.07-19 2.5 2.5 0 0 1 2.79
-                                        4.15A148.56 148.56 0 0 0 409.8 465a2.49
-                                        2.49 0 0 1-1.8 0.77z m189.31-19a2.49
-                                        2.49 0 0 1-1.38-0.42 147.46 147.46 0 0
-                                        0-25.51-13.6 2.5 2.5 0 0 1 1.91-4.62
-                                        152.53 152.53 0 0 1 26.38 14.06 2.5 2.5
-                                        0 0 1-1.39 4.58z m-140.69-13.61a2.5 2.5
-                                        0 0 1-1-4.81 151.77 151.77 0 0 1
-                                        28.59-8.71 2.5 2.5 0 1 1 1 4.9 146.85
-                                        146.85 0 0 0-27.63 8.46 2.5 2.5 0 0
-                                        1-0.96 0.16z m86.64-8.67a2.48 2.48 0 0
-                                        1-0.48 0 148.75 148.75 0 0
-                                        0-28.52-2.75H514a2.5 2.5 0 1 1
-                                        0-5h0.23a153.78 153.78 0 0 1 29.51 2.85
-                                        2.5 2.5 0 0 1-0.48 5z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M284.25 147.5h50v50h-50z
-                                  - component: path
-                                    config:
-                                      d: M334.25 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
-                                        0 1 7.5 7.5v50a7.5 7.5 0 0 1-7.5 7.5z
-                                        m-42.5-15h35v-35h-35z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M367.24 147.5h50v50h-50z
-                                  - component: path
-                                    config:
-                                      d: M417.24 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
-                                        0 1 7.5 7.5v50a7.5 7.5 0 0 1-7.5 7.5z
-                                        m-42.5-15h35v-35h-35z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M450.22 147.5h50v50h-50z
-                                  - component: path
-                                    config:
-                                      d: M500.22 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
-                                        0 1 7.5 7.5v50a7.5 7.5 0 0 1-7.5 7.5z
-                                        m-42.5-15h35v-35h-35z
-                                      opacity: 0.5
-                                  - component: path
-                                    config:
-                                      d: M708.44 172.5m-30 0a30 30 0 1 0 60 0 30 30 0 1 0-60 0Z
-                                  - component: path
-                                    config:
-                                      d: M708.44 210a37.5 37.5 0 1 1 37.5-37.5 37.54 37.54 0 0 1-37.5 37.5z m0-60a22.5
-                                        22.5 0 1 0 22.5 22.5 22.53 22.53 0 0
-                                        0-22.5-22.5z
-                                      opacity: 0.5
-                                  - component: title
-                                    config:
-                                      content: '="Washing: " + @props.power_washing + "\r\n" + "Drying: "
-                                        +@props.power_drying + "\r\n" +
-                                        "Dehumidify: " +
-                                        @props.power_dehumidify'
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_laundry
+                                    slots:
+                                      default:
+                                        - component: svg
+                                          config:
+                                            comment: laundry icon
+                                            fill: =fn.switch_color(#props.power_laundry, "laundry")
+                                            height: 100%
+                                            viewBox: 0 0 1024 1024
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: path
+                                                config:
+                                                  d: M214.25 133.12h600v790a30 30 0 0 1-30 30h-540a30 30 0 0 1-30-30v-790z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M784.25 960.62h-540a37.54 37.54 0 0 1-37.5-37.5v-790a7.5 7.5 0 0 1
+                                                    7.5-7.5h600a7.5 7.5 0 0 1
+                                                    7.5 7.5v790a37.54 37.54 0 0
+                                                    1-37.5 37.5z
+                                                    m-562.5-820v782.5a22.53
+                                                    22.53 0 0 0 22.5
+                                                    22.5h540a22.53 22.53 0 0 0
+                                                    22.5-22.5v-782.5z
+                                              - component: path
+                                                config:
+                                                  d: M244.25 72.5h540a30 30 0 0 1 30 30v170h-600v-170a30 30 0 0 1 30-30z
+                                                  fill: white
+                                              - component: path
+                                                config:
+                                                  d: M814.25 280h-600a7.5 7.5 0 0 1-7.5-7.5v-170a37.54 37.54 0 0 1
+                                                    37.5-37.5h540a37.54 37.54 0
+                                                    0 1 37.5 37.5v170a7.5 7.5 0
+                                                    0 1-7.5 7.5z
+                                                    m-592.5-15h585V102.5a22.53
+                                                    22.53 0 0
+                                                    0-22.5-22.5h-540a22.53 22.53
+                                                    0 0 0-22.5 22.5z
+                                              - component: path
+                                                config:
+                                                  d: M514.25 569.19m-200 0a200 200 0 1 0 400 0 200 200 0 1 0-400 0Z
+                                                  fill: white
+                                              - component: path
+                                                config:
+                                                  d: M514.25 776.69c-114.42 0-207.5-93.08-207.5-207.5s93.08-207.5 207.5-207.5
+                                                    207.5 93.08 207.5
+                                                    207.5-93.08 207.5-207.5
+                                                    207.5z m0-400c-106.15
+                                                    0-192.5 86.36-192.5
+                                                    192.5s86.35 192.5 192.5
+                                                    192.5 192.5-86.36
+                                                    192.5-192.5-86.35-192.5-192.5-192.5z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M514.25 569.19m-150 0a150 150 0 1 0 300 0 150 150 0 1 0-300 0Z
+                                              - component: path
+                                                config:
+                                                  d: M514.34 721.69h-0.09a153.69 153.69 0 0 1-29.65-2.88 2.5 2.5 0 0 1 1-4.91
+                                                    148.59 148.59 0 0 0 28.69
+                                                    2.79 2.54 2.54 0 0 1 2.54
+                                                    2.5 2.46 2.46 0 0 1-2.49
+                                                    2.5z m29.25-2.87a2.5 2.5 0 0
+                                                    1-0.48-5 146.81 146.81 0 0 0
+                                                    27.66-8.39 2.5 2.5 0 1 1
+                                                    1.92 4.62 151.72 151.72 0 0
+                                                    1-28.6 8.68 2.54 2.54 0 0
+                                                    1-0.5 0.09z m-86.65-8.47a2.5
+                                                    2.5 0 0 1-1-0.19 152.37
+                                                    152.37 0 0 1-26.36-14.09 2.5
+                                                    2.5 0 1 1 2.78-4.16 147.3
+                                                    147.3 0 0 0 25.5 13.63 2.5
+                                                    2.5 0 0 1-1 4.81z
+                                                    m140.7-14a2.5 2.5 0 0
+                                                    1-1.39-4.58 148.45 148.45 0
+                                                    0 0 22.33-18.36 2.5 2.5 0 1
+                                                    1 3.54 3.54A153.46 153.46 0
+                                                    0 1 599 696a2.49 2.49 0 0
+                                                    1-1.36 0.39z
+                                                    m-189.36-18.51a2.49 2.49 0 0
+                                                    1-1.77-0.73 153.56 153.56 0
+                                                    0 1-19-23.08 2.5 2.5 0 0 1
+                                                    4.15-2.79A148.55 148.55 0 0
+                                                    0 410 673.57a2.5 2.5 0 0
+                                                    1-1.77 4.27zM639 655a2.5 2.5
+                                                    0 0 1-2.08-3.89 147.51
+                                                    147.51 0 0 0 13.64-25.49 2.5
+                                                    2.5 0 1 1 4.62 1.91 152.57
+                                                    152.57 0 0 1-14.11 26.36A2.5
+                                                    2.5 0 0 1 639 655z
+                                                    m-263.31-25.76a2.5 2.5 0 0
+                                                    1-2.31-1.54 151.76 151.76 0
+                                                    0 1-8.7-28.6 2.5 2.5 0 1 1
+                                                    4.9-1 146.7 146.7 0 0 0 8.42
+                                                    27.68 2.5 2.5 0 0 1-2.31
+                                                    3.46z m285.71-28.3a2.45 2.45
+                                                    0 0 1-0.49 0 2.5 2.5 0 0
+                                                    1-2-2.94 148.67 148.67 0 0 0
+                                                    2.8-28.77v-0.34a2.5 2.5 0 0
+                                                    1 2.49-2.51 2.5 2.5 0 0 1
+                                                    2.5 2.49v0.36a153.71 153.71
+                                                    0 0 1-2.9 29.74 2.5 2.5 0 0
+                                                    1-2.4 1.97z
+                                                    m-297.15-29.08a2.5 2.5 0 0
+                                                    1-2.5-2.5v-0.17a153.75
+                                                    153.75 0 0 1 2.86-29.57 2.5
+                                                    2.5 0 1 1 4.91 1 148.75
+                                                    148.75 0 0 0-2.77
+                                                    28.61v0.17a2.5 2.5 0 0 1-2.5
+                                                    2.46z m297.08-29.77a2.5 2.5
+                                                    0 0 1-2.45-2 146.75 146.75 0
+                                                    0 0-8.44-27.64 2.5 2.5 0 1 1
+                                                    4.61-1.93 151.75 151.75 0 0
+                                                    1 8.73 28.59 2.5 2.5 0 0
+                                                    1-2.45 3z m-285.77-27.63a2.5
+                                                    2.5 0 0 1-2.31-3.46 152.4
+                                                    152.4 0 0 1 14.08-26.37 2.5
+                                                    2.5 0 0 1 4.16 2.78 147.45
+                                                    147.45 0 0 0-13.61 25.5 2.5
+                                                    2.5 0 0 1-2.32 1.55z
+                                                    m263.26-26.37a2.5 2.5 0 0
+                                                    1-2.08-1.1 148.53 148.53 0 0
+                                                    0-18.4-22.3 2.5 2.5 0 1 1
+                                                    3.53-3.54 153.67 153.67 0 0
+                                                    1 19 23.05 2.5 2.5 0 0
+                                                    1-2.07 3.9zM408 465.77a2.5
+                                                    2.5 0 0 1-1.77-4.27 153.58
+                                                    153.58 0 0 1 23.07-19 2.5
+                                                    2.5 0 0 1 2.79 4.15A148.56
+                                                    148.56 0 0 0 409.8 465a2.49
+                                                    2.49 0 0 1-1.8 0.77z
+                                                    m189.31-19a2.49 2.49 0 0
+                                                    1-1.38-0.42 147.46 147.46 0
+                                                    0 0-25.51-13.6 2.5 2.5 0 0 1
+                                                    1.91-4.62 152.53 152.53 0 0
+                                                    1 26.38 14.06 2.5 2.5 0 0
+                                                    1-1.39 4.58z
+                                                    m-140.69-13.61a2.5 2.5 0 0
+                                                    1-1-4.81 151.77 151.77 0 0 1
+                                                    28.59-8.71 2.5 2.5 0 1 1 1
+                                                    4.9 146.85 146.85 0 0
+                                                    0-27.63 8.46 2.5 2.5 0 0
+                                                    1-0.96 0.16z
+                                                    m86.64-8.67a2.48 2.48 0 0
+                                                    1-0.48 0 148.75 148.75 0 0
+                                                    0-28.52-2.75H514a2.5 2.5 0 1
+                                                    1 0-5h0.23a153.78 153.78 0 0
+                                                    1 29.51 2.85 2.5 2.5 0 0
+                                                    1-0.48 5z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M284.25 147.5h50v50h-50z
+                                              - component: path
+                                                config:
+                                                  d: M334.25 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
+                                                    0 1 7.5 7.5v50a7.5 7.5 0 0
+                                                    1-7.5 7.5z
+                                                    m-42.5-15h35v-35h-35z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M367.24 147.5h50v50h-50z
+                                              - component: path
+                                                config:
+                                                  d: M417.24 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
+                                                    0 1 7.5 7.5v50a7.5 7.5 0 0
+                                                    1-7.5 7.5z
+                                                    m-42.5-15h35v-35h-35z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M450.22 147.5h50v50h-50z
+                                              - component: path
+                                                config:
+                                                  d: M500.22 205h-50a7.5 7.5 0 0 1-7.5-7.5v-50a7.5 7.5 0 0 1 7.5-7.5h50a7.5 7.5 0
+                                                    0 1 7.5 7.5v50a7.5 7.5 0 0
+                                                    1-7.5 7.5z
+                                                    m-42.5-15h35v-35h-35z
+                                                  opacity: 0.5
+                                              - component: path
+                                                config:
+                                                  d: M708.44 172.5m-30 0a30 30 0 1 0 60 0 30 30 0 1 0-60 0Z
+                                              - component: path
+                                                config:
+                                                  d: M708.44 210a37.5 37.5 0 1 1 37.5-37.5 37.54 37.54 0 0 1-37.5 37.5z m0-60a22.5
+                                                    22.5 0 1 0 22.5 22.5 22.53
+                                                    22.53 0 0 0-22.5-22.5z
+                                                  opacity: 0.5
+                                              - component: title
+                                                config:
+                                                  content: '="Washing: " + @props.power_washing + "\r\n" + "Drying: "
+                                                    +@props.power_drying +
+                                                    "\r\n" + "Dehumidify: " +
+                                                    @props.power_dehumidify'
                       - component: g
                         config:
                           comment: Heatpump
@@ -1607,79 +1812,99 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: heatpump icon
-                                fill: =fn.switch_color(#props.power_heatpump, "heatpump")
+                                comment: heatpump icon area
                                 height: 44px
-                                viewBox: 0 0 490 490
                                 width: 44px
                                 x: 428px
                                 y: 228px
                               slots:
                                 default:
-                                  - component: path
+                                  - component: oh-link
                                     config:
-                                      d: M244.99,211.903c-7.128,0-12.907,5.774-12.907,12.902c0,7.134,5.779,12.915,12.907,12.915
-                                        c7.127,0,12.912-5.781,12.912-12.915C257.901,217.677,252.116,211.903,244.99,211.903z
-                                  - component: path
-                                    config:
-                                      d: M244.99,78.408c-80.727,0-146.404,65.679-146.404,146.397c0,80.733,65.677,146.405,146.404,146.405
-                                        c80.728,0,146.402-65.671,146.402-146.405C391.392,144.086,325.718,78.408,244.99,78.408z
-                                        M300.173,315.748
-                                        c-8.996-8.483,4.043-23.155-5.973-40.782c-7.188-12.658-21.424-18.632-27.838-20.779c-6,4.374-13.381,6.959-21.373,6.959
-                                        c-7.381,0-14.243-2.207-19.976-5.984c-1.653,20.043-9.808,46.091-26.765,55.882c-54.185,31.282-78.859-78.148-59.61-83.909
-                                        c11.851-3.553,18.033,15.074,38.312,15.224c14.548,0.095,26.838-9.237,31.9-13.724c-0.13-1.255-0.196-2.536-0.196-3.829
-                                        c0-14.2,8.157-26.494,20.038-32.468c-16.538-11.46-35.012-31.54-35.012-51.118c0-62.566,107.103-29.225,102.474-9.671
-                                        c-2.852,12.036-22.078,8.077-32.34,25.572c-7.363,12.549-5.424,27.857-4.068,34.49c12.713,5.66,21.578,18.386,21.578,33.196
-                                        c0,0.723-0.023,1.424-0.068,2.128c18.19-8.592,44.824-14.552,61.775-4.763C397.22,253.453,314.792,329.536,300.173,315.748z
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_heatpump
                                     slots:
                                       default:
-                                        - component: animateTransform
+                                        - component: svg
                                           config:
-                                            attributeName: transform
-                                            begin: 0s
-                                            dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) *
-                                              4))
-                                            from: 0 245 226
-                                            to: 360 245 226
-                                            repeatCount: indefinite
-                                            type: rotate
-                                            visible: =(#props.power_heatpump > props.power_min)
-                                  - component: path
-                                    config:
-                                      d: M418.913,482.596c0,4.084-3.316,7.404-7.408,7.404h-35.199c-4.092,0-7.41-3.319-7.41-7.404v-14.824
-                                        c0-4.091,3.318-7.411,7.41-7.411h35.199c4.092,0,7.408,3.32,7.408,7.411V482.596z
-                                  - component: path
-                                    config:
-                                      d: M120.866,482.596c0,4.084-3.321,7.404-7.411,7.404H78.256c-4.092,0-7.411-3.319-7.411-7.404v-14.824
-                                        c0-4.091,3.319-7.411,7.411-7.411h35.199c4.09,0,7.411,3.32,7.411,7.411V482.596z
-                                  - component: path
-                                    config:
-                                      d: M435.134,0H54.87C39.663,0,27.292,12.375,27.292,27.573v394.471c0,15.205,12.371,27.574,27.578,27.574h380.264
-                                        c15.201,0,27.574-12.369,27.574-27.574V27.573C462.708,12.375,450.335,0,435.134,0z
-                                        M418.913,58.016
-                                        c0,10.944-7.297,20.169-17.289,23.105V34.915C411.616,37.852,418.913,47.09,418.913,58.016z
-                                        M388.042,34.915v46.206
-                                        c-9.988-2.936-17.289-12.162-17.289-23.105C370.753,47.09,378.054,37.852,388.042,34.915z
-                                        M419.112,233.639
-                                        c0,4.857-3.939,8.798-8.801,8.798c-0.465,0-0.92-0.045-1.365-0.119c-4.01,37.268-20.457,71.796-47.338,98.68
-                                        c-26.893,26.896-61.441,43.344-98.733,47.333c0.121,0.586,0.182,1.181,0.182,1.79c0,4.857-3.941,8.799-8.797,8.799h-18.522
-                                        c-4.857,0-8.797-3.941-8.797-8.799c0-0.608,0.062-1.204,0.179-1.776c-37.295-3.997-71.85-20.451-98.751-47.347
-                                        c-26.883-26.878-43.329-61.412-47.333-98.674c-0.443,0.068-0.889,0.113-1.35,0.113c-4.861,0-8.799-3.941-8.799-8.798v-17.718
-                                        c0-4.864,3.938-8.805,8.799-8.805c0.461,0,0.907,0.052,1.35,0.12c4.005-37.27,20.451-72.599,47.333-99.475
-                                        c26.862-26.866,61.365-43.313,98.603-47.336c-0.031-0.3-0.05-0.607-0.05-0.929c0-4.856,3.939-8.797,8.799-8.797h18.516
-                                        c4.859,0,8.805,3.94,8.805,8.797c0,0.316-0.022,0.629-0.053,0.929c37.246,4.023,71.754,20.465,98.619,47.336
-                                        c26.881,26.876,43.328,62.251,47.338,99.521c0.445-0.068,0.9-0.12,1.365-0.12c4.861,0,8.801,3.941,8.801,8.805V233.639z
-                                  - component: title
-                                    config:
-                                      content: '=#props.power_heating > 0 ? "Heating: " +
-                                        fn.switch_magnitude(#props.power_heating):#props.power_drinking
-                                        > 0 ? "Drinking water: " +
-                                        fn.switch_magnitude(#props.power_drinking):#props.power_heatpump
-                                        >0 ? "Defrosting: " +
-                                        fn.switch_magnitude(#props.power_heatpump):"Standby"
-                                        + "\r\n" + "COP: " +
-                                        @props.status_heatpump + "\r\n" + "Flow
-                                        temp: " + @props.temp_heatpump'
+                                            comment: heatpump icon
+                                            fill: =fn.switch_color(#props.power_heatpump, "heatpump")
+                                            height: 100%
+                                            viewBox: 0 0 490 490
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: path
+                                                config:
+                                                  d: M244.99,211.903c-7.128,0-12.907,5.774-12.907,12.902c0,7.134,5.779,12.915,12.907,12.915
+                                                    c7.127,0,12.912-5.781,12.912-12.915C257.901,217.677,252.116,211.903,244.99,211.903z
+                                              - component: path
+                                                config:
+                                                  d: M244.99,78.408c-80.727,0-146.404,65.679-146.404,146.397c0,80.733,65.677,146.405,146.404,146.405
+                                                    c80.728,0,146.402-65.671,146.402-146.405C391.392,144.086,325.718,78.408,244.99,78.408z
+                                                    M300.173,315.748
+                                                    c-8.996-8.483,4.043-23.155-5.973-40.782c-7.188-12.658-21.424-18.632-27.838-20.779c-6,4.374-13.381,6.959-21.373,6.959
+                                                    c-7.381,0-14.243-2.207-19.976-5.984c-1.653,20.043-9.808,46.091-26.765,55.882c-54.185,31.282-78.859-78.148-59.61-83.909
+                                                    c11.851-3.553,18.033,15.074,38.312,15.224c14.548,0.095,26.838-9.237,31.9-13.724c-0.13-1.255-0.196-2.536-0.196-3.829
+                                                    c0-14.2,8.157-26.494,20.038-32.468c-16.538-11.46-35.012-31.54-35.012-51.118c0-62.566,107.103-29.225,102.474-9.671
+                                                    c-2.852,12.036-22.078,8.077-32.34,25.572c-7.363,12.549-5.424,27.857-4.068,34.49c12.713,5.66,21.578,18.386,21.578,33.196
+                                                    c0,0.723-0.023,1.424-0.068,2.128c18.19-8.592,44.824-14.552,61.775-4.763C397.22,253.453,314.792,329.536,300.173,315.748z
+                                                slots:
+                                                  default:
+                                                    - component: animateTransform
+                                                      config:
+                                                        attributeName: transform
+                                                        begin: 0s
+                                                        dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) *
+                                                          4))
+                                                        from: 0 245 226
+                                                        to: 360 245 226
+                                                        repeatCount: indefinite
+                                                        type: rotate
+                                                        visible: =(#props.power_heatpump > props.power_min)
+                                              - component: path
+                                                config:
+                                                  d: M418.913,482.596c0,4.084-3.316,7.404-7.408,7.404h-35.199c-4.092,0-7.41-3.319-7.41-7.404v-14.824
+                                                    c0-4.091,3.318-7.411,7.41-7.411h35.199c4.092,0,7.408,3.32,7.408,7.411V482.596z
+                                              - component: path
+                                                config:
+                                                  d: M120.866,482.596c0,4.084-3.321,7.404-7.411,7.404H78.256c-4.092,0-7.411-3.319-7.411-7.404v-14.824
+                                                    c0-4.091,3.319-7.411,7.411-7.411h35.199c4.09,0,7.411,3.32,7.411,7.411V482.596z
+                                              - component: path
+                                                config:
+                                                  d: M435.134,0H54.87C39.663,0,27.292,12.375,27.292,27.573v394.471c0,15.205,12.371,27.574,27.578,27.574h380.264
+                                                    c15.201,0,27.574-12.369,27.574-27.574V27.573C462.708,12.375,450.335,0,435.134,0z
+                                                    M418.913,58.016
+                                                    c0,10.944-7.297,20.169-17.289,23.105V34.915C411.616,37.852,418.913,47.09,418.913,58.016z
+                                                    M388.042,34.915v46.206
+                                                    c-9.988-2.936-17.289-12.162-17.289-23.105C370.753,47.09,378.054,37.852,388.042,34.915z
+                                                    M419.112,233.639
+                                                    c0,4.857-3.939,8.798-8.801,8.798c-0.465,0-0.92-0.045-1.365-0.119c-4.01,37.268-20.457,71.796-47.338,98.68
+                                                    c-26.893,26.896-61.441,43.344-98.733,47.333c0.121,0.586,0.182,1.181,0.182,1.79c0,4.857-3.941,8.799-8.797,8.799h-18.522
+                                                    c-4.857,0-8.797-3.941-8.797-8.799c0-0.608,0.062-1.204,0.179-1.776c-37.295-3.997-71.85-20.451-98.751-47.347
+                                                    c-26.883-26.878-43.329-61.412-47.333-98.674c-0.443,0.068-0.889,0.113-1.35,0.113c-4.861,0-8.799-3.941-8.799-8.798v-17.718
+                                                    c0-4.864,3.938-8.805,8.799-8.805c0.461,0,0.907,0.052,1.35,0.12c4.005-37.27,20.451-72.599,47.333-99.475
+                                                    c26.862-26.866,61.365-43.313,98.603-47.336c-0.031-0.3-0.05-0.607-0.05-0.929c0-4.856,3.939-8.797,8.799-8.797h18.516
+                                                    c4.859,0,8.805,3.94,8.805,8.797c0,0.316-0.022,0.629-0.053,0.929c37.246,4.023,71.754,20.465,98.619,47.336
+                                                    c26.881,26.876,43.328,62.251,47.338,99.521c0.445-0.068,0.9-0.12,1.365-0.12c4.861,0,8.801,3.941,8.801,8.805V233.639z
+                                              - component: title
+                                                config:
+                                                  content: '=#props.power_heating > 0 ? "Heating: " +
+                                                    fn.switch_magnitude(#props.power_heating):#props.power_drinking
+                                                    > 0 ? "Drinking water: " +
+                                                    fn.switch_magnitude(#props.power_drinking):#props.power_heatpump
+                                                    >0 ? "Defrosting: " +
+                                                    fn.switch_magnitude(#props.power_heatpump):"Standby"
+                                                    + "\r\n" + "COP: " +
+                                                    @props.status_heatpump +
+                                                    "\r\n" + "Flow temp: " +
+                                                    @props.temp_heatpump'
                       - component: g
                         config:
                           comment: House
@@ -1769,27 +1994,46 @@ slots:
                                       xlink:href: "#few_text_path"
                             - component: svg
                               config:
-                                comment: house icon (power plug)
-                                fill: =fn.switch_color(#props.power_house, "house")
+                                comment: house icon area
                                 height: 44px
-                                viewBox: 0 0 24 24
                                 width: 44px
                                 x: 328px
                                 y: 128px
                               slots:
                                 default:
-                                  - component: path
+                                  - component: oh-link
                                     config:
-                                      d: M15.21,6.73V2.63A.72.72,0,0,0,14.4,2h0a.71.71,0,0,0-.75.66V6.73Z
-                                  - component: path
-                                    config:
-                                      d: M10.39,6.73V2.62A.7.7,0,0,0,9.6,2h0a.73.73,0,0,0-.78.66V6.73Z
-                                  - component: path
-                                    config:
-                                      d: M6.71,7.23C6.37,7.22,6,8,6,8.8V10c0,2.48.57,4.62,1.63,5.28S9,16,10.35,16.77V22h3.3V16.77c1.38-.8,1.66-.85,2.72-1.51S18,12.46,18,10V8.8c0-.78-.37-1.58-.71-1.57Z
-                                  - component: title
-                                    config:
-                                      content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
+                                      action: group
+                                      actionGroupPopupItem: =(props.popup_house ? props.popup_house:"")
+                                    slots:
+                                      default:
+                                        - component: svg
+                                          config:
+                                            comment: house icon (power plug)
+                                            fill: =fn.switch_color(#props.power_house, "house")
+                                            height: 100%
+                                            viewBox: 0 0 24 24
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  width: 100%
+                                                  opacity: 0
+                                              - component: path
+                                                config:
+                                                  d: M15.21,6.73V2.63A.72.72,0,0,0,14.4,2h0a.71.71,0,0,0-.75.66V6.73Z
+                                              - component: path
+                                                config:
+                                                  d: M10.39,6.73V2.62A.7.7,0,0,0,9.6,2h0a.73.73,0,0,0-.78.66V6.73Z
+                                              - component: path
+                                                config:
+                                                  d: M6.71,7.23C6.37,7.22,6,8,6,8.8V10c0,2.48.57,4.62,1.63,5.28S9,16,10.35,16.77V22h3.3V16.77c1.38-.8,1.66-.85,2.72-1.51S18,12.46,18,10V8.8c0-.78-.37-1.58-.71-1.57Z
+                                              - component: title
+                                                config:
+                                                  content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
                       - component: oh-repeater
                         config:
                           comment: Draws the segments of the dials, using linear or exponential scales.
