@@ -384,7 +384,7 @@ slots:
                 content-justify: center
                 display: flex
                 height: 100%
-                padding: 5%
+                padding: 0%
                 width: 100%
             slots:
               default:

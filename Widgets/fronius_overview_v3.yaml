@@ -1,0 +1,472 @@
+uid: fronius_overview_v3
+tags:
+  - energy
+  - fronius
+  - solar
+props:
+  parameters:
+    - default: heute
+      description: Zeitraum für die Anzeige
+      label: Zeitraum
+      name: period
+      required: false
+      type: TEXT
+    - default: PV_Zeitraum
+      description: Item für die Zeitraumsteuerung
+      label: Zeitraum Item
+      name: periodItem
+      required: true
+      type: TEXT
+    - default: PV_EigenverbrauchProzent
+      label: Eigenverbrauch Prozent Item
+      name: eigenverbrauchProzentItem
+      required: true
+      type: TEXT
+    - default: PV_EigenversorgungProzent
+      label: Eigenversorgung Prozent Item
+      name: eigenversorgungProzentItem
+      required: true
+      type: TEXT
+    - default: PV_Erzeugung
+      label: Erzeugung Item
+      name: erzeugungItem
+      required: true
+      type: TEXT
+    - default: PV_Eigenverbrauch
+      label: Eigenverbrauch Item
+      name: eigenverbrauchItem
+      required: true
+      type: TEXT
+    - default: PV_Direktverbrauch
+      label: Direktverbrauch Item
+      name: direktverbrauchItem
+      required: true
+      type: TEXT
+    - default: PV_Batterieladung
+      label: Batterieladung Item
+      name: batterieladungItem
+      required: true
+      type: TEXT
+    - default: PV_Netzeinspeisung
+      label: Netzeinspeisung Item
+      name: netzeinpeisungItem
+      required: true
+      type: TEXT
+    - default: PV_Gesamtverbrauch
+      label: Gesamtverbrauch Item
+      name: gesamtverbrauchItem
+      required: true
+      type: TEXT
+    - default: PV_Eigenversorgung
+      label: Eigenversorgung Item
+      name: eigenversorgungItem
+      required: true
+      type: TEXT
+    - default: PV_EigenversorgungPV
+      label: Eigenversorgung PV Item
+      name: eigenversorgungPVItem
+      required: true
+      type: TEXT
+    - default: PV_EigenversorgungBatterie
+      label: Eigenversorgung Batterie Item
+      name: eigenversorgungBatterieItem
+      required: true
+      type: TEXT
+    - default: PV_Netzbezug
+      label: Netzbezug Item
+      name: netzbezugItem
+      required: true
+      type: TEXT
+    - default: heute;Heute,gestern;Gestern,woche;Woche,monat;Monat,jahr;Jahr
+      description: "Format: heute;Heute,gestern;Gestern,woche;Woche,monat;Monat,jahr;Jahr"
+      label: Button Konfiguration
+      name: buttons
+      required: true
+      type: TEXT
+  parameterGroups: []
+timestamp: Apr 6, 2026, 3:44:54 PM
+component: f7-card
+config:
+  style:
+    --f7-card-margin-horizontal: 10px
+    --f7-card-margin-vertical: 3px
+    border-radius: var(--f7-card-expandable-border-radius)
+    margin: 5px
+    padding-bottom: 5px
+slots:
+  default:
+    - component: f7-row
+      config:
+        style:
+          align-items: center
+          margin-bottom: 5px
+          margin-left: 10px
+      slots:
+        default:
+          - component: f7-col
+            config:
+              style:
+                white-space: nowrap
+              width: 65
+            slots:
+              default:
+                - component: Label
+                  config:
+                    style:
+                      font-size: 1.2em
+                      font-weight: bold
+                    text: ="Erzeugung " + items[props.periodItem].state.charAt(0).toUpperCase() +
+                      items[props.periodItem].state.slice(1)
+          - component: f7-col
+            config:
+              style:
+                display: flex
+                justify-content: flex-end
+                margin-top: 10px
+                padding-right: 10px
+              width: 10
+            slots:
+              default:
+                - component: oh-button
+                  config:
+                    action: variable
+                    actionVariable: expandedErzeugung
+                    actionVariableValue: "=vars.expandedErzeugung === 'true' ? 'false' : 'true'"
+                    style:
+                      --f7-button-bg-color: transparent
+                      --f7-button-border-radius: 50%
+                      --f7-button-height: 30px
+                      --f7-button-width: 30px
+                      align-items: center
+                      display: flex
+                      height: 30px
+                      justify-content: center
+                      min-height: 30px
+                      width: 30px
+                  slots:
+                    default:
+                      - component: f7-icon
+                        config:
+                          f7: "=vars.expandedErzeugung === 'true' ? 'chevron_up' : 'chevron_down'"
+                          size: 16
+                          style:
+                            color: "#666"
+          - component: f7-col
+            config:
+              style:
+                display: flex
+                justify-content: flex-end
+                margin-top: 10px
+                padding-right: 5px
+              width: 25
+            slots:
+              default:
+                - component: oh-gauge
+                  config:
+                    bgColor: transparent
+                    borderBgColor: "#e0e0e0"
+                    borderColor: "#FDD835"
+                    borderWidth: 8
+                    item: =props.eigenverbrauchProzentItem
+                    labelFontSize: 8
+                    labelTextColor: var(--f7-text-color)
+                    size: 52
+                    type: circle
+                    valueFontSize: 10
+                    valueTextColor: var(--f7-text-color)
+    - component: f7-row
+      config:
+        style:
+          margin-bottom: 15px
+          margin-left: 60px
+          margin-top: -5px
+          text-align: center
+      slots:
+        default:
+          - component: Label
+            config:
+              style:
+                color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                font-size: 1.3em
+                font-weight: 500
+              text: =items[props.erzeugungItem].state
+    - component: f7-block
+      config:
+        style:
+          height: "=vars.expandedErzeugung === 'true' ? 'auto' : '0px'"
+          opacity: "=vars.expandedErzeugung === 'true' ? '1' : '0'"
+          overflow: hidden
+          padding: "=vars.expandedErzeugung === 'true' ? '0px' : '0px'"
+          transition: all 0.3s ease
+      slots:
+        default:
+          - component: f7-list
+            config:
+              noHairlines: true
+              noHairlinesBetween: true
+            slots:
+              default:
+                - component: oh-list-item
+                  config:
+                    icon: f7:house_fill
+                    style:
+                      --oh-list-item-title-font-size: 1.1em
+                    title: Eigenverbrauch
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.eigenverbrauchItem].state
+                - component: oh-list-item
+                  config:
+                    icon: material:solar_power
+                    style:
+                      --oh-list-item-media-margin: 10px
+                      --oh-list-item-title-font-size: 1em
+                      margin-left: 35px
+                    title: Direktverbrauch
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.direktverbrauchItem].state
+                - component: oh-list-item
+                  config:
+                    icon: "=(themeOptions.dark == 'dark') ? 'to_battery' : 'to_battery_dark'"
+                    style:
+                      --oh-list-item-media-margin: 10px
+                      --oh-list-item-title-font-size: 1em
+                      margin-left: 35px
+                    title: Batterieladung
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.batterieladungItem].state
+                - component: oh-list-item
+                  config:
+                    icon: "=(themeOptions.dark == 'dark') ? 'to_grid' : 'to_grid_black'"
+                    style:
+                      --oh-list-item-title-font-size: 1.1em
+                    title: Netzeinspeisung
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.netzeinpeisungItem].state
+    - component: f7-row
+      config:
+        style:
+          align-items: center
+          margin: 20px 0 5px 0
+          margin-left: 10px
+      slots:
+        default:
+          - component: f7-col
+            config:
+              style:
+                white-space: nowrap
+              width: 65
+            slots:
+              default:
+                - component: Label
+                  config:
+                    style:
+                      font-size: 1.2em
+                      font-weight: bold
+                    text: ="Verbrauch " + items[props.periodItem].state.charAt(0).toUpperCase() +
+                      items[props.periodItem].state.slice(1)
+          - component: f7-col
+            config:
+              style:
+                display: flex
+                justify-content: flex-end
+                margin-top: 10px
+                padding-right: 10px
+              width: 10
+            slots:
+              default:
+                - component: oh-button
+                  config:
+                    action: variable
+                    actionVariable: expandedVerbrauch
+                    actionVariableValue: "=vars.expandedVerbrauch === 'true' ? 'false' : 'true'"
+                    style:
+                      --f7-button-bg-color: transparent
+                      --f7-button-border-radius: 50%
+                      --f7-button-height: 30px
+                      --f7-button-width: 30px
+                      align-items: center
+                      display: flex
+                      height: 30px
+                      justify-content: center
+                      min-height: 30px
+                      width: 30px
+                  slots:
+                    default:
+                      - component: f7-icon
+                        config:
+                          f7: "=vars.expandedVerbrauch === 'true' ? 'chevron_up' : 'chevron_down'"
+                          size: 16
+                          style:
+                            color: "#666"
+          - component: f7-col
+            config:
+              style:
+                display: flex
+                justify-content: flex-end
+                margin-top: 10px
+                padding-right: 5px
+              width: 25
+            slots:
+              default:
+                - component: oh-gauge
+                  config:
+                    bgColor: transparent
+                    borderBgColor: "#e0e0e0"
+                    borderColor: "#FDD835"
+                    borderWidth: 8
+                    item: =props.eigenversorgungProzentItem
+                    labelFontSize: 8
+                    labelTextColor: var(--f7-text-color)
+                    size: 52
+                    type: circle
+                    valueFontSize: 10
+                    valueTextColor: var(--f7-text-color)
+    - component: f7-row
+      config:
+        style:
+          margin-bottom: 15px
+          margin-left: 60px
+          margin-top: -5px
+          text-align: center
+      slots:
+        default:
+          - component: Label
+            config:
+              style:
+                color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                font-size: 1.3em
+                font-weight: 500
+              text: =items[props.gesamtverbrauchItem].state
+    - component: f7-block
+      config:
+        style:
+          height: "=vars.expandedVerbrauch === 'true' ? 'auto' : '0px'"
+          opacity: "=vars.expandedVerbrauch === 'true' ? '1' : '0'"
+          overflow: hidden
+          padding: "=vars.expandedVerbrauch === 'true' ? '0px' : '0px'"
+          transition: all 0.3s ease
+      slots:
+        default:
+          - component: f7-list
+            config:
+              noHairlines: true
+              noHairlinesBetween: true
+            slots:
+              default:
+                - component: oh-list-item
+                  config:
+                    icon: f7:house_fill
+                    style:
+                      --oh-list-item-title-font-size: 1.1em
+                    title: Eigenversorgung
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.eigenversorgungItem].state
+                - component: oh-list-item
+                  config:
+                    icon: material:solar_power
+                    style:
+                      --oh-list-item-media-margin: 10px
+                      --oh-list-item-title-font-size: 1em
+                      margin-left: 35px
+                    title: aus PV
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.eigenversorgungPVItem].state
+                - component: oh-list-item
+                  config:
+                    icon: "=(themeOptions.dark == 'dark') ? 'from_battery' : 'from_battery_dark'"
+                    style:
+                      --oh-list-item-media-margin: 10px
+                      --oh-list-item-title-font-size: 1em
+                      margin-left: 35px
+                    title: aus Batterie
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.eigenversorgungBatterieItem].state
+                - component: oh-list-item
+                  config:
+                    icon: "=(themeOptions.dark == 'dark') ? 'from_grid' : 'from_grid_black'"
+                    style:
+                      --oh-list-item-title-font-size: 1.1em
+                    title: Netzbezug
+                  slots:
+                    after:
+                      - component: Label
+                        config:
+                          style:
+                            color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
+                          text: =items[props.netzbezugItem].state
+    - component: f7-row
+      config:
+        style:
+          display: flex
+          justify-content: center
+          margin-bottom: 10px
+          margin-top: 10px
+      slots:
+        default:
+          - component: f7-block
+            config:
+              style:
+                display: flex
+                flex-wrap: wrap
+                gap: 1px
+                justify-content: center
+                margin-bottom: 0
+                padding-bottom: 0
+            slots:
+              default:
+                - component: oh-repeater
+                  config:
+                    for: button
+                    fragment: true
+                    in: =props.buttons.split(',')
+                  slots:
+                    default:
+                      - component: oh-button
+                        config:
+                          action: command
+                          actionCommand: =loop.button.split(';')[0]
+                          actionItem: =props.periodItem
+                          fill: =items[props.periodItem].state === loop.button.split(';')[0]
+                          style:
+                            font-size: 0.9em
+                            height: 26px
+                            line-height: 22px
+                            margin: 1px
+                            min-width: 55px
+                            padding: 2px 6px
+                          text: =loop.button.split(';')[1]
