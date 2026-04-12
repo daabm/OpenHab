@@ -110,11 +110,15 @@ slots:
               width: 65
             slots:
               default:
-                - component: Label
+                - component: oh-link
                   config:
+                    action: variable
+                    actionVariable: expandedErzeugung
+                    actionVariableValue: "=vars.expandedErzeugung === 'true' ? 'false' : 'true'"
                     style:
                       font-size: 1.2em
                       font-weight: bold
+                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     text: ="Erzeugung " + items[props.periodItem].state.charAt(0).toUpperCase() +
                       items[props.periodItem].state.slice(1)
           - component: f7-col
@@ -277,11 +281,15 @@ slots:
               width: 65
             slots:
               default:
-                - component: Label
+                - component: oh-link
                   config:
+                    action: variable
+                    actionVariable: expandedVerbrauch
+                    actionVariableValue: "=vars.expandedVerbrauch === 'true' ? 'false' : 'true'"
                     style:
                       font-size: 1.2em
                       font-weight: bold
+                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     text: ="Verbrauch " + items[props.periodItem].state.charAt(0).toUpperCase() +
                       items[props.periodItem].state.slice(1)
           - component: f7-col
