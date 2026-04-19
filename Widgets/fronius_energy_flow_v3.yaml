@@ -102,7 +102,7 @@ props:
       type: TEXT
       groupName: data_sources_solar
     - context: item
-      description: Solar plant popup item, e.g. a a group that contains all relevant
+      description: Solar plant popup item, e.g. a group that contains all relevant
         solar plant data.
       label: Solar plant popup item
       name: popup_solar
@@ -110,39 +110,23 @@ props:
       type: TEXT
       groupName: data_sources_solar
     - context: item
-      description: Solar actual power of maximum power point tracker 1 in watts. Shows
-        in the popup hint of the solar plant.
-      label: MPP tracker 1 power
-      name: power_solar1
-      required: false
-      type: TEXT
-      groupName: data_sources_solar
-    - context: item
-      description: Solar actual power of maximum power point tracker 2 in watts. Shows
-        in the popup hint of the solar plant.
-      label: MPP tracker 2 power
-      name: power_solar2
-      required: false
-      type: TEXT
-      groupName: data_sources_solar
-    - context: item
-      description: Solar inverter actual power.
+      description: Inverter actual power.
       label: Inverter power
       name: power_inverter
       required: true
       type: TEXT
       groupName: data_sources_solar
     - context: item
-      description: Inverter popup item, e.g. a a group that contains all relevant
+      description: Inverter popup item, e.g. a group that contains all relevant
         inverter data.
-      label: Solar inverter popup item
+      label: Inverter popup item
       name: popup_inverter
       required: false
       type: TEXT
       groupName: data_sources_solar
     - default: "10000"
-      description: Solar inverter maximum power.
-      label: Solar inverter maximum power
+      description: Inverter maximum power.
+      label: Inverter maximum power
       name: power_solar_max
       required: true
       type: INTEGER
@@ -156,7 +140,7 @@ props:
       type: TEXT
       groupName: data_sources_solar
     - context: item
-      description: House popup item, e.g. a a group that contains all relevant house data.
+      description: House popup item, e.g. a group that contains all relevant house data.
       label: House popup item
       name: popup_house
       required: false
@@ -173,16 +157,16 @@ props:
       groupName: data_sources_solar
       advanced: true
     - context: item
-      description: Power actual autonomy in percent.
-      label: Autonomy
-      name: power_autonomy
-      required: false
-      type: TEXT
-      groupName: data_sources_solar
-    - context: item
       description: Grid actual power delivery/consumption.
       label: Grid power
       name: power_grid
+      required: true
+      type: TEXT
+      groupName: data_sources_solar
+    - context: item
+      description: Grid popup item, e.g. a group that contains all relevant grid data.
+      label: Grid popup
+      name: popup_grid
       required: true
       type: TEXT
       groupName: data_sources_solar
@@ -250,54 +234,22 @@ props:
       description: Heat pump popup item, e.g. a a group that contains all relevant
         heatpump data.
       label: Heat pump popup item
-      name: popup_heating
+      name: popup_heatpump
       required: false
       type: TEXT
       groupName: data_sources_heatpump
-    - context: item
-      description: Heat pump power consumption for heating. Used to determine heating
-        system state (heating/drinking water/defrosting/standby).
-      label: Heat pump - heating
-      name: power_heating
-      required: true
-      type: TEXT
-      groupName: data_sources_heatpump
-    - context: item
-      description: Heating system power consumption for drinking water. Used to
-        determine heating system state (heating/drinking
-        water/defrosting/standby).
-      label: Heat pump - drinking water
-      name: power_drinking
-      required: true
-      type: TEXT
-      groupName: data_sources_heatpump
-    - context: item
-      description: Heat pump water temperature - pre-flow temp of heat pump or
-        whatever value suits your needs.
-      label: Heat pump water flow temperature
-      name: temp_heatpump
-      required: false
-      type: TEXT
-      groupName: data_sources_heatpump
-    - context: item
-      description: Heat pump efficiency (Coefficient of power, COP)
-      label: Heat pump COP
-      name: status_heatpump
-      required: false
-      type: TEXT
-      groupName: data_sources_heatpump
-    - context: item
-      description: EV car popup item, e.g. a a group that contains all relevant EV car data.
-      label: EV car popup item
-      name: popup_ev
-      required: false
-      type: TEXT
-      groupName: data_sources_ev
     - context: item
       description: EV battery charging power. If you don't select an item for this
         value, the EV will not be visible in the widget.
       label: EV battery power
       name: power_ev
+      required: false
+      type: TEXT
+      groupName: data_sources_ev
+    - context: item
+      description: EV car popup item, e.g. a a group that contains all relevant EV car data.
+      label: EV car popup item
+      name: popup_ev
       required: false
       type: TEXT
       groupName: data_sources_ev
@@ -310,23 +262,9 @@ props:
       type: TEXT
       groupName: data_sources_ev
     - context: item
-      description: EV estimated driving range.
-      label: EV range
-      name: range_ev
-      required: false
-      type: TEXT
-      groupName: data_sources_ev
-    - context: item
       description: Current charging state of the EV
       label: EV charging state
       name: chargestate_ev
-      required: false
-      type: TEXT
-      groupName: data_sources_ev
-    - context: item
-      description: Current connection state of the EV
-      label: EV connection state
-      name: connected_ev
       required: false
       type: TEXT
       groupName: data_sources_ev
@@ -343,27 +281,6 @@ props:
         laundry data.
       label: Laundry - popup item
       name: popup_laundry
-      required: false
-      type: TEXT
-      groupName: data_sources_laundry
-    - context: item
-      description: Current power consumption of the cloth washing machine
-      label: Washing power
-      name: power_washing
-      required: false
-      type: TEXT
-      groupName: data_sources_laundry
-    - context: item
-      description: Current power consumption of the cloth drying machine
-      label: Drying power
-      name: power_drying
-      required: false
-      type: TEXT
-      groupName: data_sources_laundry
-    - context: item
-      description: Current power consumption of the dehumidifier
-      label: Dehumidifying power
-      name: power_dehumidify
       required: false
       type: TEXT
       groupName: data_sources_laundry
@@ -388,7 +305,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 10, 2026, 3:52:30 PM
+timestamp: Apr 19, 2026, 11:54:57 AM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -613,11 +530,8 @@ slots:
                                 default:
                                   - component: oh-link
                                     config:
-                                      action: analyzer
-                                      actionAnalyzerItems:
-                                        - =props.power_solar
-                                        - =props.power_solar1
-                                        - =props.power_solar2
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_solar
                                     slots:
                                       default:
                                         - component: svg
@@ -635,13 +549,13 @@ slots:
                                                   default:
                                                     - component: linearGradient
                                                       config:
-                                                        comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
+                                                        comment: Gradient for solar plant power. y1 = 100% means "start at bottom"
+                                                        gradientUnits: userSpaceOnUse
                                                         id: gradient_solar
                                                         x1: 0
                                                         x2: 0
                                                         y1: 2
                                                         y2: 24
-                                                        gradientUnits: userSpaceOnUse
                                                       slots:
                                                         default:
                                                           - component: stop
@@ -660,8 +574,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: path
                                                 config:
                                                   d: M12 8 a4 4 0 1 0 4 4 A4 4 0 0 0 12 8 Z
@@ -669,88 +583,82 @@ slots:
                                                   stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   width: 1.5
                                                   x: 11.25
                                                   y: 2
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   width: 1.5
                                                   x: 11.25
                                                   y: 18
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(32 -8) rotate(90)
                                                   width: 1.5
                                                   x: 19.25
                                                   y: 10
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(16 8) rotate(90)
                                                   width: 1.5
                                                   x: 3.25
                                                   y: 10
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(42.63 17.66) rotate(135)
                                                   width: 1.5
                                                   x: 16.91
                                                   y: 15.66
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(15.31 6.34) rotate(135)
                                                   width: 1.5
                                                   x: 5.59
                                                   y: 4.34
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(-1.66 34.63) rotate(-135)
                                                   width: 1.5
                                                   x: 5.59
                                                   y: 15.66
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
                                               - component: rect
                                                 config:
+                                                  fill: url(#gradient_solar)
                                                   height: 4
                                                   rx: 0.75
+                                                  stroke: url(#gradient_solar)
                                                   transform: translate(25.66 23.31) rotate(-135)
                                                   width: 1.5
                                                   x: 16.91
                                                   y: 4.34
-                                                  fill: url(#gradient_solar)
-                                                  stroke: url(#gradient_solar)
-                                              - component: title
-                                                config:
-                                                  content: '="MPPT1: " + fn.switch_magnitude(#props.power_solar1) + "\r\n" +
-                                                    "MPPT2: " +
-                                                    fn.switch_magnitude(#props.power_solar2)'
-                                                  visible: =((props.power_solar1 || props.power_solar2) ? true:false)
                       - component: g
                         config:
                           comment: Grid
@@ -820,7 +728,7 @@ slots:
                                       fragment: true
                                       rangeStart: 0
                                       rangeStep: 1
-                                      rangeStop: 4
+                                      rangeStop: 2
                                       sourceType: range
                                     slots:
                                       default:
@@ -834,7 +742,7 @@ slots:
                                                 config:
                                                   begin: =`${loop.offset}s`
                                                   calcMode: linear
-                                                  dur: 5s
+                                                  dur: 3s
                                                   repeatCount: indefinite
                                                 slots:
                                                   default:
@@ -882,17 +790,36 @@ slots:
                             - component: svg
                               config:
                                 comment: grid icon
-                                fill: =fn.switch_color(#props.power_grid, "grid")
                                 height: 44px
-                                viewBox: 0 0 24 24
                                 width: 44px
                                 x: 228px
                                 y: 28px
                               slots:
                                 default:
-                                  - component: path
+                                  - component: oh-link
                                     config:
-                                      d: M13.38,8.54V6.63H18.3V8.06h.95V5.7l-6.35-1L12,2l-1,2.8-6.25.9V8.07H5.6V6.63h4.84V8.54l-7.59,1.9v2.84H3.8V11.76H9.87L6.93,22H9.11l.57-2.46h4.59L14.8,22h2.27L14.13,11.76H20.2v1.52h.95V10.44Zm-3.32,8.81L12,11.11l1.91,6.24Z
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_grid
+                                    slots:
+                                      default:
+                                        - component: svg
+                                          config:
+                                            comment: grid icon
+                                            fill: =fn.switch_color(#props.power_grid, "grid")
+                                            height: 100%
+                                            viewBox: 0 0 24 24
+                                            width: 100%
+                                          slots:
+                                            default:
+                                              - component: rect
+                                                config:
+                                                  comment: invisible rectangle to provide a clickable area for oh-link
+                                                  height: 100%
+                                                  opacity: 0
+                                                  width: 100%
+                                              - component: path
+                                                config:
+                                                  d: M13.38,8.54V6.63H18.3V8.06h.95V5.7l-6.35-1L12,2l-1,2.8-6.25.9V8.07H5.6V6.63h4.84V8.54l-7.59,1.9v2.84H3.8V11.76H9.87L6.93,22H9.11l.57-2.46h4.59L14.8,22h2.27L14.13,11.76H20.2v1.52h.95V10.44Zm-3.32,8.81L12,11.11l1.91,6.24Z
                       - component: g
                         config:
                           comment: Battery
@@ -992,10 +919,8 @@ slots:
                                 default:
                                   - component: oh-link
                                     config:
-                                      action: analyzer
-                                      actionAnalyzerItems:
-                                        - =props.power_battery
-                                        - =props.soc_battery
+                                      action: group
+                                      actionGroupPopupItem: =props.popup_battery
                                     slots:
                                       default:
                                         - component: svg
@@ -1015,12 +940,12 @@ slots:
                                                     - component: linearGradient
                                                       config:
                                                         comment: Gradient for solar battery SOC. y1 = 100% means "start at bottom"
+                                                        gradientUnits: userSpaceOnUse
                                                         id: gradient_battery
                                                         x1: 0
                                                         x2: 0
                                                         y1: 20.5
                                                         y2: 6
-                                                        gradientUnits: userSpaceOnUse
                                                       slots:
                                                         default:
                                                           - component: stop
@@ -1047,12 +972,44 @@ slots:
                                                       config:
                                                         comment: Gradient for solar battery charging flash. y1 = 100% means "start at
                                                           bottom"
+                                                        gradientUnits: userSpaceOnUse
                                                         id: gradient_charge
                                                         x1: 0
                                                         x2: 0
                                                         y1: 20.5
                                                         y2: 6
+                                                      slots:
+                                                        default:
+                                                          - component: stop
+                                                            config:
+                                                              offset: 0
+                                                              stop-color: white
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: white
+                                                          - component: stop
+                                                            config:
+                                                              offset: =#props.soc_battery
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                                          - component: stop
+                                                            config:
+                                                              offset: 1
+                                                              stop-color: =(#props.soc_battery > 0.07 ?
+                                                                props.color_battery:fn.switch_color(#props.power_battery,
+                                                                "battery"))
+                                                    - component: linearGradient
+                                                      config:
+                                                        comment: Gradient for solar battery charging flash. y1 = 100% means "start at
+                                                          bottom"
                                                         gradientUnits: userSpaceOnUse
+                                                        id: gradient_soc
+                                                        x1: 6
+                                                        x2: 19
+                                                        y1: 0
+                                                        y2: 0
                                                       slots:
                                                         default:
                                                           - component: stop
@@ -1079,8 +1036,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: rect
                                                 config:
                                                   comment: positive pole of battery icon
@@ -1113,26 +1070,20 @@ slots:
                                                   stroke-linejoint: miter
                                                   stroke-miterlimit: 5
                                                   stroke-width: 0.2
-                                                  visible: =(#props.power_battery <= 0 )
+                                                  visible: =(#props.power_battery < (-1 * props.power_min))
                                               - component: text
                                                 config:
-                                                  comment: state of charge when discharging
-                                                  fill: white
-                                                  stroke: white
-                                                  stroke-width: 0.2
-                                                  visible: =(#props.soc_battery > 0.98 && (#props.power_battery > 0 ))
+                                                  comment: state of charge when full or discharging
                                                   content: =@props.soc_battery
-                                                  x: 4.5
-                                                  y: 15.5
-                                                  font-size: 5px
+                                                  fill: url(#gradient_soc)
+                                                  font-size: 4.5px
+                                                  font-weight: bold
+                                                  stroke: =props.color_battery
+                                                  stroke-width: 0.1
                                                   transform: rotate(270 12,13.5)
-                                              - component: title
-                                                config:
-                                                  content: '=(#props.power_battery > 0 ? "Disc" : "C") + "harging: " +
-                                                    fn.switch_magnitude(#props.power_battery)
-                                                    + "\r\n" + "SOC: " +
-                                                    @props.soc_battery'
-                                                  visible: =((props.power_battery || props.soc_battery) ? true:false)
+                                                  visible: =(#props.power_battery >= (-1 * props.power_min))
+                                                  x: 5
+                                                  y: 14.8
                       - component: g
                         config:
                           comment: Inverter
@@ -1209,8 +1160,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: rect
                                                 config:
                                                   fill: none
@@ -1256,10 +1207,6 @@ slots:
                                                   x2: 64.93
                                                   y1: 53.08
                                                   y2: 53.08
-                                              - component: title
-                                                config:
-                                                  content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
-                                                  visible: =(props.power_autonomy ? true:false)
                       - component: g
                         config:
                           comment: EV battery
@@ -1373,8 +1320,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: path
                                                 config:
                                                   d: M3 8L5.72187 10.2682C5.90158 10.418 6.12811 10.5 6.36205 10.5H17.6379C17.8719
@@ -1414,12 +1361,6 @@ slots:
                                                   stroke-linecap: round
                                                   stroke-linejoin: round
                                                   stroke-width: 2
-                                              - component: title
-                                                config:
-                                                  content: '="State: " + @props.chargestate_ev + "\r\n" + "Charge: " +
-                                                    @props.soc_ev + "\r\n" +
-                                                    "Est. range: " +
-                                                    @props.range_ev'
                       - component: g
                         config:
                           comment: Laundry
@@ -1535,8 +1476,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: path
                                                 config:
                                                   d: M214.25 133.12h600v790a30 30 0 0 1-30 30h-540a30 30 0 0 1-30-30v-790z
@@ -1716,12 +1657,6 @@ slots:
                                                     22.5 0 1 0 22.5 22.5 22.53
                                                     22.53 0 0 0-22.5-22.5z
                                                   opacity: 0.5
-                                              - component: title
-                                                config:
-                                                  content: '="Washing: " + @props.power_washing + "\r\n" + "Drying: "
-                                                    +@props.power_drying +
-                                                    "\r\n" + "Dehumidify: " +
-                                                    @props.power_dehumidify'
                       - component: g
                         config:
                           comment: Heatpump
@@ -1838,8 +1773,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: path
                                                 config:
                                                   d: M244.99,211.903c-7.128,0-12.907,5.774-12.907,12.902c0,7.134,5.779,12.915,12.907,12.915
@@ -1861,11 +1796,10 @@ slots:
                                                       config:
                                                         attributeName: transform
                                                         begin: 0s
-                                                        dur: =Math.max(0.5, (4.5 - (#props.power_heatpump/props.power_heatpump_max) *
-                                                          4))
+                                                        dur: =Math.max(0.5, (4 - (#props.power_heatpump/props.power_heatpump_max) * 4))
                                                         from: 0 245 226
-                                                        to: 360 245 226
                                                         repeatCount: indefinite
+                                                        to: 360 245 226
                                                         type: rotate
                                                         visible: =(#props.power_heatpump > props.power_min)
                                               - component: path
@@ -1893,18 +1827,6 @@ slots:
                                                     c26.862-26.866,61.365-43.313,98.603-47.336c-0.031-0.3-0.05-0.607-0.05-0.929c0-4.856,3.939-8.797,8.799-8.797h18.516
                                                     c4.859,0,8.805,3.94,8.805,8.797c0,0.316-0.022,0.629-0.053,0.929c37.246,4.023,71.754,20.465,98.619,47.336
                                                     c26.881,26.876,43.328,62.251,47.338,99.521c0.445-0.068,0.9-0.12,1.365-0.12c4.861,0,8.801,3.941,8.801,8.805V233.639z
-                                              - component: title
-                                                config:
-                                                  content: '=#props.power_heating > 0 ? "Heating: " +
-                                                    fn.switch_magnitude(#props.power_heating):#props.power_drinking
-                                                    > 0 ? "Drinking water: " +
-                                                    fn.switch_magnitude(#props.power_drinking):#props.power_heatpump
-                                                    >0 ? "Defrosting: " +
-                                                    fn.switch_magnitude(#props.power_heatpump):"Standby"
-                                                    + "\r\n" + "COP: " +
-                                                    @props.status_heatpump +
-                                                    "\r\n" + "Flow temp: " +
-                                                    @props.temp_heatpump'
                       - component: g
                         config:
                           comment: House
@@ -1938,16 +1860,23 @@ slots:
                                       default:
                                         - component: circle
                                           config:
+                                            comment: Power to house has 2 sources - grid and inverter. If power is coming
+                                              from grid, we need math to adjust
+                                              energy flow from inverter.
+                                              power_house is always negative. If
+                                              power comes from grid, it is
+                                              positive, so we simply "add it" to
+                                              subtract it from the power flow.
                                             fill: =fn.switch_color(#props.power_house, "house")
                                             r: "=fn.resize_dot(#props.power_house + (#props.power_grid > 0 ?
-                                              #props.power_grid : 0))"
+                                              #props.power_grid:0))"
                                           slots:
                                             default:
                                               - component: animateMotion
                                                 config:
                                                   begin: =`${loop.offset}s`
                                                   calcMode: linear
-                                                  dur: 4s
+                                                  dur: 5s
                                                   repeatCount: indefinite
                                                 slots:
                                                   default:
@@ -2004,7 +1933,7 @@ slots:
                                   - component: oh-link
                                     config:
                                       action: group
-                                      actionGroupPopupItem: =(props.popup_house ? props.popup_house:"")
+                                      actionGroupPopupItem: =props.popup_house
                                     slots:
                                       default:
                                         - component: svg
@@ -2020,8 +1949,8 @@ slots:
                                                 config:
                                                   comment: invisible rectangle to provide a clickable area for oh-link
                                                   height: 100%
-                                                  width: 100%
                                                   opacity: 0
+                                                  width: 100%
                                               - component: path
                                                 config:
                                                   d: M15.21,6.73V2.63A.72.72,0,0,0,14.4,2h0a.71.71,0,0,0-.75.66V6.73Z
@@ -2031,9 +1960,6 @@ slots:
                                               - component: path
                                                 config:
                                                   d: M6.71,7.23C6.37,7.22,6,8,6,8.8V10c0,2.48.57,4.62,1.63,5.28S9,16,10.35,16.77V22h3.3V16.77c1.38-.8,1.66-.85,2.72-1.51S18,12.46,18,10V8.8c0-.78-.37-1.58-.71-1.57Z
-                                              - component: title
-                                                config:
-                                                  content: "=`Autonomy: ${@props.power_autonomy || '--'}`"
                       - component: oh-repeater
                         config:
                           comment: Draws the segments of the dials, using linear or exponential scales.
