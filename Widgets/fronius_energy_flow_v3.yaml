@@ -1081,7 +1081,7 @@ slots:
                                                   stroke: =props.color_battery
                                                   stroke-width: 0.1
                                                   transform: rotate(270 12,13.5)
-                                                  visible: =(#props.power_battery >= (-1 * props.power_min))
+                                                  visible: =(#props.power_battery >= (props.power_min) && (#props.soc_battery) < 0.98)
                                                   x: 5
                                                   y: 14.8
                       - component: g
