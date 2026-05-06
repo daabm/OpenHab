@@ -1,0 +1,382 @@
+// ============================================================
+// Top-level groups / locations
+// ============================================================
+
+// HVAC main group (Equipment) – adapt parent "Home" to your real home group if different
+Group gHVAC           "Heizungsanlage"          <heatpump>      ["HeatPump"]
+
+// ============================================================
+// Bridge 1 – Kermi Heatpump – Groups
+// Bridge ID assumed: kermiHeatpump
+// ============================================================
+
+// Technical groups
+Group gKermiHeatpump_All      "Kermi Wärmepumpe – Alle"          <heating>     (UGWaschkueche)
+Group gKermiHeatpump_Temp     "Kermi Wärmepumpe – Temperaturen"  <temperature> (gKermiHeatpump_All)
+Group gKermiHeatpump_Control  "Kermi Wärmepumpe – Steuerung"     <settings>    (gKermiHeatpump_All)
+
+// Semantic Equipment group for the heat pump itself
+Group gKermiHeatpump_Equip    "Kermi Wärmepumpe"                 <heatpump>    (gHVAC) ["HeatPump"]
+
+
+
+// ============================================================
+// Bridge 1 – Kermi Heatpump – Items
+// Thing UID prefix assumed: modbus:data:kermiHeatpump:...
+// ============================================================
+
+// --- WP Energiequelle ---
+Number Kermi_WP_Source_Out      "Energiequelle Austritt [%.1f °C]"       <temperature> (gKermiHeatpump_All, gKermiHeatpump_Temp, gKermiHeatpump_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_source_temps:kermi_wp_source_out:number" }
+
+Number Kermi_WP_Source_In       "Energiequelle Eintritt [%.1f °C]"       <temperature> (gKermiHeatpump_All, gKermiHeatpump_Temp, gKermiHeatpump_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_source_temps:kermi_wp_source_in:number" }
+
+Number Kermi_WP_Outdoor         "Außentemperaturfühler [%.1f °C]"        <temperature> (gKermiHeatpump_All, gKermiHeatpump_Temp, gKermiHeatpump_Equip) ["Measurement","OutdoorTemperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_source_temps:kermi_wp_outdoor:number" }
+
+// --- WP Ladekreis ---
+Number Kermi_WP_Flow            "Vorlauftemperatur WP [%.1f °C]"         <flow> (gKermiHeatpump_All, gKermiHeatpump_Temp, gKermiHeatpump_Equip) ["Measurement","SupplyTemperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_ladekreis:kermi_wp_flow:number" }
+
+Number Kermi_WP_Return          "Rücklauftemperatur WP [%.1f °C]"        <returnpipe> (gKermiHeatpump_All, gKermiHeatpump_Temp, gKermiHeatpump_Equip) ["Measurement","ReturnTemperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_ladekreis:kermi_wp_return:number" }
+
+Number Kermi_WP_Flowrate        "Durchfluss WP [%.1f l/min]"             <flow> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Flow"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_ladekreis:kermi_wp_flowrate:number" }
+
+// --- WP Leistung & Effizienz ---
+Number Kermi_WP_COP             "Aktueller COP [%.1f]"                    <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Efficiency"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_cop:number" }
+
+Number Kermi_WP_COP_Heat        "Aktueller COP Heizen [%.1f]"            <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Efficiency"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_cop_heat:number" }
+
+Number Kermi_WP_COP_TWE         "Aktueller COP TWE [%.1f]"               <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Efficiency"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_cop_twe:number" }
+
+Number Kermi_WP_COP_Cool        "Aktueller COP Kühlen [%.1f]"            <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Efficiency"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_cop_cool:number" }
+
+Number Kermi_WP_P               "Aktuelle Leistung [%.1f kW]"            <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p:number" }
+
+Number Kermi_WP_P_Heat          "Aktuelle Leistung Heizen [%.1f kW]"     <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_heat:number" }
+
+Number Kermi_WP_P_TWE           "Aktuelle Leistung TWE [%.1f kW]"        <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_twe:number" }
+
+Number Kermi_WP_P_Cool          "Aktuelle Leistung Kühlen [%.1f kW]"     <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_cool:number" }
+
+Number Kermi_WP_P_El            "El. Leistung [%.1f kW]"                 <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_el:number" }
+
+Number Kermi_WP_P_El_Heat       "El. Leistung Heizen [%.1f kW]"          <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_el_heat:number" }
+
+Number Kermi_WP_P_El_TWE        "El. Leistung TWE [%.1f kW]"             <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_el_twe:number" }
+
+Number Kermi_WP_P_El_Cool       "El. Leistung Kühlen [%.1f kW]"          <energy> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_power:kermi_wp_p_el_cool:number" }
+
+// --- WP Betriebsstunden ---
+Number Kermi_WP_Hours_Fan           "Betriebsstunden Lüfter [%.0f h]"                <time> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_runtime:kermi_wp_hours_fan:number" }
+
+Number Kermi_WP_Hours_Buffer_Pump   "Betriebsstunden Speicherladepumpe [%.0f h]"     <time> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_runtime:kermi_wp_hours_buffer_pump:number" }
+
+Number Kermi_WP_Hours_Compressor    "Betriebsstunden Verdichter [%.0f h]"           <time> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_runtime:kermi_wp_hours_compressor:number" }
+
+// --- WP Status ---
+String Kermi_WP_Status_Code      "Status Wärmepumpe [%s]"                 <status> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Status"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_status_code_poll:kermi_wp_status_code:string" }
+
+// --- WP Alarm ---
+Switch Kermi_WP_Alarm            "Globaler Alarm"                         <error> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Alarm"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_alarm_poll:kermi_wp_alarm:switch" }
+
+// --- WP PV Modulation ---
+Switch Kermi_WP_PV_Mod_Active    "PV Modulation aktiv"                    <solarplant> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Switch"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_pv_mod:kermi_wp_pv_mod_active:switch" }
+
+Number Kermi_WP_PV_Mod_Power     "PV-Mod aktuelle Leistung [%.1f kW]"     <solarplant> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Measurement","Power"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_pv_mod:kermi_wp_pv_mod_power:number" }
+
+Number Kermi_WP_PV_Mod_Temp_Hz   "PV-Mod Solltemperatur Heizen [%.1f °C]" <temperature_hot> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_pv_mod:kermi_wp_pv_mod_temp_hz:number" }
+
+Number Kermi_WP_PV_Mod_Temp_TWE  "PV-Mod Solltemperatur TWE [%.1f °C]"    <temperature_hot> (gKermiHeatpump_All, gKermiHeatpump_Control, gKermiHeatpump_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiHeatpump:kermi_wp_pv_mod:kermi_wp_pv_mod_temp_twe:number" }
+
+
+
+// ============================================================
+// Bridge 2 – Kermi Speicher Heizen – Groups
+// Bridge ID: kermiStoreHeating (id=50)
+// ============================================================
+
+// Technical groups
+Group gKermiStoreHeat_All      "Kermi Speicher Heizen – Alle"          <heating>     (UGWaschkueche)
+Group gKermiStoreHeat_Temp     "Kermi Speicher Heizen – Temperaturen"  <temperature> (gKermiStoreHeat_All)
+Group gKermiStoreHeat_Control  "Kermi Speicher Heizen – Steuerung"     <settings>    (gKermiStoreHeat_All)
+
+// Semantic equipment group for heating buffer tank
+Group gKermiStoreHeat_Equip    "Heizspeicher"                          <water>       (gHVAC) ["WaterHeater"]
+
+
+
+// ============================================================
+// Bridge 2 – Kermi Speicher Heizen – Items
+// Thing UID prefix: modbus:data:kermiStoreHeating:...
+// ============================================================
+
+// --- Speicher Heizen ---
+Number Kermi_StoreHeat_Temp        "Isttemperatur Heizspeicher [%.1f °C]"       <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_heat:kermi_store_heat_temp:number" }
+
+Number Kermi_StoreHeat_Setpoint    "Solltemperatur Heizspeicher [%.1f °C]"      <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_heat:kermi_store_heat_setpoint:number" }
+
+// --- Speicher Kühlen ---
+Number Kermi_StoreCool_Temp        "Isttemperatur Kühlspeicher [%.1f °C]"       <temperature_cold> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_cool:kermi_store_cool_temp:number" }
+
+Number Kermi_StoreCool_Setpoint    "Solltemperatur Kühlspeicher [%.1f °C]"      <temperature_cold> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_cool:kermi_store_cool_setpoint:number" }
+
+// --- Speicher TWE ---
+Number Kermi_StoreTWE_Temp             "Isttemperatur TWE [%.1f °C]"             <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_twe:kermi_store_twe_temp:number" }
+
+Number Kermi_StoreTWE_Setpoint         "Solltemperatur TWE [%.1f °C]"            <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_twe:kermi_store_twe_setpoint:number" }
+
+Number Kermi_StoreTWE_Const_Setpoint   "TWE Konstant-Sollwert [%.1f °C]"         <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_twe:kermi_store_twe_const_setpoint:number" }
+
+Switch Kermi_StoreTWE_One_Shot         "TWE Einmalladung"                        <switch> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_twe:kermi_store_twe_one_shot:switch" }
+
+Number Kermi_StoreTWE_One_Shot_SP      "TWE Einmalladung Sollwert [%.1f °C]"     <temperature_hot> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_twe:kermi_store_twe_one_shot_setpoint:number" }
+
+// --- Heizkreis ---
+String Kermi_HK_Status             "Status Heizkreis [%s]"                       <status> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_status:string" }
+
+Number Kermi_HK_Temp               "Isttemperatur Heizkreis [%.1f °C]"           <radiator> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_temp:number" }
+
+Number Kermi_HK_Setpoint           "Solltemperatur Heizkreis [%.1f °C]"          <radiator> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_setpoint:number" }
+
+String Kermi_HK_Mode               "Betriebsmodus Heizkreis [%s]"                <settings> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_mode:string" }
+
+String Kermi_HK_OpMode             "Betriebsart Heizkreis [%s]"                  <settings> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_opmode:string" }
+
+String Kermi_HK_EnergyMode         "Energiemodus Heizkreis [%s]"                 <energy> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_energymode:string" }
+
+Number Kermi_HK_Curve_Shift        "Parallelverschiebung Kurve [%.1f K]"         <line> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Setpoint"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_curve_shift:number" }
+
+String Kermi_HK_Season             "Saisonauswahl [%s]"                          <calendar> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_season:string" }
+
+Switch Kermi_HK_Summer_Off         "Sommerbetrieb Heizen Aus"                    <sun> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_summer_off:switch" }
+
+Switch Kermi_HK_Winter_On          "Winterbetrieb Heizen Ein"                    <snow> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_winter_on:switch" }
+
+Switch Kermi_HK_Cool_On            "Kühlbetrieb Ein"                             <snowflake> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_cool_on:switch" }
+
+Switch Kermi_HK_Cool_Off           "Kühlbetrieb Aus"                             <snowflake> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_cool_off:switch" }
+
+Switch Kermi_HK_Summer_Active      "Sommerbetrieb aktiv"                         <sun> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_summer_active:switch" }
+
+Switch Kermi_HK_Cool_Active        "Kühlbetrieb aktiv"                           <snowflake> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_hk:kermi_hk_cool_active:switch" }
+
+// --- Externer Wärmeerzeuger ---
+String Kermi_ExtWEZ_Status_Heat    "Status ext. WEZ Heizen [%s]"                 <boiler> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_ext_wez:kermi_ext_wez_status_heat:string" }
+
+String Kermi_ExtWEZ_Mode_Heat      "Betriebsart ext. WEZ Heizen [%s]"            <settings> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Control"]
+    { channel="modbus:data:kermiStoreHeating:kermi_ext_wez:kermi_ext_wez_mode_heat:string" }
+
+String Kermi_ExtWEZ_Status_TWE     "Status ext. WEZ TWE [%s]"                    <boiler> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreHeating:kermi_ext_wez:kermi_ext_wez_status_twe:string" }
+
+String Kermi_ExtWEZ_Mode_TWE       "Betriebsart ext. WEZ TWE [%s]"               <settings> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Control"]
+    { channel="modbus:data:kermiStoreHeating:kermi_ext_wez:kermi_ext_wez_mode_twe:string" }
+
+// --- Speicher Status Temperaturen ---
+Number Kermi_Store_T1              "T1 X13 [%.1f °C]"                            <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_t1:number" }
+
+Number Kermi_Store_T2              "T2 X12 [%.1f °C]"                            <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_t2:number" }
+
+Number Kermi_Store_T3              "T3 X11 [%.1f °C]"                            <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_t3:number" }
+
+Number Kermi_Store_T4              "T4 X10 [%.1f °C]"                            <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_t4:number" }
+
+Number Kermi_Store_Outdoor         "Speicher Außentemperatur [%.1f °C]"          <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","OutdoorTemperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_outdoor:number" }
+
+Number Kermi_Store_Outdoor_Avg     "Speicher gemittelte Außentemp. [%.1f °C]"    <temperature> (gKermiStoreHeat_All, gKermiStoreHeat_Temp, gKermiStoreHeat_Equip) ["Measurement","OutdoorTemperature"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_temp:kermi_store_outdoor_avg:number" }
+
+// --- Speicher Laufzeiten ---
+Number Kermi_Store_Pump_Hours      "Heizkreispumpe Laufzeit [%.0f h]"            <time> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_runtime:kermi_store_pump_hours:number" }
+
+Number Kermi_ExtWEZ_Hours          "Ext. Wärmeerzeuger Laufzeit [%.0f h]"        <time> (gKermiStoreHeat_All, gKermiStoreHeat_Control, gKermiStoreHeat_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiStoreHeating:kermi_store_status_runtime:kermi_ext_wez_hours:number" }
+
+
+
+// ============================================================
+// Bridge 3 – Kermi Speicher TWE – Groups
+// Your things block uses a second "kermiStoreHeating" bridge with id=51.
+// For clarity we assume the bridgeID here is "kermiStoreTWE".
+// ============================================================
+
+Group gKermiStoreTWE_All      "Kermi Speicher TWE – Alle"          <heating>     (UGWaschkueche)
+Group gKermiStoreTWE_Temp     "Kermi Speicher TWE – Temperaturen"  <temperature> (gKermiStoreTWE_All)
+Group gKermiStoreTWE_Control  "Kermi Speicher TWE – Steuerung"     <settings>    (gKermiStoreTWE_All)
+
+// Semantic equipment group for TWE storage
+Group gKermiStoreTWE_Equip    "TWE Speicher"                        <water>      (gHVAC) ["WaterHeater"]
+
+
+
+// ============================================================
+// Bridge 3 – Kermi Speicher TWE – Items
+// Thing UID prefix assumed: modbus:data:kermiStoreTWE:...
+// ============================================================
+
+// --- Speicher Heizen ---
+Number KermiTWE_StoreHeat_Temp        "TWE Isttemperatur Heizspeicher [%.1f °C]"      <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_heat:kermiTWE_store_heat_temp:number" }
+
+Number KermiTWE_StoreHeat_Setpoint    "TWE Solltemperatur Heizspeicher [%.1f °C]"     <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_heat:kermiTWE_store_heat_setpoint:number" }
+
+// --- Speicher Kühlen ---
+Number KermiTWE_StoreCool_Temp        "TWE Isttemperatur Kühlspeicher [%.1f °C]"      <temperature_cold> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_cool:kermiTWE_store_cool_temp:number" }
+
+Number KermiTWE_StoreCool_Setpoint    "TWE Solltemperatur Kühlspeicher [%.1f °C]"     <temperature_cold> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_cool:kermiTWE_store_cool_setpoint:number" }
+
+// --- Speicher TWE ---
+Number KermiTWE_StoreTWE_Temp             "TWE Isttemperatur [%.1f °C]"                <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_twe:kermiTWE_store_twe_temp:number" }
+
+Number KermiTWE_StoreTWE_Setpoint         "TWE Solltemperatur [%.1f °C]"               <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_twe:kermiTWE_store_twe_setpoint:number" }
+
+Number KermiTWE_StoreTWE_Const_Setpoint   "TWE Konstant-Sollwert [%.1f °C]"            <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_twe:kermiTWE_store_twe_const_setpoint:number" }
+
+Switch KermiTWE_StoreTWE_One_Shot         "TWE Einmalladung"                           <switch> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_twe:kermiTWE_store_twe_one_shot:switch" }
+
+Number KermiTWE_StoreTWE_One_Shot_SP      "TWE Einmalladung Sollwert [%.1f °C]"        <temperature_hot> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_twe:kermiTWE_store_twe_one_shot_setpoint:number" }
+
+// --- Heizkreis ---
+String KermiTWE_HK_Status             "TWE Status Heizkreis [%s]"                       <status> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_status:string" }
+
+Number KermiTWE_HK_Temp               "TWE Isttemperatur Heizkreis [%.1f °C]"           <radiator> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_temp:number" }
+
+Number KermiTWE_HK_Setpoint           "TWE Solltemperatur Heizkreis [%.1f °C]"          <radiator> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_setpoint:number" }
+
+String KermiTWE_HK_Mode               "TWE Betriebsmodus Heizkreis [%s]"                <settings> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_mode:string" }
+
+String KermiTWE_HK_OpMode             "TWE Betriebsart Heizkreis [%s]"                  <settings> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_opmode:string" }
+
+String KermiTWE_HK_EnergyMode         "TWE Energiemodus Heizkreis [%s]"                 <energy> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_energymode:string" }
+
+Number KermiTWE_HK_Curve_Shift        "TWE Parallelverschiebung Kurve [%.1f K]"         <line> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Setpoint"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_curve_shift:number" }
+
+String KermiTWE_HK_Season             "TWE Saisonauswahl [%s]"                          <calendar> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_season:string" }
+
+Switch KermiTWE_HK_Summer_Off         "TWE Sommerbetrieb Heizen Aus"                    <sun> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_summer_off:switch" }
+
+Switch KermiTWE_HK_Winter_On          "TWE Winterbetrieb Heizen Ein"                    <snow> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_winter_on:switch" }
+
+Switch KermiTWE_HK_Cool_On            "TWE Kühlbetrieb Ein"                             <snowflake> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_cool_on:switch" }
+
+Switch KermiTWE_HK_Cool_Off           "TWE Kühlbetrieb Aus"                             <snowflake> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Switch"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_cool_off:switch" }
+
+Switch KermiTWE_HK_Summer_Active      "TWE Sommerbetrieb aktiv"                         <sun> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_summer_active:switch" }
+
+Switch KermiTWE_HK_Cool_Active        "TWE Kühlbetrieb aktiv"                           <snowflake> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_hk:kermiTWE_hk_cool_active:switch" }
+
+// --- Externer Wärmeerzeuger ---
+String KermiTWE_ExtWEZ_Status_Heat    "TWE Status ext. WEZ Heizen [%s]"                 <boiler> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_ext_wez:kermiTWE_ext_wez_status_heat:string" }
+
+String KermiTWE_ExtWEZ_Mode_Heat      "TWE Betriebsart ext. WEZ Heizen [%s]"            <settings> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Control"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_ext_wez:kermiTWE_ext_wez_mode_heat:string" }
+
+String KermiTWE_ExtWEZ_Status_TWE     "TWE Status ext. WEZ TWE [%s]"                    <boiler> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Status"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_ext_wez:kermiTWE_ext_wez_status_twe:string" }
+
+String KermiTWE_ExtWEZ_Mode_TWE       "TWE Betriebsart ext. WEZ TWE [%s]"               <settings> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Control"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_ext_wez:kermiTWE_ext_wez_mode_twe:string" }
+
+// --- Speicher Status Temperaturen ---
+Number KermiTWE_Store_T1              "TWE T1 X13 [%.1f °C]"                            <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_t1:number" }
+
+Number KermiTWE_Store_T2              "TWE T2 X12 [%.1f °C]"                            <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_t2:number" }
+
+Number KermiTWE_Store_T3              "TWE T3 X11 [%.1f °C]"                            <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_t3:number" }
+
+Number KermiTWE_Store_T4              "TWE T4 X10 [%.1f °C]"                            <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","Temperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_t4:number" }
+
+Number KermiTWE_Store_Outdoor         "TWE Speicher Außentemperatur [%.1f °C]"          <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","OutdoorTemperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_outdoor:number" }
+
+Number KermiTWE_Store_Outdoor_Avg     "TWE Speicher gemittelte Außentemp. [%.1f °C]"    <temperature> (gKermiStoreTWE_All, gKermiStoreTWE_Temp, gKermiStoreTWE_Equip) ["Measurement","OutdoorTemperature"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_temp:kermiTWE_store_outdoor_avg:number" }
+
+// --- Speicher Laufzeiten ---
+Number KermiTWE_Store_Pump_Hours      "TWE Heizkreispumpe Laufzeit [%.0f h]"            <time> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_runtime:kermiTWE_store_pump_hours:number" }
+
+Number KermiTWE_ExtWEZ_Hours          "TWE ext. Wärmeerzeuger Laufzeit [%.0f h]"        <time> (gKermiStoreTWE_All, gKermiStoreTWE_Control, gKermiStoreTWE_Equip) ["Measurement","Duration"]
+    { channel="modbus:data:kermiStoreTWE:kermiTWE_store_status_runtime:kermiTWE_ext_wez_hours:number" }
