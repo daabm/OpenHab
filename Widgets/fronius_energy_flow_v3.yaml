@@ -305,7 +305,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: May 9, 2026, 7:57:59 PM
+timestamp: May 9, 2026, 8:02:31 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -1173,7 +1173,7 @@ slots:
                                                   width: 58.7
                                                   x: 5.65
                                                   y: 3
-                                                  stroke: =fn.switch_color(#props.power_inverter)
+                                                  stroke: =fn.switch_color(#props.power_inverter, "inverter")
                                               - component: rect
                                                 config:
                                                   comment: inverter lower area
@@ -1181,21 +1181,24 @@ slots:
                                                   x: 5.65
                                                   width: 58.7
                                                   height: 13.02
-                                                  fill: gray
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 0.3
                                                   rx: 6.8
                                               - component: circle
                                                 config:
                                                   comment: fan intake
                                                   cx: 35.03
                                                   cy: 29.61
-                                                  fill: dimgray
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 0.7
                                                   r: 11
                                               - component: circle
                                                 config:
                                                   comment: main power switch
                                                   cx: 15
                                                   cy: 40
-                                                  fill: black
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 1
                                                   r: 4
                                               - component: path
                                                 config:
