@@ -165,7 +165,7 @@ Bridge modbus:tcp:kermiHeatpump "Kermi Wärmepumpe Modbus TCP" [
     Thing data kermi_wp_status_code "Status Wärmepumpe" [
       readStart=200,
       readValueType="int16",
-	  readTransform="JS(kermi_wp_status200.js)"
+  	  readTransform="JS(kermi_wp_status200.js)"
     ]
   }
 
@@ -180,8 +180,7 @@ Bridge modbus:tcp:kermiHeatpump "Kermi Wärmepumpe Modbus TCP" [
   ] {
     Thing data kermi_wp_alarm "Globaler Alarm" [
       readStart=250,
-      readValueType="int16",
-      readTransform="JS(gt0_to_onoff.js)"
+      readValueType="int16"
     ]
   }
 
@@ -196,16 +195,15 @@ Bridge modbus:tcp:kermiHeatpump "Kermi Wärmepumpe Modbus TCP" [
   ] {
     Thing data kermi_wp_pv_mod_active "PV Modulation" [
       readStart=300,
-      readValueType="int16",
-      readTransform="JS(kermi_bool_betrieb.js)"
+      readValueType="int16"
     ]
     Thing data kermi_wp_pv_mod_power "PV-Mod aktuelle Leistung" [
       readStart=301,
       readValueType="int16",
-	  readTransform="JS(div10.js)",
+	    readTransform="JS(div10.js)",
       writeStart=301,
       writeValueType="int16",
-	  writeTransform="JS(mul10.js)",
+	    writeTransform="JS(mul10.js)",
       writeType="holding"
     ]
     Thing data kermi_wp_pv_mod_temp_hz "PV-Mod Solltemperatur Heizen" [
@@ -340,7 +338,7 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_hk_status "Status Heizkreis" [
       readStart=150,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_status150.js)"
+	    readTransform="JS(kermi_hk_status150.js)"
     ]
     Thing data kermi_hk_temp "Isttemperatur Heizkreis" [
       readStart=151,
@@ -360,7 +358,7 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_hk_opmode "Betriebsart Heizkreis" [
       readStart=154,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_betriebsart154.js)",
+	    readTransform="JS(kermi_hk_betriebsart154.js)",
       writeStart=154,
       writeValueType="int16",
       writeType="holding"
@@ -368,7 +366,7 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_hk_energymode "Energiemodus Heizkreis" [
       readStart=155,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_energiemodus155.js)",
+	    readTransform="JS(kermi_hk_energiemodus155.js)",
       writeStart=155,
       writeValueType="int16",
       writeType="holding"
@@ -385,7 +383,7 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_hk_season "Saisonauswahl" [
       readStart=157,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_season157.js)",
+  	  readTransform="JS(kermi_hk_season157.js)",
       writeStart=157,
       writeValueType="int16",
       writeType="holding"
@@ -393,48 +391,38 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_hk_summer_off "Sommerbetrieb Heizen Aus" [
       readStart=158,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=158,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermi_hk_winter_on "Winterbetrieb Heizen Ein" [
       readStart=159,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=159,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermi_hk_cool_on "Kühlbetrieb Ein" [
       readStart=160,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=160,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermi_hk_cool_off "Kühlbetrieb Aus" [
       readStart=161,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=161,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermi_hk_summer_active "Sommerbetrieb" [
       readStart=162,
-      readValueType="int16",
-      readTransform="JS(kermi_bool_betrieb.js)"
+      readValueType="int16"
     ]
     Thing data kermi_hk_cool_active "Kühlbetrieb" [
       readStart=163,
-      readValueType="int16",
-      readTransform="JS(kermi_bool_betrieb.js)"
+      readValueType="int16"
     ]
   }
 
@@ -450,12 +438,12 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_ext_wez_status_heat "Status externer Wärmeerzeuger Heizen" [
       readStart=200,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_status.js)"
+  	  readTransform="JS(kermi_ext_wez_status.js)"
     ]
     Thing data kermi_ext_wez_mode_heat "Betriebsart externer Wärmeerzeuger Heizen" [
       readStart=201,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_betriebsart.js)",
+  	  readTransform="JS(kermi_ext_wez_betriebsart.js)",
       writeStart=201,
       writeValueType="int16",
       writeType="holding"
@@ -463,12 +451,12 @@ Bridge modbus:tcp:kermiStoreHeating "Kermi Speicher Heizen Modbus TCP" [
     Thing data kermi_ext_wez_status_twe "Status externer Wärmeerzeuger TWE" [
       readStart=202,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_status.js)"
+  	  readTransform="JS(kermi_ext_wez_status.js)"
     ]
     Thing data kermi_ext_wez_mode_twe "Betriebsart externer Wärmeerzeuger TWE" [
       readStart=203,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_betriebsart.js)",
+	    readTransform="JS(kermi_ext_wez_betriebsart.js)",
       writeStart=203,
       writeValueType="int16",
       writeType="holding"
@@ -618,10 +606,8 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_store_twe_one_shot "TWE Einmalladung" [
       readStart=103,
       readValueType="int16",
-      readTransform="JS(gt0_to_onoff.js)",
       writeStart=103,
       writeValueType="int16",
-      writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermiTWE_store_twe_one_shot_setpoint "TWE Einmalladung Sollwert" [
@@ -647,7 +633,7 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_hk_status "Status Heizkreis" [
       readStart=150,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_status150.js)"
+	    readTransform="JS(kermi_hk_status150.js)"
     ]
     Thing data kermiTWE_hk_temp "Isttemperatur Heizkreis" [
       readStart=151,
@@ -662,12 +648,12 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_hk_mode "Betriebsmodus Heizkreis" [
       readStart=153,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_betriebsmodus153.js)"
+	    readTransform="JS(kermi_hk_betriebsmodus153.js)"
     ]
     Thing data kermiTWE_hk_opmode "Betriebsart Heizkreis" [
       readStart=154,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_betriebsart154.js)",
+	    readTransform="JS(kermi_hk_betriebsart154.js)",
       writeStart=154,
       writeValueType="int16",
       writeType="holding"
@@ -675,7 +661,7 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_hk_energymode "Energiemodus Heizkreis" [
       readStart=155,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_energiemodus155.js)",
+	    readTransform="JS(kermi_hk_energiemodus155.js)",
       writeStart=155,
       writeValueType="int16",
       writeType="holding"
@@ -692,7 +678,7 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_hk_season "Saisonauswahl" [
       readStart=157,
       readValueType="int16",
-	  readTransform="JS(kermi_hk_season157.js)",
+  	  readTransform="JS(kermi_hk_season157.js)",
       writeStart=157,
       writeValueType="int16",
       writeType="holding"
@@ -700,48 +686,38 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_hk_summer_off "Sommerbetrieb Heizen Aus" [
       readStart=158,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=158,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermiTWE_hk_winter_on "Winterbetrieb Heizen Ein" [
       readStart=159,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=159,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermiTWE_hk_cool_on "Kühlbetrieb Ein" [
       readStart=160,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=160,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermiTWE_hk_cool_off "Kühlbetrieb Aus" [
       readStart=161,
       readValueType="int16",
-	  readTransform="JS(gt0_to_onoff.js)",
       writeStart=161,
       writeValueType="int16",
-	  writeTransform="JS(onoff_to_01.js)",
       writeType="holding"
     ]
     Thing data kermiTWE_hk_summer_active "Sommerbetrieb" [
       readStart=162,
-      readValueType="int16",
-      readTransform="JS(kermi_bool_betrieb.js)"
+      readValueType="int16"
     ]
     Thing data kermiTWE_hk_cool_active "Kühlbetrieb" [
       readStart=163,
-      readValueType="int16",
-      readTransform="JS(kermi_bool_betrieb.js)"
+      readValueType="int16"
     ]
   }
 
@@ -757,12 +733,12 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_ext_wez_status_heat "Status externer Wärmeerzeuger Heizen" [
       readStart=200,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_status.js)"
+	    readTransform="JS(kermi_ext_wez_status.js)"
     ]
     Thing data kermiTWE_ext_wez_mode_heat "Betriebsart externer Wärmeerzeuger Heizen" [
       readStart=201,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_betriebsart.js)",
+	    readTransform="JS(kermi_ext_wez_betriebsart.js)",
       writeStart=201,
       writeValueType="int16",
       writeType="holding"
@@ -770,12 +746,12 @@ Bridge modbus:tcp:kermiStoreTWE "Kermi Speicher TWE Modbus TCP" [
     Thing data kermiTWE_ext_wez_status_twe "Status externer Wärmeerzeuger TWE" [
       readStart=202,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_status.js)"
+	    readTransform="JS(kermi_ext_wez_status.js)"
     ]
     Thing data kermiTWE_ext_wez_mode_twe "Betriebsart externer Wärmeerzeuger TWE" [
       readStart=203,
       readValueType="int16",
-	  readTransform="JS(kermi_ext_wez_betriebsart.js)",
+	    readTransform="JS(kermi_ext_wez_betriebsart.js)",
       writeStart=203,
       writeValueType="int16",
       writeType="holding"
