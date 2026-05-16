@@ -358,7 +358,7 @@ slots:
             (Math.abs(#props.power_house) + (#props.power_grid > 0 ?
             #props.power_grid : 0)), Math.abs(#props.power_grid),
             Math.abs(#props.power_solar), Math.abs(#props.power_battery)),
-            0.05), 0.5) * 5}px`"
+            0.05), 0.5) * 6}px`"
           scale_to_deg: =(value, max) => Math.pow(Math.min(Math.abs(value), max) * (270 /
             max), props.exponent) * (270 / Math.pow(270, props.exponent))
           switch_color: '=(value, type) => (Math.abs(value) >= props.power_min) ?
@@ -372,6 +372,9 @@ slots:
             `${Math.round(Math.abs(value)) | 0} W`"
           to_cartesian: =degree => (50 + Math.sin(degree * Math.PI / 180) * 41) + " " +
             (50 - Math.cos(degree * Math.PI / 180) * 41)
+        constants:
+          dot_gradient_start: "0.35"
+          dot_gradient_stop: "0.65"
       slots:
         default:
           - component: f7-block
@@ -488,12 +491,12 @@ slots:
                                                     props.color_inverter"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_solar :
                                                     props.color_inverter"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_inverter
                                               - component: stop
                                                 config:
@@ -561,11 +564,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_battery
                                               - component: stop
                                                 config:
@@ -818,11 +821,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_grid"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_grid"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_grid
                                               - component: stop
                                                 config:
@@ -889,11 +892,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_grid : props.color_house"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_grid : props.color_house"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_house
                                               - component: stop
                                                 config:
@@ -1038,7 +1041,7 @@ slots:
                                                     props.color_inverter"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_battery :
                                                     props.color_inverter"
                                               - component: stop
@@ -1334,7 +1337,7 @@ slots:
                                                     props.color_house"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: "= props.use_dot_gradient ? props.color_inverter :
                                                     props.color_house"
                                               - component: stop
@@ -1556,11 +1559,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_ev"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_ev"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_ev
                                               - component: stop
                                                 config:
@@ -1739,11 +1742,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_laundry"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_laundry"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_laundry
                                               - component: stop
                                                 config:
@@ -2064,11 +2067,11 @@ slots:
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
                                               - component: stop
                                                 config:
-                                                  offset: 0.35
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_heatpump
                                               - component: stop
                                                 config:
