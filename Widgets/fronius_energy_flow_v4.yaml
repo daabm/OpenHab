@@ -374,7 +374,7 @@ slots:
             (50 - Math.cos(degree * Math.PI / 180) * 41)
         constants:
           dot_gradient_start: "0.35"
-          dot_gradient_stop: "0.65"
+          dot_gradient_stop: "0.8"
       slots:
         default:
           - component: f7-block
