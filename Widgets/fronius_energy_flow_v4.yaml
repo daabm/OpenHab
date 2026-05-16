@@ -220,7 +220,14 @@ props:
       required: true
       type: TEXT
       groupName: data_sources_heatpump
-    - default: "4000"
+    - context: item
+      description: Current operating state of the heatpump (Standby, heating and so on)
+      label: Heat pump state
+      name: state_heatpump
+      required: true
+      type: TEXT
+      groupName: data_sources_heatpump
+    - default: "8000"
       description: Maximum power the heatpump can consume. Can be found in your pump's
         technical specifications.
       label: Heatpump maximum power
@@ -305,7 +312,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: Apr 19, 2026, 11:54:57 AM
+timestamp: May 15, 2026, 8:11:42 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -1081,7 +1088,8 @@ slots:
                                                   stroke: =props.color_battery
                                                   stroke-width: 0.1
                                                   transform: rotate(270 12,13.5)
-                                                  visible: =(#props.power_battery >= (-1 * props.power_min))
+                                                  visible: =(#props.power_battery >= (props.power_min) && (#props.soc_battery) <
+                                                    0.98)
                                                   x: 5
                                                   y: 14.8
                       - component: g
@@ -1164,37 +1172,54 @@ slots:
                                                   width: 100%
                                               - component: rect
                                                 config:
-                                                  fill: none
+                                                  comment: main inverter outline
+                                                  fill: linen
                                                   height: 64
                                                   rx: 6.8
                                                   stroke-width: 2px
                                                   width: 58.7
                                                   x: 5.65
                                                   y: 3
+                                                  stroke: =fn.switch_color(#props.power_inverter, "inverter")
+                                              - component: rect
+                                                config:
+                                                  comment: inverter lower area
+                                                  y: 53.08
+                                                  x: 5.65
+                                                  width: 58.7
+                                                  height: 13.02
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 0.3
+                                                  rx: 6.8
                                               - component: circle
                                                 config:
+                                                  comment: fan intake
                                                   cx: 35.03
                                                   cy: 29.61
-                                                  fill: lightgray
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 0.7
                                                   r: 11
                                               - component: circle
                                                 config:
+                                                  comment: main power switch
                                                   cx: 15
                                                   cy: 40
-                                                  fill: darkgray
+                                                  fill: =fn.switch_color(#props.power_inverter, "inverter")
+                                                  fill-opacity: 1
                                                   r: 4
                                               - component: path
                                                 config:
+                                                  comment: status LED and touch button area
                                                   d: M40.19,52H36.73a2,2,0,0,0-3.46,0H29.81a1.08,1.08,0,1,0,0,2.15h3.46a2,2,0,0,0,3.46,0h3.46a1.08,1.08,0,1,0,0-2.15Z
-                                                  fill: none
-                                                  fill-rule: evenodd
+                                                  fill: lime
                                               - component: path
                                                 config:
+                                                  comment: fronius decal in lower area
                                                   d: M34.89,61.87c-3.24,0-5.87-.73-5.87-1.62s2.63-1.64,5.87-1.64,5.87.74,5.87,1.64S38.13,61.87,34.89,61.87Z
-                                                  fill: crimson
-                                                  fill-rule: evenodd
+                                                  fill: white
                                               - component: line
                                                 config:
+                                                  comment: line from status area to the left
                                                   fill: none
                                                   x1: 5.07
                                                   x2: 28.73
@@ -1202,6 +1227,7 @@ slots:
                                                   y2: 53.08
                                               - component: line
                                                 config:
+                                                  comment: line from status area to the right
                                                   fill: none
                                                   x1: 41.27
                                                   x2: 64.93
@@ -1280,8 +1306,8 @@ slots:
                                   dominant-baseline: central
                                   fill: dimgray
                                   font-family: sans-serif
-                                  font-size: =(#props.power_ev > 0 ? "11px":"9px")
-                                  font-weight: =(#props.power_ev > 0 ? "bold")
+                                  font-size: =(#props.power_ev > 0 ? "11px":"10px")
+                                  font-weight: bold
                                   letter-spacing: =(#props.power_ev > 0 ? "1px" )
                                   text-anchor: middle
                                   translate: 400px 0px
@@ -1732,7 +1758,7 @@ slots:
                                   dominant-baseline: central
                                   fill: dimgray
                                   font-family: sans-serif
-                                  font-size: 11px
+                                  font-size: 10px
                                   font-weight: bold
                                   letter-spacing: 1px
                                   text-anchor: middle
@@ -1741,8 +1767,7 @@ slots:
                                 default:
                                   - component: textPath
                                     config:
-                                      content: =(#props.power_heatpump > 0 ?
-                                        fn.switch_magnitude(#props.power_heatpump):"Standby")
+                                      content: =@props.state_heatpump
                                       startOffset: 50%
                                       xlink:href: "#few_text_path"
                             - component: svg
