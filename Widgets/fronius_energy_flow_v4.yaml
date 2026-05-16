@@ -320,7 +320,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: May 16, 2026, 9:57:40 AM
+timestamp: May 16, 2026, 11:06:03 AM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -479,8 +479,9 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "solar")
-                                            r: "=fn.resize_dot(#props.power_solar + (#props.power_battery < 0 ? #props.power_battery : 0))"
+                                            fill: =fn.switch_color(#props.power_solar, "inverter")
+                                            r: "=fn.resize_dot(#props.power_solar + (#props.power_battery < 0 ?
+                                              #props.power_battery : 0))"
                                           slots:
                                             default:
                                               - component: animateMotion
@@ -521,7 +522,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "solar")
+                                            fill: =fn.switch_color(#props.power_solar, "battery")
                                             r: "=fn.resize_dot(#props.power_battery < 0 ? #props.power_battery:0)"
                                           slots:
                                             default:
@@ -791,7 +792,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_grid, "grid")
+                                            fill: =fn.switch_color(#props.power_grid, "house")
                                             r: "=fn.resize_dot(#props.power_grid > 0 ? #props.power_grid : 0)"
                                           slots:
                                             default:
@@ -910,7 +911,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_battery, "battery")
+                                            fill: =fn.switch_color(#props.power_battery, "inverter")
                                             r: "=fn.resize_dot(#props.power_battery > 0 ? #props.power_battery : 0)"
                                           slots:
                                             default:
@@ -929,22 +930,22 @@ slots:
                               config:
                                 comment: Battery dial.
                                 style:
-                                  stroke: =(#props.soc_battery > 0.07 ?
-                                    props.color_battery:fn.switch_color(#props.power_battery,
-                                    "battery"))
+                                  stroke: "=(#props.soc_battery < 0.07 ?
+                                    fn.switch_color(#props.power_battery, 'battery') : props.color_battery)"
                                 x: 0px
                                 xlink:href: "#few_rings"
                                 y: 200px
                             - component: path
                               config:
-                                comment: Dial, using a linear scale.
-                                d: =`M50 9 A41 41 0 ${fn.arc_flag(#props.soc_battery * 270)} 1
-                                  ${fn.to_cartesian(#props.soc_battery * 270)}`
+                                comment: Dial, using a exponential scale.
+                                d: =`M50 9 A41 41 0 ${fn.arc_flag(fn.scale_to_deg(#props.power_battery,
+                                  props.energy_battery))} 1
+                                  ${fn.to_cartesian(fn.scale_to_deg(#props.power_battery,
+                                  props.energy_battery))}`
                                 fill: rgba(0, 0, 0, 0)
                                 style:
-                                  stroke: =(#props.soc_battery > 0.07 ?
-                                    props.color_battery:fn.switch_color(#props.power_battery,
-                                    "battery"))
+                                  stroke: "=(#props.soc_battery < 0.07 ?
+                                    fn.switch_color(#props.power_battery, 'battery') : props.color_battery )"
                                   stroke-width: 14px
                                   translate: 0px 200px
                             - component: text
@@ -1148,6 +1149,56 @@ slots:
                           id: few_inverter
                         slots:
                           default:
+                            - component: g
+                              config:
+                                comment: Inverter to house energy flow visualisation
+                                id: few_inverter_house_flow
+                              slots:
+                                default:
+                                  - component: path
+                                    config:
+                                      comment: House energy flow visualization.
+                                      d: M200 150 L300 150
+                                      id: few_inverter_house_path
+                                      style:
+                                        stroke: darkgray
+                                        stroke-width: 1px
+                                  - component: oh-repeater
+                                    config:
+                                      comment: Sets up the circles, indicating the energy flow.
+                                      for: offset
+                                      fragment: true
+                                      rangeStart: 0
+                                      rangeStep: 1
+                                      rangeStop: 4
+                                      sourceType: range
+                                    slots:
+                                      default:
+                                        - component: circle
+                                          config:
+                                            comment: Power to house has 2 sources - grid and inverter. If power is coming
+                                              from grid, we need math to adjust
+                                              energy flow from inverter.
+                                              power_house is always negative. If
+                                              power comes from grid, it is
+                                              positive, so we simply "add it" to
+                                              subtract it from the power flow.
+                                            fill: =fn.switch_color(#props.power_house, "house")
+                                            r: "=fn.resize_dot(#props.power_house + (#props.power_grid > 0 ?
+                                              #props.power_grid : 0))"
+                                          slots:
+                                            default:
+                                              - component: animateMotion
+                                                config:
+                                                  begin: =`${loop.offset}s`
+                                                  calcMode: linear
+                                                  dur: 5s
+                                                  repeatCount: indefinite
+                                                slots:
+                                                  default:
+                                                    - component: mpath
+                                                      config:
+                                                        xlink:href: "#few_inverter_house_path"
                             - component: use
                               config:
                                 comment: Inverter dial.
@@ -1908,56 +1959,6 @@ slots:
                           id: few_few_house
                         slots:
                           default:
-                            - component: g
-                              config:
-                                comment: Inverter to house energy flow visualisation
-                                id: few_inverter_house_flow
-                              slots:
-                                default:
-                                  - component: path
-                                    config:
-                                      comment: House energy flow visualization.
-                                      d: M200 150 L300 150
-                                      id: few_inverter_house_path
-                                      style:
-                                        stroke: darkgray
-                                        stroke-width: 1px
-                                  - component: oh-repeater
-                                    config:
-                                      comment: Sets up the circles, indicating the energy flow.
-                                      for: offset
-                                      fragment: true
-                                      rangeStart: 0
-                                      rangeStep: 1
-                                      rangeStop: 4
-                                      sourceType: range
-                                    slots:
-                                      default:
-                                        - component: circle
-                                          config:
-                                            comment: Power to house has 2 sources - grid and inverter. If power is coming
-                                              from grid, we need math to adjust
-                                              energy flow from inverter.
-                                              power_house is always negative. If
-                                              power comes from grid, it is
-                                              positive, so we simply "add it" to
-                                              subtract it from the power flow.
-                                            fill: =fn.switch_color(#props.power_house, "house")
-                                            r: "=fn.resize_dot(#props.power_house + (#props.power_grid > 0 ?
-                                              #props.power_grid : 0))"
-                                          slots:
-                                            default:
-                                              - component: animateMotion
-                                                config:
-                                                  begin: =`${loop.offset}s`
-                                                  calcMode: linear
-                                                  dur: 5s
-                                                  repeatCount: indefinite
-                                                slots:
-                                                  default:
-                                                    - component: mpath
-                                                      config:
-                                                        xlink:href: "#few_inverter_house_path"
                             - component: use
                               config:
                                 comment: Load dial
@@ -2100,7 +2101,8 @@ slots:
                               config:
                                 comment: Battery dial segments
                                 style:
-                                  transform: =`rotate(${loop.degree}deg)`
+                                  transform: =`rotate(${(Math.pow(loop.degree, props.exponent) * 270 /
+                                    Math.pow(270, props.exponent))}deg)`
                                   transform-origin: 50px 250px
                                 x: 0px
                                 xlink:href: "#few_segment_line"
