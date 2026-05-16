@@ -30,13 +30,21 @@ props:
       type: DECIMAL
       groupName: design
       advanced: true
+    - description: If enabled, applies a color gradient to all energy flow dots, from
+        source color to target color.
+      label: Enable dot gradient
+      name: use_dot_gradient
+      required: true
+      type: BOOLEAN
+      groupName: design
+      advanced: true
     - default: gold
       description: CSS color name or hex value (#xxxxxx) for the solar plant
       label: Solar plant color
       name: color_solar
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: limegreen
       description: CSS color name or hex value (#xxxxxx) for the solar battery
@@ -44,7 +52,7 @@ props:
       name: color_battery
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: red
       description: CSS color name or hex value (#xxxxxx) for the solar inverter
@@ -52,7 +60,7 @@ props:
       name: color_inverter
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: purple
       description: CSS color name or hex value (#xxxxxx) for the grid
@@ -60,7 +68,7 @@ props:
       name: color_grid
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: deepskyblue
       description: CSS color name or hex value (#xxxxxx) for the house
@@ -68,7 +76,7 @@ props:
       name: color_house
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: royalblue
       description: CSS color name or hex value (#xxxxxx) for the electric vehicle
@@ -76,7 +84,7 @@ props:
       name: color_ev
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: darkorange
       description: CSS color name or hex value (#xxxxxx) for the heat pump
@@ -84,7 +92,7 @@ props:
       name: color_heatpump
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - default: brown
       description: CSS color name or hex value (#xxxxxx) for the laundry
@@ -92,7 +100,7 @@ props:
       name: color_laundry
       required: true
       type: TEXT
-      groupName: design
+      groupName: color
       advanced: true
     - context: item
       description: Solar plant actual power in watts.
@@ -304,6 +312,8 @@ props:
   parameterGroups:
     - name: design
       label: Design elements
+    - name: colors
+      label: Color elements
     - name: data_sources_solar
       label: Data sources (solar plant)
     - name: data_sources_battery
@@ -320,7 +330,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: May 16, 2026, 11:06:03 AM
+timestamp: May 16, 2026, 5:44:53 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -458,6 +468,37 @@ slots:
                                 id: few_solar_inverter_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for solar to inverter flow
+                                            id: gradient_solar_inverter_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 0
+                                            y2: 1
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_solar :
+                                                    props.color_inverter"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_solar :
+                                                    props.color_inverter"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_inverter
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_inverter
                                   - component: path
                                     config:
                                       comment: Energy flow visualization solar to inverter.
@@ -479,7 +520,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "inverter")
+                                            fill: url(#gradient_solar_inverter_flow)
                                             r: "=fn.resize_dot(#props.power_solar + (#props.power_battery < 0 ?
                                               #props.power_battery : 0))"
                                           slots:
@@ -501,9 +542,38 @@ slots:
                                 id: few_solar_battery_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for solar to battery flow
+                                            id: gradient_solar_battery_flow
+                                            x1: 0
+                                            x2: 0
+                                            y1: 0
+                                            y2: 1
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_battery
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_battery
                                   - component: path
                                     config:
-                                      comment: Energy flow visualization solar.
+                                      comment: Energy flow visualization solar to battery.
                                       d: M50 100 L50 200
                                       id: few_solar_battery_path
                                       style:
@@ -522,7 +592,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_solar, "battery")
+                                            fill: url(#gradient_solar_battery_flow)
                                             r: "=fn.resize_dot(#props.power_battery < 0 ? #props.power_battery:0)"
                                           slots:
                                             default:
@@ -729,6 +799,35 @@ slots:
                                 id: few_inverter_grid_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for inverter to grid flow
+                                            id: gradient_inverter_grid_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 1
+                                            y2: 0
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_grid"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_grid"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_grid
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_grid
                                   - component: path
                                     config:
                                       comment: Inverter to grid energy flow visualization.
@@ -750,7 +849,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_grid, "grid")
+                                            fill: url(#gradient_inverter_grid_flow)
                                             r: "=fn.resize_dot(#props.power_grid < 0 ? #props.power_grid : 0)"
                                           slots:
                                             default:
@@ -771,6 +870,35 @@ slots:
                                 id: few_grid_house_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for grid to house flow
+                                            id: gradient_grid_house_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 0
+                                            y2: 1
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_grid : props.color_house"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_grid : props.color_house"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_house
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_house
                                   - component: path
                                     config:
                                       comment: Energy flow visualization grid.
@@ -792,7 +920,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_grid, "house")
+                                            fill: url(#gradient_grid_house_flow)
                                             r: "=fn.resize_dot(#props.power_grid > 0 ? #props.power_grid : 0)"
                                           slots:
                                             default:
@@ -890,6 +1018,37 @@ slots:
                                 id: few_battery_inverter_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for battery to inverter flow
+                                            id: gradient_battery_inverter_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 1
+                                            y2: 0
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_battery :
+                                                    props.color_inverter"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_battery :
+                                                    props.color_inverter"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_inverter
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_inverter
                                   - component: path
                                     config:
                                       comment: Energy flow visualization battery.
@@ -911,7 +1070,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_battery, "inverter")
+                                            fill: url(#gradient_battery_inverter_flow)
                                             r: "=fn.resize_dot(#props.power_battery > 0 ? #props.power_battery : 0)"
                                           slots:
                                             default:
@@ -930,8 +1089,8 @@ slots:
                               config:
                                 comment: Battery dial.
                                 style:
-                                  stroke: "=(#props.soc_battery < 0.07 ?
-                                    fn.switch_color(#props.power_battery, 'battery') : props.color_battery)"
+                                  stroke: "=(#props.soc_battery < 0.07 ? fn.switch_color(#props.power_battery,
+                                    'battery') : props.color_battery)"
                                 x: 0px
                                 xlink:href: "#few_rings"
                                 y: 200px
@@ -944,8 +1103,8 @@ slots:
                                   props.energy_battery))}`
                                 fill: rgba(0, 0, 0, 0)
                                 style:
-                                  stroke: "=(#props.soc_battery < 0.07 ?
-                                    fn.switch_color(#props.power_battery, 'battery') : props.color_battery )"
+                                  stroke: "=(#props.soc_battery < 0.07 ? fn.switch_color(#props.power_battery,
+                                    'battery') : props.color_battery )"
                                   stroke-width: 14px
                                   translate: 0px 200px
                             - component: text
@@ -1155,6 +1314,37 @@ slots:
                                 id: few_inverter_house_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for inverter to house flow
+                                            id: gradient_inverter_house_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 0
+                                            y2: 0
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter :
+                                                    props.color_house"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter :
+                                                    props.color_house"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_house
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_house
                                   - component: path
                                     config:
                                       comment: House energy flow visualization.
@@ -1183,7 +1373,7 @@ slots:
                                               power comes from grid, it is
                                               positive, so we simply "add it" to
                                               subtract it from the power flow.
-                                            fill: =fn.switch_color(#props.power_house, "house")
+                                            fill: url(#gradient_inverter_house_flow)
                                             r: "=fn.resize_dot(#props.power_house + (#props.power_grid > 0 ?
                                               #props.power_grid : 0))"
                                           slots:
@@ -1347,6 +1537,35 @@ slots:
                                 id: few_house_ev_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for house to EV flow
+                                            id: gradient_house_ev_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 1
+                                            y2: 0
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_ev"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_ev"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_ev
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_ev
                                   - component: path
                                     config:
                                       comment: EV energy flow visualization load.
@@ -1368,7 +1587,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_ev, "ev")
+                                            fill: url(#gradient_house_ev_flow)
                                             r: =fn.resize_dot(#props.power_ev)
                                           slots:
                                             default:
@@ -1501,6 +1720,35 @@ slots:
                                 id: few_house_laundry_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for house to laundry flow
+                                            id: gradient_house_laundry_flow
+                                            x1: 1
+                                            x2: 0
+                                            y1: 0
+                                            y2: 1
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_laundry"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_laundry"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_laundry
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_laundry
                                   - component: path
                                     config:
                                       comment: Energy flow visualization load.
@@ -1522,7 +1770,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_laundry, "laundry")
+                                            fill: url(#gradient_house_laundry_flow)
                                             r: =fn.resize_dot(#props.power_laundry)
                                           slots:
                                             default:
@@ -1797,6 +2045,35 @@ slots:
                                 id: few_house_heatpump_flow
                               slots:
                                 default:
+                                  - component: defs
+                                    slots:
+                                      default:
+                                        - component: linearGradient
+                                          config:
+                                            comment: Gradient for house to heatpump flow
+                                            id: gradient_house_heatpump_flow
+                                            x1: 0
+                                            x2: 1
+                                            y1: 0
+                                            y2: 1
+                                          slots:
+                                            default:
+                                              - component: stop
+                                                config:
+                                                  offset: 0
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.35
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
+                                              - component: stop
+                                                config:
+                                                  offset: 0.65
+                                                  stop-color: =props.color_heatpump
+                                              - component: stop
+                                                config:
+                                                  offset: 1
+                                                  stop-color: =props.color_heatpump
                                   - component: path
                                     config:
                                       comment: Energy flow visualization load.
@@ -1818,7 +2095,7 @@ slots:
                                       default:
                                         - component: circle
                                           config:
-                                            fill: =fn.switch_color(#props.power_heatpump, "heatpump")
+                                            fill: url(#gradient_house_heatpump_flow)
                                             r: =fn.resize_dot(#props.power_heatpump)
                                           slots:
                                             default:
