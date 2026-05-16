@@ -1337,12 +1337,12 @@ slots:
                                                     props.color_house"
                                               - component: stop
                                                 config:
-                                                  offset: =const.dot_gradient_stop
+                                                  offset: =const.dot_gradient_start
                                                   stop-color: "= props.use_dot_gradient ? props.color_inverter :
                                                     props.color_house"
                                               - component: stop
                                                 config:
-                                                  offset: 0.65
+                                                  offset: =const.dot_gradient_stop
                                                   stop-color: =props.color_house
                                               - component: stop
                                                 config:
