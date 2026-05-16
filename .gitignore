@@ -1,3 +1,3 @@
-*.json
-*.things
-*.items
+scripts/*.json
+scripts/*.things
+scripts/*.items
