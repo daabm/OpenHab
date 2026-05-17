@@ -330,7 +330,7 @@ props:
       label: Data sources (heating system)
     - name: data_sources_laundry
       label: Data sources (laundry room)
-timestamp: May 16, 2026, 5:44:53 PM
+timestamp: May 16, 2026, 10:55:49 PM
 component: f7-card
 config:
   comment: This component determines the size of the widget.
@@ -487,21 +487,21 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: "= props.use_dot_gradient ? props.color_solar :
-                                                    props.color_inverter"
+                                                  stop-color: "= props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_start
-                                                  stop-color: "= props.use_dot_gradient ? props.color_solar :
-                                                    props.color_inverter"
+                                                  stop-color: "= props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_stop
-                                                  stop-color: =props.color_inverter
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter :
+                                                    props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =props.color_inverter
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter :
+                                                    props.color_solar"
                                   - component: path
                                     config:
                                       comment: Energy flow visualization solar to inverter.
@@ -561,19 +561,19 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
+                                                  stop-color: "= props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_start
-                                                  stop-color: "= props.use_dot_gradient ? props.color_solar : props.color_battery"
+                                                  stop-color: "= props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_stop
-                                                  stop-color: =props.color_battery
+                                                  stop-color: "= props.use_dot_gradient ? props.color_battery : props.color_solar"
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =props.color_battery
+                                                  stop-color: "= props.use_dot_gradient ? props.color_battery : props.color_solar"
                                   - component: path
                                     config:
                                       comment: Energy flow visualization solar to battery.
@@ -826,11 +826,11 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_stop
-                                                  stop-color: =props.color_grid
+                                                  stop-color: "= props.color_grid"
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =props.color_grid
+                                                  stop-color: "= props.color_grid"
                                   - component: path
                                     config:
                                       comment: Inverter to grid energy flow visualization.
@@ -1037,21 +1037,19 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: "= props.use_dot_gradient ? props.color_battery :
-                                                    props.color_inverter"
+                                                  stop-color: "= props.color_battery"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_start
-                                                  stop-color: "= props.use_dot_gradient ? props.color_battery :
-                                                    props.color_inverter"
+                                                  stop-color: "= props.color_battery"
                                               - component: stop
                                                 config:
                                                   offset: 0.65
-                                                  stop-color: =props.color_inverter
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_battery"
                                               - component: stop
                                                 config:
                                                   offset: 1
-                                                  stop-color: =props.color_inverter
+                                                  stop-color: "= props.use_dot_gradient ? props.color_inverter : props.color_battery"
                                   - component: path
                                     config:
                                       comment: Energy flow visualization battery.
@@ -1351,7 +1349,7 @@ slots:
                                   - component: path
                                     config:
                                       comment: House energy flow visualization.
-                                      d: M200 150 L300 150
+                                      d: M190 150 L310 150
                                       id: few_inverter_house_path
                                       style:
                                         stroke: darkgray
@@ -2064,11 +2062,13 @@ slots:
                                               - component: stop
                                                 config:
                                                   offset: 0
-                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house :
+                                                    props.color_heatpump"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_start
-                                                  stop-color: "= props.use_dot_gradient ? props.color_house : props.color_heatpump"
+                                                  stop-color: "= props.use_dot_gradient ? props.color_house :
+                                                    props.color_heatpump"
                                               - component: stop
                                                 config:
                                                   offset: =const.dot_gradient_stop
