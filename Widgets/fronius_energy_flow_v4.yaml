@@ -372,6 +372,7 @@ slots:
             `${Math.round(Math.abs(value)) | 0} W`"
           to_cartesian: =degree => (50 + Math.sin(degree * Math.PI / 180) * 41) + " " +
             (50 - Math.cos(degree * Math.PI / 180) * 41)
+          fan_speed: "=(curr, max) => Math.max(0.5, 3 - 3 * Math.min(curr, max) / max)"
         constants:
           dot_gradient_start: "0.35"
           dot_gradient_stop: "0.8"
@@ -2202,7 +2203,8 @@ slots:
                                                       config:
                                                         attributeName: transform
                                                         begin: 0s
-                                                        dur: =Math.max(0.5, (4 - (#props.power_heatpump/props.power_heatpump_max) * 4))
+                                                        comment: "=Math.max(0.5, (5 - (5 * #props.power_heatpump/props.power_heatpump_max)))"
+                                                        dur: "=fn.fan_speed(#props.power_heatpump, props.power_heatpump_max)"
                                                         from: 0 245 226
                                                         repeatCount: indefinite
                                                         to: 360 245 226
