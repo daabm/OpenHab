@@ -84,7 +84,7 @@ props:
       required: true
       type: TEXT
   parameterGroups: []
-timestamp: Apr 6, 2026, 3:44:54 PM
+timestamp: Apr 12, 2026, 1:21:38 PM
 component: f7-card
 config:
   style:
@@ -115,10 +115,10 @@ slots:
                     action: variable
                     actionVariable: expandedErzeugung
                     actionVariableValue: "=vars.expandedErzeugung === 'true' ? 'false' : 'true'"
+                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     style:
                       font-size: 1.2em
                       font-weight: bold
-                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     text: ="Erzeugung " + items[props.periodItem].state.charAt(0).toUpperCase() +
                       items[props.periodItem].state.slice(1)
           - component: f7-col
@@ -286,10 +286,10 @@ slots:
                     action: variable
                     actionVariable: expandedVerbrauch
                     actionVariableValue: "=vars.expandedVerbrauch === 'true' ? 'false' : 'true'"
+                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     style:
                       font-size: 1.2em
                       font-weight: bold
-                    color: "=(themeOptions.dark == 'dark') ? 'white' : 'black'"
                     text: ="Verbrauch " + items[props.periodItem].state.charAt(0).toUpperCase() +
                       items[props.periodItem].state.slice(1)
           - component: f7-col
