@@ -48,15 +48,15 @@ slots:
                     default:
                       - component: oh-repeater
                         config:
-                          for: item
+                          for: shutter
                           sourceType: itemsWithTags
                           itemTags: Blinds
-                          filter: loop.item.name == props.item
+                          filter: "loop.shutter.name == props.item"
                         slots:
                           default:
                             - component: Label
                               config:
-                                text: =loop.item.label + ' - ' + items[props.item].displayState + '%'
+                                text: "=loop.shutter.label + ' - ' + items[props.item].displayState + '%'"
           - component: f7-row
             config:
               class:
@@ -201,5 +201,4 @@ slots:
                           text: Automatik
                       - component: oh-toggle
                         config:
-                          item: =props.item + '_Auto'
-
+                          item: "=props.item + '_Auto'"
