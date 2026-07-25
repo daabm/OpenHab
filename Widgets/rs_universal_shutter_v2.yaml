@@ -178,7 +178,7 @@ slots:
               default:
                 - component: Label
                   config:
-                    text: "='Fenster: ' + items['FS' + props.item].displayState"
+                    text: "='Fenster: ' + items[props.item.replace(/^RS/, 'FS')].displayState"
                 - component: f7-row
                   config:
                     class:
@@ -194,3 +194,4 @@ slots:
                       - component: oh-toggle
                         config:
                           item: =props.item + '_Auto'
+
