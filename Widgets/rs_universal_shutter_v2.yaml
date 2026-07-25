@@ -205,7 +205,7 @@ widgets:
                         default:
                           - component: Label
                             config:
-                              text: Auto-Up
+                              text: Up
                           - component: oh-toggle
                             config:
                               item: "=props.item + '_AutoUp'"
@@ -230,7 +230,7 @@ widgets:
                         default:
                         - component: Label
                           config:
-                            text: Automatik
+                            text: Auto
                         - component: oh-toggle
                           config:
                             item: "=props.item + '_Auto'"
@@ -245,7 +245,7 @@ widgets:
                         default:
                           - component: Label
                             config:
-                              text: Auto-Down
+                              text: Down
                           - component: oh-toggle
                             config:
                               item: "=props.item + '_AutoDown'"
