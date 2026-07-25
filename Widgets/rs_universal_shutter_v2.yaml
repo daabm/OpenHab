@@ -172,6 +172,12 @@ slots:
                       presets: RSPreset_Stored
                     text: Presets
     - component: f7-card-footer
+      config:
+        style:
+          align-items: stretch
+          display: flex
+          flex-direction: column
+          gap: 6px
       slots:
         default:
           - component: f7-row
@@ -202,3 +208,43 @@ slots:
                       - component: oh-toggle
                         config:
                           item: "=props.item + '_Auto'"
+          - component: f7-row
+            config:
+              class:
+                - display-flex
+                - justify-content-space-between
+                - align-items-center
+              style:
+                width: 100%
+            slots:
+              default:
+                - component: f7-row
+                  config:
+                    class:
+                      - display-flex
+                      - align-items-center
+                    style:
+                      gap: 8px
+                  slots:
+                    default:
+                      - component: Label
+                        config:
+                          text: Öffnen
+                      - component: oh-toggle
+                        config:
+                          item: "=props.item + '_AutoUp'"
+                - component: f7-row
+                  config:
+                    class:
+                      - display-flex
+                      - align-items-center
+                    style:
+                      gap: 8px
+                  slots:
+                    default:
+                      - component: Label
+                        config:
+                          text: Schließen
+                      - component: oh-toggle
+                        config:
+                          item: "=props.item + '_AutoDown'"
