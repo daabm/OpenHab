@@ -1,0 +1,237 @@
+uid: follow_the_sun_config
+tags:
+  - follow-the-sun
+props:
+  parameters:
+    - name: floorsGroup
+      label: Floors Group Item
+      description: Group item containing all Follow-the-Sun floor groups
+      context: item
+      required: true
+component: f7-card
+config:
+  title: Follow-the-Sun Konfiguration
+  outline: true
+slots:
+  default:
+    - component: oh-tabs
+      slots:
+        default:
+          - component: oh-repeater
+            config:
+              for: floor
+              sourceType: itemsInGroup
+              groupItem: =props.floorsGroup
+            slots:
+              default:
+                - component: oh-tab
+                  config:
+                    tab: =loop.floor.name
+                    tabLabel: =loop.floor.label || loop.floor.name
+                  slots:
+                    default:
+                      - component: f7-block
+                        config:
+                          class:
+                            - padding-half
+                        slots:
+                          default:
+                            - component: f7-row
+                              slots:
+                                default:
+                                  - component: f7-col
+                                    config:
+                                      width: 100
+                                      medium: 50
+                                    slots:
+                                      default:
+                                        - component: f7-card
+                                          config:
+                                            outline: true
+                                            title: Allgemein
+                                          slots:
+                                            default:
+                                              - component: oh-list
+                                                config:
+                                                  inset: true
+                                                slots:
+                                                  default:
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Schwellwert
+                                                        iconF7: sun_max
+                                                        after: =items[loop.floor.name + '_Threshold']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-slider-item
+                                                            config:
+                                                              item: =loop.floor.name + '_Threshold'
+                                                              min: 0
+                                                              max: 1200
+                                                              step: 10
+                                                              scale: true
+                                                              scaleSteps: 6
+                                                              scaleSubSteps: 5
+                                                              unit: W/m²
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Verzögerung Ende
+                                                        iconF7: timer
+                                                        after: =items[loop.floor.name + '_Debounce']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_Debounce'
+                                                              min: 0
+                                                              max: 7200
+                                                              step: 60
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Schließposition
+                                                        iconF7: rectangle_compress_vertical
+                                                        after: =items[loop.floor.name + '_ClosingLevel']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-slider-item
+                                                            config:
+                                                              item: =loop.floor.name + '_ClosingLevel'
+                                                              min: 0
+                                                              max: 100
+                                                              step: 1
+                                                              scale: true
+                                                              scaleSteps: 5
+                                                              scaleSubSteps: 5
+                                                              unit: '%'
+                                  - component: f7-col
+                                    config:
+                                      width: 100
+                                      medium: 50
+                                    slots:
+                                      default:
+                                        - component: f7-card
+                                          config:
+                                            outline: true
+                                            title: Straße
+                                          slots:
+                                            default:
+                                              - component: oh-list
+                                                config:
+                                                  inset: true
+                                                slots:
+                                                  default:
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Minimum
+                                                        iconF7: arrowtriangle_right
+                                                        after: =items[loop.floor.name + '_SE_AzimuthMin']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_SE_AzimuthMin'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Maximum
+                                                        iconF7: arrowtriangle_right_fill
+                                                        after: =items[loop.floor.name + '_SE_AzimuthMax']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_SE_AzimuthMax'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
+                            - component: f7-row
+                              slots:
+                                default:
+                                  - component: f7-col
+                                    config:
+                                      width: 100
+                                      medium: 50
+                                    slots:
+                                      default:
+                                        - component: f7-card
+                                          config:
+                                            outline: true
+                                            title: Hof
+                                          slots:
+                                            default:
+                                              - component: oh-list
+                                                config:
+                                                  inset: true
+                                                slots:
+                                                  default:
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Minimum
+                                                        iconF7: arrowtriangle_right
+                                                        after: =items[loop.floor.name + '_SW_AzimuthMin']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_SW_AzimuthMin'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Maximum
+                                                        iconF7: arrowtriangle_right_fill
+                                                        after: =items[loop.floor.name + '_SW_AzimuthMax']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_SW_AzimuthMax'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
+                                  - component: f7-col
+                                    config:
+                                      width: 100
+                                      medium: 50
+                                    slots:
+                                      default:
+                                        - component: f7-card
+                                          config:
+                                            outline: true
+                                            title: Garten
+                                          slots:
+                                            default:
+                                              - component: oh-list
+                                                config:
+                                                  inset: true
+                                                slots:
+                                                  default:
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Minimum
+                                                        iconF7: arrowtriangle_right
+                                                        after: =items[loop.floor.name + '_NW_AzimuthMin']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_NW_AzimuthMin'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
+                                                    - component: oh-list-item
+                                                      config:
+                                                        title: Maximum
+                                                        iconF7: arrowtriangle_right_fill
+                                                        after: =items[loop.floor.name + '_NW_AzimuthMax']?.displayState || ''
+                                                      slots:
+                                                        default:
+                                                          - component: oh-stepper
+                                                            config:
+                                                              item: =loop.floor.name + '_NW_AzimuthMax'
+                                                              min: 0
+                                                              max: 360
+                                                              step: 1
