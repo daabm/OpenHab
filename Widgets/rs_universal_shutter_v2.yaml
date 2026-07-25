@@ -186,7 +186,7 @@ slots:
               default:
                 - component: Label
                   config:
-                    text: "='Fenster: ' + items[props.item.replace(/^RS/, 'FS')].displayState"
+                    text: "='Fenster: ' + items['FS' + props.item.substring(2)].displayState"
                 - component: f7-row
                   config:
                     class:
