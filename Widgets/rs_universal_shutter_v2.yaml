@@ -43,20 +43,20 @@ slots:
                 height: 25px
             slots:
               default:
-                - component: f7-block-header
+                - component: f7-row
                   slots:
                     default:
                       - component: oh-repeater
                         config:
-                          for: shutteritem
+                          for: item
                           sourceType: itemsWithTags
                           itemTags: Blinds
-                          filter: loop.shutteritem.name == props.item
+                          filter: loop.item.name == props.item
                         slots:
                           default:
                             - component: Label
                               config:
-                                text: =loop.shutteritem.label + ' - ' + items[props.item].displayState
+                                text: =loop.item.label + ' - ' + items[props.item].displayState + '%'
           - component: f7-row
             config:
               class:
