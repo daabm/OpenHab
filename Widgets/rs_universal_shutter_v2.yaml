@@ -1,0 +1,196 @@
+uid: rs-universal-shutter
+tags:
+  - marketplace:116270
+props:
+  parameters:
+    - context: item
+      description: Rollershutter control item. Used as the base item for label, movement state, and window state.
+      label: Rollershutter control
+      name: item
+      required: true
+      type: TEXT
+    - description: Title of the card (empty for none)
+      label: Title
+      name: title
+      required: false
+      type: TEXT
+  parameterGroups: []
+timestamp: May 26, 2026, 7:15:47 PM
+component: f7-card
+config:
+  title: =props.title
+slots:
+  default:
+    - component: f7-card-content
+      slots:
+        default:
+          - component: f7-progressbar
+            config:
+              infinite: true
+              style:
+                --f7-progressbar-height: 2px
+                bottom: 0px
+                left: 0px
+                position: absolute
+              visible: "=items[props.item + '_Moving'] && items[props.item + '_Moving'].state == 'ON' ? true : false"
+          - component: f7-row
+            config:
+              class:
+                - display-flex
+                - justify-content-center
+                - align-items-flex-start
+              style:
+                height: 25px
+            slots:
+              default:
+                - component: f7-block-header
+                  slots:
+                    default:
+                      - component: Label
+                        config:
+                          text: "=items[props.item].label + ' - ' + items[props.item].displayState"
+          - component: f7-row
+            config:
+              class:
+                - display-flex
+                - justify-content-space-evenly
+                - align-items-center
+              style:
+                height: 125px
+                width: 100%
+            slots:
+              default:
+                - component: f7-col
+                  config:
+                    class:
+                      - display-flex
+                      - flex-direction-column
+                      - justify-content-space-evenly
+                      - align-items-flex-end
+                    style:
+                      height: calc(100% - 28px)
+                  slots:
+                    default:
+                      - component: oh-slider
+                        config:
+                          color: white
+                          item: =props.item
+                          label: true
+                          max: 100
+                          min: 0
+                          releaseOnly: true
+                          scale: true
+                          scaleSteps: 2
+                          scaleSubSteps: 5
+                          step: 5
+                          style:
+                            --f7-range-bar-active-bg-color: linear-gradient(to top, rgba(246,158,81,0), rgba(246,158,81,0.8))
+                            --f7-range-bar-bg-color: rgba(246, 158, 81, 0.2)
+                            --f7-range-bar-border-radius: 10px
+                            --f7-range-bar-size: 18px
+                            --f7-range-knob-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3)
+                            --f7-range-knob-size: 20px
+                            --f7-range-label-text-color: black
+                          unit: "%"
+                          vertical: true
+                          vertical-reversed: true
+                - component: f7-col
+                  config:
+                    class:
+                      - display-flex
+                      - flex-direction-column
+                      - justify-content-center
+                      - align-items-center
+                    style:
+                      height: calc(100% - 20px)
+                  slots:
+                    default:
+                      - component: oh-link
+                        config:
+                          action: command
+                          actionCommand: UP
+                          actionItem: =props.item
+                          colorTheme: gray
+                          iconF7: arrowtriangle_up
+                          iconSize: 20
+                          style:
+                            background-color: rgba(246, 158, 81, 0.2)
+                            border-radius: 15px 15px 0px 0px
+                            padding: 10px
+                      - component: oh-link
+                        config:
+                          action: command
+                          actionCommand: STOP
+                          actionItem: =props.item
+                          iconF7: stop
+                          iconSize: 20
+                          style:
+                            background-color: rgba(246, 158, 81, 0.2)
+                            padding: 10px
+                      - component: oh-link
+                        config:
+                          action: command
+                          actionCommand: DOWN
+                          actionItem: =props.item
+                          colorTheme: gray
+                          iconF7: arrowtriangle_down
+                          iconSize: 20
+                          style:
+                            background-color: rgba(246, 158, 81, 0.2)
+                            border-radius: 0px 0px 15px 15px
+                            padding: 10px
+          - component: f7-row
+            config:
+              class:
+                - display-flex
+                - justify-content-space-evenly
+                - align-items-center
+              style:
+                height: 25px
+            slots:
+              default:
+                - component: oh-link
+                  config:
+                    action: popup
+                    actionModal: widget:preset_popup_v2
+                    actionModalConfig:
+                      add_preset: RSPreset_Add
+                      add_trans: Neues Preset
+                      apply_trans: Anwenden
+                      close_trans: Schließen
+                      delete_preset: RSPreset_Remove
+                      delete_trans: Löschen
+                      position: =props.item
+                      presets: RSPreset_Stored
+                    text: Presets
+    - component: f7-card-footer
+      slots:
+        default:
+          - component: f7-row
+            config:
+              class:
+                - display-flex
+                - justify-content-space-between
+                - align-items-center
+              style:
+                width: 100%
+            slots:
+              default:
+                - component: Label
+                  config:
+                    text: "='Fenster: ' + items['FS' + props.item].displayState"
+                - component: f7-row
+                  config:
+                    class:
+                      - display-flex
+                      - align-items-center
+                    style:
+                      gap: 8px
+                  slots:
+                    default:
+                      - component: Label
+                        config:
+                          text: Automatik
+                      - component: oh-toggle
+                        config:
+                          item: =props.item + '_Auto'
