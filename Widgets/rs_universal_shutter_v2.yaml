@@ -194,4 +194,3 @@ slots:
                       - component: oh-toggle
                         config:
                           item: =props.item + '_Auto'
-
