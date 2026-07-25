@@ -1,4 +1,3 @@
-https://community.openhab.org/t/changing-the-name-of-a-widget/126982/10
 uid: rs-universal-shutter
 tags:
   - marketplace:116270
@@ -47,9 +46,17 @@ slots:
                 - component: f7-block-header
                   slots:
                     default:
-                      - component: Label
+                      - component: oh-repeater
                         config:
-                          text: "=items[props.item].label + ' - ' + items[props.item].displayState"
+                          for: shutteritem
+                          sourceType: itemsWithTags
+                          itemTags: Blinds
+                          filter: loop.shutteritem.name == props.item
+                        slots:
+                          default:
+                            - component: Label
+                              config:
+                                text: =loop.shutteritem.label + ' - ' + items[props.item].displayState
           - component: f7-row
             config:
               class:
@@ -195,3 +202,4 @@ slots:
                       - component: oh-toggle
                         config:
                           item: =props.item + '_Auto'
+
