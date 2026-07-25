@@ -205,10 +205,10 @@ widgets:
                         default:
                           - component: Label
                             config:
-                              text: Automatik
+                              text: Auto-Up
                           - component: oh-toggle
                             config:
-                              item: "=props.item + '_Auto'"
+                              item: "=props.item + '_AutoUp'"
               - component: f7-row
                 config:
                   class:
@@ -228,12 +228,12 @@ widgets:
                           gap: 8px
                       slots:
                         default:
-                          - component: Label
-                            config:
-                              text: Öffnen
-                          - component: oh-toggle
-                            config:
-                              item: "=props.item + '_AutoUp'"
+                        - component: Label
+                          config:
+                            text: Automatik
+                        - component: oh-toggle
+                          config:
+                            item: "=props.item + '_Auto'"
                     - component: f7-row
                       config:
                         class:
@@ -245,7 +245,7 @@ widgets:
                         default:
                           - component: Label
                             config:
-                              text: Schließen
+                              text: Auto-Down
                           - component: oh-toggle
                             config:
                               item: "=props.item + '_AutoDown'"
