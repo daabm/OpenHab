@@ -1,173 +1,153 @@
-uid: rs-down-cycle-config
-tags:
-  - rollershutter
-  - config
-props:
-  parameters:
-    - name: group
-      label: Rollershutter group
-      description: Base rollershutter group, for example RSEG, RSOG1, RSOG2
-      type: TEXT
-      context: item
-      required: true
-
-    - name: title
-      label: Title
-      description: Optional widget title
-      type: TEXT
-      required: false
-
-    - name: triggerItem
-      label: Trigger item
-      description: Astro DateTime item that starts this down cycle
-      type: TEXT
-      context: item
-      required: false
-
-    - name: referenceItem
-      label: Reference item
-      description: Rollershutter item used to detect manual reopening
-      type: TEXT
-      context: item
-      required: false
-
-    - name: temperatureItem
-      label: Temperature item
-      description: Temperature item checked when the cycle trigger fires
-      type: TEXT
-      context: item
-      required: false
-
-  parameterGroups: []
-
-timestamp: Jan 01, 2026, 00:00:00
-component: oh-list-card
-config:
-  title: "=props.title ? props.title : props.group + ' Schließzyklus'"
-
-slots:
-  default:
-    - component: oh-toggle-item
-      config:
-        title: Schließzyklus aktiv
-        subtitle: "=props.group + '_DownCycleEnabled'"
-        item: "=props.group + '_DownCycleEnabled'"
-
-    - component: oh-list-item
-      config:
-        title: Trigger Item
-        subtitle: "='Selected in widget config: ' + (props.triggerItem || 'not selected')"
-        after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
-        footer: Tap to apply the selected widget trigger item
-        action: command
-        actionItem: "=props.group + '_DownCycleTriggerItem'"
-        actionCommand: "=props.triggerItem"
-        visible: "=!!props.triggerItem"
-
-    - component: oh-list-item
-      config:
-        title: Trigger Item
-        subtitle: Not selected in widget config
-        after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
-        visible: "=!props.triggerItem"
-
-    - component: oh-stepper-item
-      config:
-        title: Dauer
-        subtitle: Gesamtdauer des Schließzyklus in Minuten
-        item: "=props.group + '_DownCycleTime'"
-        min: 0
-        max: 240
-        step: 5
-        autorepeat: true
-        autorepeatDynamic: false
-
-    - component: oh-stepper-item
-      config:
-        title: Schritte
-        subtitle: Anzahl der Schließschritte
-        item: "=props.group + '_DownCycleSteps'"
-        min: 1
-        max: 30
-        step: 1
-        autorepeat: true
-        autorepeatDynamic: false
-
-    - component: oh-list-item
-      config:
-        title: Referenz Item
-        subtitle: "='Selected in widget config: ' + (props.referenceItem || 'not selected')"
-        after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
-        footer: Tap to apply the selected widget reference item
-        action: command
-        actionItem: "=props.group + '_DownCycleReferenceItem'"
-        actionCommand: "=props.referenceItem"
-        visible: "=!!props.referenceItem"
-
-    - component: oh-list-item
-      config:
-        title: Referenz Item
-        subtitle: Not selected in widget config
-        after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
-        visible: "=!props.referenceItem"
-
-    - component: oh-stepper-item
-      config:
-        title: Referenztoleranz
-        subtitle: Toleranz für manuelle Wiederöffnung in Prozentpunkten
-        item: "=props.group + '_DownCycleReferenceTolerance'"
-        min: 0
-        max: 50
-        step: 1
-        autorepeat: true
-        autorepeatDynamic: false
-
-    - component: oh-list-item
-      config:
-        title: Temperatur Item
-        subtitle: "='Selected in widget config: ' + (props.temperatureItem || 'not selected')"
-        after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
-        footer: Tap to apply the selected widget temperature item
-        action: command
-        actionItem: "=props.group + '_DownCycleTemperatureItem'"
-        actionCommand: "=props.temperatureItem"
-        visible: "=!!props.temperatureItem"
-
-    - component: oh-list-item
-      config:
-        title: Temperatur Item
-        subtitle: Not selected in widget config
-        after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
-        visible: "=!props.temperatureItem"
-
-    - component: oh-stepper-item
-      config:
-        title: Aktionstemperatur
-        subtitle: Schließzyklus startet nur unterhalb dieser Temperatur
-        item: "=props.group + '_DownCycleActionTemperature'"
-        min: -20
-        max: 40
-        step: 0.5
-        autorepeat: true
-        autorepeatDynamic: false
-
-    - component: oh-list-item
-      config:
-        title: Aktive Konfiguration
-        subtitle: "=props.group"
-        after: "=items[props.group + '_DownCycleEnabled'] ? items[props.group + '_DownCycleEnabled'].state : '-'"
-
-    - component: oh-list-item
-      config:
-        title: Trigger
-        after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
-
-    - component: oh-list-item
-      config:
-        title: Referenz
-        after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
-
-    - component: oh-list-item
-      config:
-        title: Temperaturquelle
-        after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
+version: 1
+widgets:
+  rs-down-cycle-config:
+    tags:
+      - rollershutter
+      - config
+    props:
+      parameters:
+        - context: item
+          description: Base rollershutter group, for example RSEG, RSOG1, RSOG2
+          label: Rollershutter group
+          name: group
+          required: true
+          type: TEXT
+        - description: Optional widget title
+          label: Title
+          name: title
+          required: false
+          type: TEXT
+        - context: item
+          description: Astro DateTime item that starts this down cycle
+          label: Trigger item
+          name: triggerItem
+          required: false
+          type: TEXT
+        - context: item
+          description: Rollershutter item used to detect manual reopening
+          label: Reference item
+          name: referenceItem
+          required: false
+          type: TEXT
+        - context: item
+          description: Temperature item checked when the cycle trigger fires
+          label: Temperature item
+          name: temperatureItem
+          required: false
+          type: TEXT
+      parameterGroups: []
+    component: oh-list-card
+    config:
+      title: "=props.title ? props.title : props.group + ' Schließzyklus'"
+    slots:
+      default:
+        - component: oh-toggle-item
+          config:
+            title: Schließzyklus aktiv
+            subtitle: =props.group + '_DownCycleEnabled'
+            item: =props.group + '_DownCycleEnabled'
+        - component: oh-list-item
+          config:
+            title: Trigger Item
+            subtitle: "='Selected in widget config: ' + (props.triggerItem || 'not selected')"
+            after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
+            footer: Tap to apply the selected widget trigger item
+            action: command
+            actionItem: =props.group + '_DownCycleTriggerItem'
+            actionCommand: =props.triggerItem
+            visible: =!!props.triggerItem
+        - component: oh-list-item
+          config:
+            title: Trigger Item
+            subtitle: Not selected in widget config
+            after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
+            visible: =!props.triggerItem
+        - component: oh-stepper-item
+          config:
+            title: Dauer
+            subtitle: Gesamtdauer des Schließzyklus in Minuten
+            item: =props.group + '_DownCycleTime'
+            min: 0
+            max: 240
+            step: 5
+            autorepeat: true
+            autorepeatDynamic: false
+        - component: oh-stepper-item
+          config:
+            title: Schritte
+            subtitle: Anzahl der Schließschritte
+            item: =props.group + '_DownCycleSteps'
+            min: 1
+            max: 30
+            step: 1
+            autorepeat: true
+            autorepeatDynamic: false
+        - component: oh-list-item
+          config:
+            title: Referenz Item
+            subtitle: "='Selected in widget config: ' + (props.referenceItem || 'not selected')"
+            after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
+            footer: Tap to apply the selected widget reference item
+            action: command
+            actionItem: =props.group + '_DownCycleReferenceItem'
+            actionCommand: =props.referenceItem
+            visible: =!!props.referenceItem
+        - component: oh-list-item
+          config:
+            title: Referenz Item
+            subtitle: Not selected in widget config
+            after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
+            visible: =!props.referenceItem
+        - component: oh-stepper-item
+          config:
+            title: Referenztoleranz
+            subtitle: Toleranz für manuelle Wiederöffnung in Prozentpunkten
+            item: =props.group + '_DownCycleReferenceTolerance'
+            min: 0
+            max: 10
+            step: 1
+            autorepeat: true
+            autorepeatDynamic: false
+        - component: oh-list-item
+          config:
+            title: Temperatur Item
+            subtitle: "='Selected in widget config: ' + (props.temperatureItem || 'not selected')"
+            after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
+            footer: Tap to apply the selected widget temperature item
+            action: command
+            actionItem: =props.group + '_DownCycleTemperatureItem'
+            actionCommand: =props.temperatureItem
+            visible: =!!props.temperatureItem
+        - component: oh-list-item
+          config:
+            title: Temperatur Item
+            subtitle: Not selected in widget config
+            after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
+            visible: =!props.temperatureItem
+        - component: oh-stepper-item
+          config:
+            title: Aktionstemperatur
+            subtitle: Schließzyklus startet nur unterhalb dieser Temperatur
+            item: =props.group + '_DownCycleActionTemperature'
+            min: 10
+            max: 20
+            step: 0.5
+            autorepeat: true
+            autorepeatDynamic: false
+        - component: oh-list-item
+          config:
+            title: Aktive Konfiguration
+            subtitle: =props.group
+            after: "=items[props.group + '_DownCycleEnabled'] ? items[props.group + '_DownCycleEnabled'].state : '-'"
+        - component: oh-list-item
+          config:
+            title: Trigger
+            after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
+        - component: oh-list-item
+          config:
+            title: Referenz
+            after: "=items[props.group + '_DownCycleReferenceItem'] ? items[props.group + '_DownCycleReferenceItem'].state : '-'"
+        - component: oh-list-item
+          config:
+            title: Temperaturquelle
+            after: "=items[props.group + '_DownCycleTemperatureItem'] ? items[props.group + '_DownCycleTemperatureItem'].state : '-'"
