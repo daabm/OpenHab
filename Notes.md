@@ -1,3 +1,6 @@
+
+# Testing
+
 A reliable test should be staged so you first prove the configuration/timing logic, then only later allow real shutters to move.
 
 ## 1. Enable useful logging
@@ -447,7 +450,7 @@ RSOG2: invalid up-cycle reference tolerance: -1.
 I would test in this order:
 
 | Test | Purpose | Expected result |
-|---|---|---|
+| --- | --- | --- |
 | Rule loads | Syntax/API check | No automation load errors |
 | Floor disabled | Safety check | Rule logs disabled floor |
 | Start time next minute | Scheduler check | Cycle starts exactly once |
