@@ -1,1 +1,462 @@
+A reliable test should be staged so you first prove the configuration/timing logic, then only later allow real shutters to move.
+
+## 1. Enable useful logging
+
+For testing, set the logger to `DEBUG` or `TRACE` if needed.
+
+In the openHAB console:
+
+```text console
+log:set DEBUG org.openhab.automation.script.rs_up_timer_patterns
+```
+
+After testing:
+
+```text console
+log:set INFO org.openhab.automation.script.rs_up_timer_patterns
+```
+
+Then watch:
+
+```text console
+log:tail
+```
+
+or your `openhab.log`.
+
+---
+
+## 2. Start with all floor cycles disabled
+
+Before testing, make sure only one floor can run.
+
+Set these to `OFF`:
+
+```text
+RSEG_UpCycleEnabled
+RSOG1_UpCycleEnabled
+RSOG2_UpCycleEnabled
+```
+
+Then enable only the floor you want to test, for example:
+
+```text
+RSOG2_UpCycleEnabled = ON
+```
+
+Also disable all room-specific automation switches except one safe room/shutter if you want to avoid moving many shutters:
+
+```text
+RSOG2Kind_Auto = OFF
+RSOG2Kind_AutoUp = OFF
+RSOG2Schlaf_Auto = ON
+RSOG2Schlaf_AutoUp = ON
+```
+
+The rule only commands shutters where both are `ON`:
+
+```text
+<room>_Auto == ON
+<room>_AutoUp == ON
+```
+
+So this is your main safety mechanism.
+
+---
+
+## 3. Test configuration parsing without moving shutters
+
+Set the floor cycle enabled item to `OFF`, then set different config values and wait for the minute cron.
+
+Example:
+
+```text
+RSOG2_UpCycleEnabled = OFF
+RSOG2_UpCycleStartTimeWeekday = 09:30
+RSOG2_UpCycleTime = 60
+RSOG2_UpCycleSteps = 7
+RSOG2_UpCycleReferenceItem = SchlafL
+RSOG2_UpCycleReferenceTolerance = 5
+```
+
+Expected log:
+
+```text
+RSOG2: up-cycle rule disabled because RSOG2_UpCycleEnabled is OFF.
+```
+
+This confirms that the rule is evaluating the floor but not starting.
+
+---
+
+## 4. Test start-time matching
+
+Set the relevant start-time item to the next minute.
+
+Example: if current local time is `14:26`, set:
+
+```text
+RSOG2_UpCycleStartTimeWeekday = 14:27
+RSOG2_UpCycleEnabled = ON
+```
+
+Then wait for the next minute.
+
+Expected log around `14:27`:
+
+```text
+Checking up-cycle start times. Reason: minute-check, dayType=weekday, currentTime=14:27.
+RSOG2: starting up pattern. Reason: weekday-14:27. startTime=14:27, ...
+```
+
+If it does not start, check the log line showing:
+
+```text
+configured weekday start time is ..., current time is ...
+```
+
+---
+
+## 5. Test the MainUI `time` input normalization
+
+Because your widget may write DateTime-like values such as:
+
+```text
 2026-07-26T09:30:00+02:00
+```
+
+test these values directly in the start-time String item.
+
+Examples to test:
+
+```text
+09:30
+09:30:00
+2026-07-26T09:30:00+02:00
+2026-07-26T07:30:00Z
+```
+
+For each value, set it to the current or next local minute equivalent.
+
+Expected behavior:
+
+- `09:30` becomes `09:30`
+- `09:30:00` becomes `09:30`
+- `2026-07-26T09:30:00+02:00` becomes local `09:30` on a `+02:00` system
+- `2026-07-26T07:30:00Z` becomes local `09:30` on a `+02:00` system
+
+Important: your current file still validates using `isValidStartTime(startTime)`, but returns the original `startTime` value from `getUpCycleConfig()`. For DateTime-like values, validation succeeds, but `cycleConfig.startTime` may still be the unnormalized raw value, so the comparison against `currentTime` can fail.
+
+You should change `getUpCycleConfig()` so it returns the normalized value.
+
+You can use the Apply Button on the code block, or switch to Agent Mode to make the update automatically.
+
+```javascript Config/automation/js/rs_up_timer_patterns.js
+// ... existing code ...
+
+function getUpCycleConfig(floorGroupItemName, dayType) {
+  const startTimeConfigName = getUpCycleStartTimeConfigName(dayType);
+  const startTimeDefaultName = getUpCycleStartTimeDefaultName(dayType);
+
+  const rawStartTime = getConfiguredStringOrDefault(
+    getUpCycleConfigItemName(floorGroupItemName, startTimeConfigName),
+    UP_CYCLE_DEFAULTS[startTimeDefaultName],
+  );
+
+  const startTime = normalizeUpCycleStartTime(rawStartTime);
+
+  // ... existing code ...
+
+  if (!startTime) {
+    logger.warn(
+      "{}: invalid up-cycle start time for {}: {}.",
+      floorGroupItemName,
+      dayType,
+      rawStartTime,
+    );
+    return null;
+  }
+
+  // ... rest of function ...
+
+  return {
+    startTime,
+    totalTimeMinutes,
+    stepCount,
+    referenceItemName: resolveReferenceItemName(
+      floorGroupItemName,
+      configuredReferenceItemName,
+    ),
+    referenceTolerance,
+  };
+}
+
+// ... rest of code ...
+```
+
+Without this change, the normalization test is not fully reliable.
+
+---
+
+## 6. Test with a very short harmless cycle
+
+Use a small test cycle:
+
+```text
+RSOG2_UpCycleTime = 2
+RSOG2_UpCycleSteps = 3
+RSOG2_UpCycleReferenceTolerance = 5
+```
+
+This should schedule roughly:
+
+```text
+Step 1: target 67%
+Step 2: target 33%
+Step 3: target 0%
+```
+
+Because your function calculates:
+
+```text
+step 1 -> around 67
+step 2 -> around 33
+step 3 -> 0
+```
+
+Expected logs:
+
+```text
+RSOG2: scheduling step 1/3 with delay 0 seconds, target 67%.
+RSOG2: step 1/3 - reference=RSOG2SchlafL=100%, target=67%, tolerance=5%.
+RSOG2: sending 67% to shutter RSOG2SchlafL.
+RSOG2: scheduling step 2/3 with delay 60 seconds, target 33%.
+...
+```
+
+For an even safer first run, use:
+
+```text
+RSOG2_UpCycleSteps = 1
+RSOG2_UpCycleTime = 0
+```
+
+This performs one immediate command to `0%`, so only use that if opening fully is acceptable.
+
+---
+
+## 7. Test reference item resolution
+
+Test both supported formats.
+
+### Relative suffix
+
+```text
+RSOG2_UpCycleReferenceItem = SchlafL
+```
+
+Expected resolved reference:
+
+```text
+RSOG2SchlafL
+```
+
+### Full item name
+
+```text
+RSOG2_UpCycleReferenceItem = RSOG2SchlafL
+```
+
+Expected resolved reference:
+
+```text
+RSOG2SchlafL
+```
+
+The startup log should show:
+
+```text
+referenceItem=RSOG2SchlafL
+```
+
+---
+
+## 8. Test room automation filtering
+
+Pick a test floor, for example `RSOG2`.
+
+Set:
+
+```text
+RSOG2_UpCycleEnabled = ON
+RSOG2Schlaf_Auto = ON
+RSOG2Schlaf_AutoUp = ON
+RSOG2Kind_Auto = OFF
+RSOG2Kind_AutoUp = ON
+```
+
+Expected:
+
+```text
+RSOG2Schlaf... shutters are commanded.
+RSOG2Kind... shutters are skipped.
+```
+
+Expected log for skipped shutters:
+
+```text
+RSOG2: skipping shutter RSOG2KindL because RSOG2Kind_Auto is OFF.
+```
+
+Then test:
+
+```text
+RSOG2Kind_Auto = ON
+RSOG2Kind_AutoUp = OFF
+```
+
+Expected:
+
+```text
+RSOG2: skipping shutter RSOG2KindL because RSOG2Kind_AutoUp is OFF.
+```
+
+This confirms that floor-level `RSOG2_AutoUp` is not used for execution.
+
+---
+
+## 9. Test already-open skip behavior
+
+If a shutter is already more open than the target, it should not be commanded.
+
+Example:
+
+```text
+RSOG2SchlafL = 20
+targetLevel = 67
+```
+
+Because `20 <= 67`, the rule should skip it.
+
+Expected log:
+
+```text
+RSOG2: shutter RSOG2SchlafL already at 20%, target is 67%, skipping command.
+```
+
+This is correct because:
+
+```text
+0   = open
+100 = closed
+```
+
+---
+
+## 10. Test manual re-closing cancellation
+
+Use a multi-step cycle:
+
+```text
+RSOG2_UpCycleTime = 2
+RSOG2_UpCycleSteps = 3
+RSOG2_UpCycleReferenceTolerance = 5
+```
+
+Let step 1 run. Suppose step 1 target is `67`.
+
+Before step 2 runs, manually close the reference shutter above:
+
+```text
+67 + tolerance = 72
+```
+
+For example, set or move the reference shutter to:
+
+```text
+80
+```
+
+Expected log at the next step:
+
+```text
+RSOG2: reference RSOG2SchlafL is at 80%, above previous scheduled level 67% plus tolerance 5%. Assuming manual re-closing.
+RSOG2: cancelled up pattern timer. Reason: manual re-closing detected
+```
+
+This confirms the cancellation logic.
+
+---
+
+## 11. Test invalid configuration handling
+
+Use intentionally invalid values.
+
+### Invalid time
+
+```text
+RSOG2_UpCycleStartTimeWeekday = 25:99
+```
+
+Expected:
+
+```text
+RSOG2: invalid up-cycle start time for weekday: 25:99.
+```
+
+### Invalid steps
+
+```text
+RSOG2_UpCycleSteps = 0
+```
+
+Expected:
+
+```text
+RSOG2: invalid up-cycle step count: 0.
+```
+
+### Invalid duration
+
+```text
+RSOG2_UpCycleTime = -1
+```
+
+Expected:
+
+```text
+RSOG2: invalid up-cycle total time: -1.
+```
+
+### Invalid reference tolerance
+
+```text
+RSOG2_UpCycleReferenceTolerance = -1
+```
+
+Expected:
+
+```text
+RSOG2: invalid up-cycle reference tolerance: -1.
+```
+
+---
+
+## 12. Recommended minimum test matrix
+
+I would test in this order:
+
+| Test | Purpose | Expected result |
+|---|---|---|
+| Rule loads | Syntax/API check | No automation load errors |
+| Floor disabled | Safety check | Rule logs disabled floor |
+| Start time next minute | Scheduler check | Cycle starts exactly once |
+| DateTime-like start time | Widget compatibility | Normalized local `HH:mm` works |
+| One room enabled | Filtering check | Only that room’s shutters move |
+| `_Auto = OFF` | Master disable check | Shutter skipped |
+| `_AutoUp = OFF` | Up automation disable check | Shutter skipped |
+| Short 3-step cycle | Timer logic | Steps scheduled and executed |
+| Manual re-closing | Cancellation logic | Timer cancelled |
+| Invalid config | Robustness | Warning, no start |
+
+The most important fix before testing MainUI `time` values is to make `getUpCycleConfig()` return the normalized `startTime`; otherwise DateTime-like values can validate but still not match the current `HH:mm`.
