@@ -40,6 +40,17 @@ widgets:
             subtitle: "=props.group + '_UpCycleEnabled'"
             item: "=props.group + '_UpCycleEnabled'"
 
+        - component: oh-list-item
+          config:
+            title: Öffnungszyklus manuell auslösen
+            subtitle: "='Send manual trigger: ' + props.group"
+            footer: Startet den Öffnungszyklus sofort und ignoriert die konfigurierte Startzeit
+            icon: f7:play_circle
+            action: command
+            actionItem: RS_UpCycleManualTrigger
+            actionCommand: "=props.group"
+            visible: "=!!props.group"
+            
         - component: oh-input-item
           config:
             title: Startzeit Werktag
