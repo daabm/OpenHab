@@ -62,6 +62,16 @@ widgets:
             subtitle: Not selected in widget config
             after: "=items[props.group + '_DownCycleTriggerItem'] ? items[props.group + '_DownCycleTriggerItem'].state : '-'"
             visible: =!props.triggerItem
+        - component: oh-list-item
+          config:
+            title: Schließzyklus manuell auslösen
+            subtitle: "='Send manual trigger: ' + props.triggerItem"
+            footer: This runs the rule as if the configured trigger item fired
+            icon: f7:play_circle
+            action: command
+            actionItem: RS_DownCycleManualTrigger
+            actionCommand: =props.triggerItem
+            visible: =!!props.triggerItem
         - component: oh-stepper-item
           config:
             title: Dauer
