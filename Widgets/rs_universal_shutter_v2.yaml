@@ -56,7 +56,7 @@ widgets:
                             config:
                               for: shutter
                               sourceType: itemsWithTags
-                              itemTags: Blinds
+                              itemTags: RSWidgetLabel
                               filter: loop.shutter.name == props.item
                             slots:
                               default:
