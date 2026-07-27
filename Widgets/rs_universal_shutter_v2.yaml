@@ -16,6 +16,11 @@ widgets:
           name: title
           required: false
           type: TEXT
+        - description: Enable when this widget controls a floor-level shutter group. Floor widgets show only Auto; room widgets show only Up and Down.
+          label: Is floor
+          name: isFloor
+          required: false
+          type: BOOLEAN
       parameterGroups: []
     component: f7-card
     config:
@@ -185,74 +190,9 @@ widgets:
                 config:
                   class:
                     - display-flex
-                    - justify-content-space-between
-                    - align-items-center
+                    - flex-direction-column
                   style:
-                    width: 100%
-                slots:
-                  default:
-                    - component: Label
-                      config:
-                        text: "='Fenster: ' + items['FS' + props.item.substring(2)].displayState"
-                    - component: f7-row
-                      config:
-                        class:
-                          - display-flex
-                          - align-items-center
-                        style:
-                          gap: 8px
-                      slots:
-                        default:
-                          - component: oh-link
-                            config:
-                              popoverOpen: "='#auto-up-help-popover-' + props.item"
-                              style:
-                                align-items: center
-                                color: inherit
-                                cursor: pointer
-                                display: flex
-                                gap: 6px
-                                text-decoration: none
-                            slots:
-                              default:
-                                - component: Label
-                                  config:
-                                    text: Up
-                                - component: oh-icon
-                                  config:
-                                    icon: f7:info_circle
-                                    style:
-                                      font-size: 16px
-                                      opacity: 0.7
-                                - component: f7-popover
-                                  config:
-                                    id: "='auto-up-help-popover-' + props.item"
-                                    closeByBackdropClick: true
-                                    closeByOutsideClick: true
-                                    style:
-                                      width: 280px
-                                  slots:
-                                    default:
-                                      - component: f7-block
-                                        slots:
-                                          default:
-                                            - component: Label
-                                              config:
-                                                text: "Öffnungsautomatik: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch öffnen. Wenn deaktiviert, bleiben automatische Öffnungsregeln für diese Gruppe dauerhaft deaktiviert."
-                                                style:
-                                                  margin: 12px
-                                                  font-size: 14px
-                                                  white-space: normal
-                          - component: oh-toggle
-                            config:
-                              item: "=props.item + '_AutoUp'"
-              - component: f7-row
-                config:
-                  class:
-                    - display-flex
-                    - justify-content-space-between
-                    - align-items-center
-                  style:
+                    gap: 6px
                     width: 100%
                 slots:
                   default:
@@ -260,104 +200,184 @@ widgets:
                       config:
                         class:
                           - display-flex
+                          - justify-content-flex-start
                           - align-items-center
                         style:
-                          gap: 8px
+                          width: 100%
                       slots:
                         default:
-                          - component: oh-link
+                          - component: Label
                             config:
-                              popoverOpen: "='#auto-help-popover-' + props.item"
-                              style:
-                                align-items: center
-                                color: inherit
-                                cursor: pointer
-                                display: flex
-                                gap: 6px
-                                text-decoration: none
-                            slots:
-                              default:
-                                - component: Label
-                                  config:
-                                    text: Auto
-                                - component: oh-icon
-                                  config:
-                                    icon: f7:info_circle
-                                    style:
-                                      font-size: 16px
-                                      opacity: 0.7
-                                - component: f7-popover
-                                  config:
-                                    id: "='auto-help-popover-' + props.item"
-                                    closeByBackdropClick: true
-                                    closeByOutsideClick: true
-                                    style:
-                                      width: 280px
-                                  slots:
-                                    default:
-                                      - component: f7-block
-                                        slots:
-                                          default:
-                                            - component: Label
-                                              config:
-                                                text: "Automatischer Modus: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch öffnen und schließen. Dieser Schalter ist als temporäre Deaktivierung gedacht und wird täglich zurückgesetzt."
-                                                style:
-                                                  margin: 12px
-                                                  font-size: 14px
-                                                  white-space: normal
-                          - component: oh-toggle
-                            config:
-                              item: "=props.item + '_Auto'"
+                              text: "='Fenster: ' + items['FS' + props.item.substring(2)].displayState"
 
                     - component: f7-row
                       config:
                         class:
                           - display-flex
+                          - justify-content-space-between
                           - align-items-center
                         style:
-                          gap: 8px
+                          width: 100%
                       slots:
                         default:
-                          - component: oh-link
+                          - component: f7-row
                             config:
-                              popoverOpen: "='#auto-down-help-popover-' + props.item"
+                              visible: =props.isFloor != true
+                              class:
+                                - display-flex
+                                - align-items-center
                               style:
-                                align-items: center
-                                color: inherit
-                                cursor: pointer
-                                display: flex
-                                gap: 6px
-                                text-decoration: none
+                                gap: 8px
                             slots:
                               default:
-                                - component: Label
+                                - component: oh-link
                                   config:
-                                    text: Down
-                                - component: oh-icon
-                                  config:
-                                    icon: f7:info_circle
+                                    popoverOpen: "='#auto-up-help-popover-' + props.item"
                                     style:
-                                      font-size: 16px
-                                      opacity: 0.7
-                                - component: f7-popover
-                                  config:
-                                    id: "='auto-down-help-popover-' + props.item"
-                                    closeByBackdropClick: true
-                                    closeByOutsideClick: true
-                                    style:
-                                      width: 280px
+                                      align-items: center
+                                      color: inherit
+                                      cursor: pointer
+                                      display: flex
+                                      gap: 6px
+                                      text-decoration: none
                                   slots:
                                     default:
-                                      - component: f7-block
+                                      - component: Label
+                                        config:
+                                          text: Up
+                                      - component: oh-icon
+                                        config:
+                                          icon: f7:info_circle
+                                          style:
+                                            font-size: 16px
+                                            opacity: 0.7
+                                      - component: f7-popover
+                                        config:
+                                          id: "='auto-up-help-popover-' + props.item"
+                                          closeByBackdropClick: true
+                                          closeByOutsideClick: true
+                                          style:
+                                            width: 280px
                                         slots:
                                           default:
-                                            - component: Label
-                                              config:
-                                                text: "Schließautomatik: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch schließen. Wenn deaktiviert, bleiben automatische Schließregeln für diese Gruppe dauerhaft deaktiviert."
-                                                style:
-                                                  margin: 12px
-                                                  font-size: 14px
-                                                  white-space: normal
-                          - component: oh-toggle
+                                            - component: f7-block
+                                              slots:
+                                                default:
+                                                  - component: Label
+                                                    config:
+                                                      text: "Öffnungsautomatik: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch öffnen. Wenn deaktiviert, bleiben automatische Öffnungsregeln für diese Gruppe dauerhaft deaktiviert."
+                                                      style:
+                                                        margin: 12px
+                                                        font-size: 14px
+                                                        white-space: normal
+                                - component: oh-toggle
+                                  config:
+                                    item: "=props.item + '_AutoUp'"
+
+                          - component: f7-row
                             config:
-                              item: "=props.item + '_AutoDown'"
+                              visible: =props.isFloor = true
+                              class:
+                                - display-flex
+                                - align-items-center
+                              style:
+                                gap: 8px
+                            slots:
+                              default:
+                                - component: oh-link
+                                  config:
+                                    popoverOpen: "='#auto-help-popover-' + props.item"
+                                    style:
+                                      align-items: center
+                                      color: inherit
+                                      cursor: pointer
+                                      display: flex
+                                      gap: 6px
+                                      text-decoration: none
+                                  slots:
+                                    default:
+                                      - component: Label
+                                        config:
+                                          text: Auto
+                                      - component: oh-icon
+                                        config:
+                                          icon: f7:info_circle
+                                          style:
+                                            font-size: 16px
+                                            opacity: 0.7
+                                      - component: f7-popover
+                                        config:
+                                          id: "='auto-help-popover-' + props.item"
+                                          closeByBackdropClick: true
+                                          closeByOutsideClick: true
+                                          style:
+                                            width: 280px
+                                        slots:
+                                          default:
+                                            - component: f7-block
+                                              slots:
+                                                default:
+                                                  - component: Label
+                                                    config:
+                                                      text: "Automatischer Modus: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch öffnen und schließen. Dieser Schalter ist als temporäre Deaktivierung gedacht und wird täglich zurückgesetzt."
+                                                      style:
+                                                        margin: 12px
+                                                        font-size: 14px
+                                                        white-space: normal
+                                - component: oh-toggle
+                                  config:
+                                    item: "=props.item + '_Auto'"
+
+                          - component: f7-row
+                            config:
+                              visible: =props.isFloor != true
+                              class:
+                                - display-flex
+                                - align-items-center
+                              style:
+                                gap: 8px
+                            slots:
+                              default:
+                                - component: oh-link
+                                  config:
+                                    popoverOpen: "='#auto-down-help-popover-' + props.item"
+                                    style:
+                                      align-items: center
+                                      color: inherit
+                                      cursor: pointer
+                                      display: flex
+                                      gap: 6px
+                                      text-decoration: none
+                                  slots:
+                                    default:
+                                      - component: Label
+                                        config:
+                                          text: Down
+                                      - component: oh-icon
+                                        config:
+                                          icon: f7:info_circle
+                                          style:
+                                            font-size: 16px
+                                            opacity: 0.7
+                                      - component: f7-popover
+                                        config:
+                                          id: "='auto-down-help-popover-' + props.item"
+                                          closeByBackdropClick: true
+                                          closeByOutsideClick: true
+                                          style:
+                                            width: 280px
+                                        slots:
+                                          default:
+                                            - component: f7-block
+                                              slots:
+                                                default:
+                                                  - component: Label
+                                                    config:
+                                                      text: "Schließautomatik: Wenn aktiviert, darf das System Rollläden dieser Gruppe automatisch schließen. Wenn deaktiviert, bleiben automatische Schließregeln für diese Gruppe dauerhaft deaktiviert."
+                                                      style:
+                                                        margin: 12px
+                                                        font-size: 14px
+                                                        white-space: normal
+                                - component: oh-toggle
+                                  config:
+                                    item: "=props.item + '_AutoDown'"
