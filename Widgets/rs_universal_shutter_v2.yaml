@@ -200,27 +200,52 @@ widgets:
                     - component: f7-col
                       config:
                         style:
-                          align-items: flex-start
+                          align-items: center
                           display: flex
-                          flex: 1 1 auto
+                          flex: 0 0 40%
+                          flex-direction: column
                           justify-content: flex-start
-                          max-width: 45%
+                          max-width: 40%
+                          width: 40%
                       slots:
                         default:
-                          - component: Label
+                          - component: f7-row
                             config:
-                              text: "='Fenster: ' + items['FS' + props.item.substring(2)].displayState"
+                              style:
+                                display: flex
+                                justify-content: center
+                                text-align: center
+                                width: 100%
+                            slots:
+                              default:
+                                - component: Label
+                                  config:
+                                    text: Fenster
+
+                          - component: f7-row
+                            config:
+                              style:
+                                display: flex
+                                justify-content: center
+                                text-align: center
+                                width: 100%
+                            slots:
+                              default:
+                                - component: Label
+                                  config:
+                                    text: "=items['FS' + props.item.substring(2)].displayState"
 
                     - component: f7-col
                       config:
                         style:
                           align-items: flex-end
                           display: flex
-                          flex: 1 1 auto
+                          flex: 0 0 60%
                           flex-direction: column
                           gap: 6px
                           justify-content: flex-start
-                          max-width: 55%
+                          max-width: 60%
+                          width: 60%
                       slots:
                         default:
                           - component: f7-row
