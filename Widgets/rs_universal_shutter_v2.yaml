@@ -180,30 +180,31 @@ widgets:
         - component: f7-card-footer
           config:
             style:
-              align-items: stretch
-              display: flex
-              flex-direction: column
-              gap: 6px
+              align-items: flex-start
+              display: block
+              width: 100%
           slots:
             default:
               - component: f7-row
                 config:
                   class:
                     - display-flex
-                    - flex-direction-column
                   style:
-                    gap: 6px
+                    align-items: flex-start
+                    display: flex
+                    flex-direction: row
+                    flex-wrap: nowrap
                     width: 100%
                 slots:
                   default:
                     - component: f7-col
                       config:
-                        class:
-                          - display-flex
-                          - justify-content-flex-start
-                          - align-items-center
                         style:
-                          width: 100%
+                          align-items: flex-start
+                          display: flex
+                          flex: 1 1 auto
+                          justify-content: flex-start
+                          max-width: 45%
                       slots:
                         default:
                           - component: Label
@@ -212,22 +213,27 @@ widgets:
 
                     - component: f7-col
                       config:
-                        class:
-                          - display-flex
-                          - justify-content-flex-end
-                          - align-items-center
                         style:
-                          width: 100%
+                          align-items: flex-end
+                          display: flex
+                          flex: 1 1 auto
+                          flex-direction: column
+                          gap: 6px
+                          justify-content: flex-start
+                          max-width: 55%
                       slots:
                         default:
                           - component: f7-row
                             config:
-                              visible: =props.isFloor != true
+                              visible: "=props.isFloor === true || props.isFloor === 'true' ? false : true"
                               class:
                                 - display-flex
-                                - align-items-center
                               style:
+                                align-items: center
+                                display: flex
                                 gap: 8px
+                                justify-content: flex-end
+                                width: 100%
                             slots:
                               default:
                                 - component: oh-link
@@ -276,12 +282,15 @@ widgets:
 
                           - component: f7-row
                             config:
-                              visible: =props.isFloor == true
+                              visible: "=props.isFloor === true || props.isFloor === 'true' ? true : false"
                               class:
                                 - display-flex
-                                - align-items-center
                               style:
+                                align-items: center
+                                display: flex
                                 gap: 8px
+                                justify-content: flex-end
+                                width: 100%
                             slots:
                               default:
                                 - component: oh-link
@@ -330,12 +339,15 @@ widgets:
 
                           - component: f7-row
                             config:
-                              visible: =props.isFloor != true
+                              visible: "=props.isFloor === true || props.isFloor === 'true' ? false : true"
                               class:
                                 - display-flex
-                                - align-items-center
                               style:
+                                align-items: center
+                                display: flex
                                 gap: 8px
+                                justify-content: flex-end
+                                width: 100%
                             slots:
                               default:
                                 - component: oh-link
