@@ -196,7 +196,7 @@ widgets:
                     width: 100%
                 slots:
                   default:
-                    - component: f7-row
+                    - component: f7-col
                       config:
                         class:
                           - display-flex
@@ -210,11 +210,11 @@ widgets:
                             config:
                               text: "='Fenster: ' + items['FS' + props.item.substring(2)].displayState"
 
-                    - component: f7-row
+                    - component: f7-col
                       config:
                         class:
                           - display-flex
-                          - justify-content-space-between
+                          - justify-content-flex-end
                           - align-items-center
                         style:
                           width: 100%
@@ -276,7 +276,7 @@ widgets:
 
                           - component: f7-row
                             config:
-                              visible: =props.isFloor = true
+                              visible: =props.isFloor == true
                               class:
                                 - display-flex
                                 - align-items-center
