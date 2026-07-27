@@ -220,7 +220,7 @@ widgets:
                               default:
                                 - component: Label
                                   config:
-                                    text: Fenster
+                                    text: "Fenster:"
 
                           - component: f7-row
                             config:
