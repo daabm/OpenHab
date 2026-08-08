@@ -1,0 +1,209 @@
+version: 1
+widgets:
+  follow_the_sun_floor_config:
+    tags:
+      - follow-the-sun
+    props:
+      parameters:
+        - description: Follow-the-Sun floor group, e.g. FollowTheSun_OG1
+          label: Floor Group Item
+          name: floor
+          required: true
+          type: TEXT
+        - context: item
+          description: Temperature item used as source for this floor or roller shutter group
+          label: Temperature Source Item
+          name: temperatureItem
+          required: false
+          type: TEXT
+    component: f7-card
+    config:
+      outline: true
+      title: "='Etage/Rolladengruppe: ' + props.floor"
+    slots:
+      default:
+        - component: f7-row
+          slots:
+            default:
+              - component: f7-col
+                config:
+                  medium: 50
+                  width: 100
+                slots:
+                  default:
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Allgemein
+                      slots:
+                        default:
+                          - component: oh-list
+                            config:
+                              inset: true
+                            slots:
+                              default:
+                                - component: oh-slider-item
+                                  config:
+                                    item: =props.floor + '_Threshold'
+                                    max: 1200
+                                    min: 0
+                                    step: 50
+                                    title: Schwellwert Sonne W/m²
+                                - component: oh-slider-item
+                                  config:
+                                    item: =props.floor + '_ClosingLevel'
+                                    max: 100
+                                    min: 0
+                                    step: 5
+                                    title: Schließposition
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_Debounce'
+                                    max: 7200
+                                    min: 0
+                                    step: 60
+                                    title: Verzögerung (Mindestschließzeit)
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_TempThreshold'
+                                    max: 40
+                                    min: 10
+                                    step: 1
+                                    title: Temperaturschwellwert
+                                - component: oh-list-item
+                                  config:
+                                    title: Temperaturquelle
+                                    subtitle: "='Selected in widget config: ' + (props.temperatureItem || 'not selected')"
+                                    after: "=items[props.floor + '_TemperatureItem'] ? items[props.floor + '_TemperatureItem'].state : '-'"
+                                    footer: Tap to apply the selected widget temperature item
+                                    action: command
+                                    actionItem: =props.floor + '_TemperatureItem'
+                                    actionCommand: =props.temperatureItem
+                                    visible: =!!props.temperatureItem
+                                - component: oh-list-item
+                                  config:
+                                    title: Temperaturquelle
+                                    subtitle: Not selected in widget config
+                                    after: "=items[props.floor + '_TemperatureItem'] ? items[props.floor + '_TemperatureItem'].state : '-'"
+                                    visible: =!props.temperatureItem
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Live-Werte
+                      slots:
+                        default:
+                          - component: f7-list
+                            slots:
+                              default:
+                                - component: f7-list-item
+                                  config:
+                                    after: "=items['Position_Azimuth']?.state ? items['Position_Azimuth'].displayState : ''"
+                                    title: Azimut Sonne
+                                - component: f7-list-item
+                                  config:
+                                    after: "=items['Position_Elevation']?.state ? items['Position_Elevation'].displayState : ''"
+                                    title: Elevation Sonne
+                                - component: f7-list-item
+                                  config:
+                                    after: "=items['FollowTheSun_EffectiveRadiation']?.state ? items['FollowTheSun_EffectiveRadiation'].displayState : ''"
+                                    title: Globalstrahlung
+                                - component: f7-list-item
+                                  config:
+                                    after: "=props.temperatureItem && items[props.temperatureItem]?.state ? items[props.temperatureItem].displayState : (items[props.floor + '_Temperature']?.state ? items[props.floor + '_Temperature'].displayState : '')"
+                                    title: Temperatur
+              - component: f7-col
+                config:
+                  medium: 50
+                  width: 100
+                slots:
+                  default:
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Steuerung
+                      slots:
+                        default:
+                          - component: oh-list
+                            config:
+                              inset: true
+                            slots:
+                              default:
+                                - component: oh-toggle-item
+                                  config:
+                                    item: =props.floor + '_Enabled'
+                                    title: Aktivieren
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Azimut Straße
+                      slots:
+                        default:
+                          - component: oh-list
+                            config:
+                              inset: true
+                            slots:
+                              default:
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_SE_AzimuthMin'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Minimum
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_SE_AzimuthMax'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Maximum
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Azimut Hof
+                      slots:
+                        default:
+                          - component: oh-list
+                            config:
+                              inset: true
+                            slots:
+                              default:
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_SW_AzimuthMin'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Minimum
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_SW_AzimuthMax'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Maximum
+                    - component: f7-card
+                      config:
+                        outline: true
+                        title: Azimut Garten
+                      slots:
+                        default:
+                          - component: oh-list
+                            config:
+                              inset: true
+                            slots:
+                              default:
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_NW_AzimuthMin'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Minimum
+                                - component: oh-stepper-item
+                                  config:
+                                    item: =props.floor + '_NW_AzimuthMax'
+                                    max: 360
+                                    min: 0
+                                    step: 1
+                                    title: Maximum

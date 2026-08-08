@@ -1,0 +1,73 @@
+version: 1
+widgets:
+  cal-wasteschedule3:
+    tags: []
+    props:
+      parameters: []
+      parameterGroups: []
+    component: f7-card
+    config:
+      stylesheet: |
+        .icon {
+          width: 18px !important;
+          height: 18px !important;
+          font-size: 18px !important;
+        }
+    slots:
+      default:
+        - component: f7-card-content
+          slots:
+            default:
+              - component: f7-list
+                config:
+                  mediaList: true
+                slots:
+                  default:
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung0_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung0_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung0_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow")'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung0_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung0_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung0_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung0_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung0_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung0_Titel.state
+                        visible: '=items.AbfallAbholung0_Start.state == "UNDEF" ? false : true'
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung1_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung1_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung1_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow" )'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung1_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung1_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung1_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung1_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung1_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung1_Titel.state
+                        visible: '=items.AbfallAbholung1_Start.state == "UNDEF" ? false : true'
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung2_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung2_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung2_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow" )'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung2_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung2_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung2_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung2_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung2_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung2_Titel.state
+                        visible: '=items.AbfallAbholung2_Start.state == "UNDEF" ? false : true'
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung3_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung3_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung3_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow" )'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung3_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung3_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung3_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung3_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung3_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung3_Titel.state
+                        visible: '=items.AbfallAbholung3_Start.state == "UNDEF" ? false : true'
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung4_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung4_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung4_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow" )'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung4_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung4_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung4_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung4_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung4_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung4_Titel.state
+                        visible: '=items.AbfallAbholung4_Start.state == "UNDEF" ? false : true'
+                    - component: oh-list-item
+                      config:
+                        badge: '=((dayjs(items.AbfallAbholung5_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "Heute" : (dayjs(items.AbfallAbholung5_Start.state).diff(dayjs().startOf("day"), "days")) == 1 ? "Morgen" : false)'
+                        badgeColor: '=((dayjs(items.AbfallAbholung5_Start.state).diff(dayjs().startOf("day"), "days")) == 0 ? "red" : "yellow" )'
+                        icon: f7:trash
+                        iconColor: '=( items.AbfallAbholung5_Titel.state.match( "Altpapier" ) ? "green" : ( items.AbfallAbholung5_Titel.state.match( "Bio" ) ? "deeporange" : ( items.AbfallAbholung5_Titel.state.match( "Rest" ) ? "gray" : ( items.AbfallAbholung5_Titel.state.match( "Gelb" ) ? "yellow" : "white" ))))'
+                        title: =dayjs(items.AbfallAbholung5_Start.state).format("DD. MMM") + " - " + items.AbfallAbholung5_Titel.state
+                        visible: '=items.AbfallAbholung5_Start.state == "UNDEF" ? false : true'

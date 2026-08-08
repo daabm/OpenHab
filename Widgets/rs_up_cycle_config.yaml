@@ -6,40 +6,34 @@ widgets:
       - config
     props:
       parameters:
-        - name: group
-          label: Rollershutter floor group
+        - context: item
           description: Base rollershutter floor group, for example RSEG, RSOG1, RSOG2
-          type: TEXT
-          context: item
+          label: Rollershutter floor group
+          name: group
           required: true
-
-        - name: title
+          type: TEXT
+        - description: Optional widget title
           label: Title
-          description: Optional widget title
-          type: TEXT
+          name: title
           required: false
-
-        - name: referenceItem
-          label: Reference item
+          type: TEXT
+        - context: item
           description: Rollershutter item used to detect manual re-closing
-          type: TEXT
-          context: item
+          label: Reference item
+          name: referenceItem
           required: false
-
+          type: TEXT
       parameterGroups: []
-
     component: oh-list-card
     config:
       title: "=props.title ? props.title : props.group + ' Öffnungszyklus'"
-
     slots:
       default:
         - component: oh-toggle-item
           config:
             title: Öffnungszyklus aktiv
-            subtitle: "=props.group + '_UpCycleEnabled'"
-            item: "=props.group + '_UpCycleEnabled'"
-
+            subtitle: =props.group + '_UpCycleEnabled'
+            item: =props.group + '_UpCycleEnabled'
         - component: oh-list-item
           config:
             title: Öffnungszyklus manuell auslösen
@@ -48,71 +42,64 @@ widgets:
             icon: f7:play_circle
             action: command
             actionItem: RS_UpCycleManualTrigger
-            actionCommand: "=props.group"
-            visible: "=!!props.group"
-            
+            actionCommand: =props.group
+            visible: =!!props.group
         - component: oh-input-item
           config:
             title: Startzeit Werktag
             subtitle: Montag bis Freitag, Format HH:mm
-            item: "=props.group + '_UpCycleStartTimeWeekday'"
+            item: =props.group + '_UpCycleStartTimeWeekday'
             type: time
             sendButton: true
             clearButton: true
-            placeholder: "07:00"
-
+            placeholder: 07:00
         - component: oh-input-item
           config:
             title: Startzeit Samstag
             subtitle: Format HH:mm
-            item: "=props.group + '_UpCycleStartTimeSaturday'"
+            item: =props.group + '_UpCycleStartTimeSaturday'
             type: time
             sendButton: true
             clearButton: true
-            placeholder: "09:00"
-
+            placeholder: 09:00
         - component: oh-input-item
           config:
             title: Startzeit Sonntag
             subtitle: Format HH:mm
-            item: "=props.group + '_UpCycleStartTimeSunday'"
+            item: =props.group + '_UpCycleStartTimeSunday'
             type: time
             sendButton: true
             clearButton: true
-            placeholder: "09:30"
-
+            placeholder: 09:30
         - component: oh-input-item
           config:
             title: Startzeit Feiertag
             subtitle: Feiertag hat Vorrang vor Wochentag/Samstag/Sonntag
-            item: "=props.group + '_UpCycleStartTimeHoliday'"
+            item: =props.group + '_UpCycleStartTimeHoliday'
             type: time
             sendButton: true
             clearButton: true
-            placeholder: "09:30"
-
+            placeholder: 09:30
         - component: oh-stepper-item
           config:
             title: Dauer
             subtitle: Gesamtdauer des Öffnungszyklus in Minuten
-            item: "=props.group + '_UpCycleTime'"
+            item: =props.group + '_UpCycleTime'
             min: 0
             max: 240
             step: 5
             autorepeat: true
             autorepeatDynamic: false
-
         - component: oh-stepper-item
           config:
             title: Schritte
             subtitle: Anzahl der Öffnungsschritte
-            item: "=props.group + '_UpCycleSteps'"
+            item: =props.group + '_UpCycleSteps'
             min: 1
             max: 30
             step: 1
             autorepeat: true
             autorepeatDynamic: false
-
         - component: oh-list-item
           config:
             title: Referenz Item
@@ -120,54 +107,46 @@ widgets:
             after: "=items[props.group + '_UpCycleReferenceItem'] ? items[props.group + '_UpCycleReferenceItem'].state : '-'"
             footer: Tap to apply the selected widget reference item
             action: command
-            actionItem: "=props.group + '_UpCycleReferenceItem'"
-            actionCommand: "=props.referenceItem"
-            visible: "=!!props.referenceItem"
-
+            actionItem: =props.group + '_UpCycleReferenceItem'
+            actionCommand: =props.referenceItem
+            visible: =!!props.referenceItem
         - component: oh-list-item
           config:
             title: Referenz Item
             subtitle: Not selected in widget config
             after: "=items[props.group + '_UpCycleReferenceItem'] ? items[props.group + '_UpCycleReferenceItem'].state : '-'"
-            visible: "=!props.referenceItem"
-
+            visible: =!props.referenceItem
         - component: oh-stepper-item
           config:
             title: Referenztoleranz
             subtitle: Toleranz für manuelles Wiederschließen in Prozentpunkten
-            item: "=props.group + '_UpCycleReferenceTolerance'"
+            item: =props.group + '_UpCycleReferenceTolerance'
             min: 0
             max: 50
             step: 1
             autorepeat: true
             autorepeatDynamic: false
-
         - component: oh-list-item
           config:
             title: Aktive Konfiguration
-            subtitle: "=props.group"
+            subtitle: =props.group
             after: "=items[props.group + '_UpCycleEnabled'] ? items[props.group + '_UpCycleEnabled'].state : '-'"
-
         - component: oh-list-item
           config:
             title: Werktag
             after: "=items[props.group + '_UpCycleStartTimeWeekday'] ? items[props.group + '_UpCycleStartTimeWeekday'].state : '-'"
-
         - component: oh-list-item
           config:
             title: Samstag
             after: "=items[props.group + '_UpCycleStartTimeSaturday'] ? items[props.group + '_UpCycleStartTimeSaturday'].state : '-'"
-
         - component: oh-list-item
           config:
             title: Sonntag
             after: "=items[props.group + '_UpCycleStartTimeSunday'] ? items[props.group + '_UpCycleStartTimeSunday'].state : '-'"
-
         - component: oh-list-item
           config:
             title: Feiertag
             after: "=items[props.group + '_UpCycleStartTimeHoliday'] ? items[props.group + '_UpCycleStartTimeHoliday'].state : '-'"
-
         - component: oh-list-item
           config:
             title: Referenz
