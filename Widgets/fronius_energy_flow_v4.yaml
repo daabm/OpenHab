@@ -319,6 +319,8 @@ widgets:
       comment: This component determines the size of the widget.
       outline: true
       title: =props.title
+      style:
+        border-radius: 0px
     slots:
       default:
         - component: oh-context
@@ -345,6 +347,7 @@ widgets:
                     height: 100%
                     padding: 5%
                     width: 100%
+                    radius: 0px
                 slots:
                   default:
                     - component: svg
